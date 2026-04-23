@@ -3,1673 +3,882 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>IlliniCare · Mental Wellness</title>
+  <title>MindCare · Mental Wellness</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sofia+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-    :root {
-      --sage:        #8A9E88;
-      --sage-mid:    #A8B8A5;
-      --sage-light:  #C5D0C2;
-      --cream:       #EBE6DC;
-      --stone:       #C8BEB0;
-      /* text tokens — near-black for 4.5:1 contrast (WCAG AA) */
-      --deep:        #111110;
-      --deep-80:     rgba(15,15,12,0.88);
-      --deep-60:     rgba(15,15,12,0.72);
-      --deep-40:     rgba(15,15,12,0.52);
-      --deep-20:     rgba(15,15,12,0.20);
-      /* glass tokens */
-      --glass:       rgba(255,255,255,0.52);
-      --glass-mid:   rgba(255,255,255,0.64);
-      --glass-hi:    rgba(255,255,255,0.76);
-      --glass-bdr:   rgba(255,255,255,0.55);
-      --orange:      #C85000;
-      --r:           24px;
-      --display:     'Cormorant Garamond', Georgia, serif;
-      --body:        'Jost', system-ui, sans-serif;
-    }
-
-    html {
-      width: 100%; height: 100%;
-    }
-
+    html, body { width: 100%; height: 100%; }
     body {
-      width: 100%; min-height: 100%;
-      background: linear-gradient(160deg, #D8DDD4 0%, #C8D0C4 50%, #B8C8CC 100%);
+      background: #ddd7ce;
       display: flex; align-items: center; justify-content: center;
-      font-family: var(--body);
+      font-family: 'Sofia Sans', system-ui, sans-serif;
       -webkit-font-smoothing: antialiased;
       padding: 24px 0;
     }
-
-    /* ── PHONE FRAME ── */
-    .phone {
-      width: 390px; height: 844px;
-      flex-shrink: 0;
-      position: relative; overflow: hidden;
-      border-radius: 52px;
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,0.18),
-        0 0 0 11px #1A1A18,
-        0 0 0 12px rgba(255,255,255,0.08),
-        0 40px 90px rgba(0,0,0,0.55),
-        inset 0 1px 0 rgba(255,255,255,0.12);
-    }
-    @media (max-width: 450px) {
-      body { padding: 0; overflow: hidden; height: 100vh; }
-      .phone {
-        width: 100vw;
-        height: 100vh;
-        height: 100dvh;
-        border-radius: 0;
-        box-shadow: none;
-      }
-    }
-
-    /* ── VIDEO BACKGROUND ── */
-    .video-bg {
-      position: absolute; inset: 0; z-index: 0;
-      overflow: hidden;
-      /* gradient fallback shown instantly while video loads or if blocked */
-      background: linear-gradient(170deg,
-        #f5c5b0 0%, #f0b8a8 15%, #e8c4b8 30%,
-        #d4cfe8 50%, #bfd0e8 65%,
-        #ccd8e8 80%, #d8e4ec 100%);
-    }
-    .video-bg video {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      /* show the top of the video — where the pink sunset horizon lives */
-      object-position: center 20%;
-      /* let the warm sunset tones breathe */
-      filter: saturate(0.95) brightness(1.04);
-    }
-    /* fade cards into the sky — bottom-heavy overlay only */
-    .video-bg::after {
-      content: '';
-      position: absolute; inset: 0;
-      background: linear-gradient(
-        to bottom,
-        transparent 0%,
-        transparent 52%,
-        rgba(230,228,224,0.30) 72%,
-        rgba(224,222,218,0.50) 100%
-      );
-      pointer-events: none;
-    }
-
-    /* open-sky spacer — tuned so everything fits without scroll */
-    .sky-spacer { height: 52px; }
-
-    /* ── APP SHELL ── */
-    .shell {
-      position: absolute; inset: 0; z-index: 2;
-      display: flex; flex-direction: column; overflow: hidden;
-    }
-
-    /* ── STATUS BAR ── */
-    .status-bar {
-      flex-shrink: 0;
-      padding: 14px 28px 0;
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .status-time { font-weight: 600; font-size: 15px; color: rgba(44,42,36,0.80); letter-spacing: -.3px; }
-    .status-icons { display: flex; gap: 6px; align-items: center; }
-
-    /* ── SCREEN CONTAINER ── */
-    .screens { flex: 1; position: relative; overflow: hidden; }
-
-    /* ── SCREEN (default scrollable) ── */
-    .screen {
-      position: absolute; inset: 0;
-      overflow-y: auto; overflow-x: hidden;
-      padding-bottom: 96px;
-      scrollbar-width: none;
-    }
-    .screen::-webkit-scrollbar { display: none; }
-    /* home screen: no scroll, fits the full frame */
-    .screen-home {
-      overflow: hidden;
-      padding-bottom: 0;
-      display: flex; flex-direction: column;
-    }
-
-    /* ── SCREEN (chat layout — flex column, no outer scroll) ── */
-    .screen-chat {
-      position: absolute; top: 0; left: 0; right: 0; bottom: 72px;
-      overflow: hidden;
-      display: flex; flex-direction: column;
-    }
-
-    /* ── GLASS CARDS — true frosted glass, lower opacity = more blur visible ── */
-    .glass {
-      background: rgba(255,255,255,0.38);
-      border: 1px solid rgba(255,255,255,0.60);
-      backdrop-filter: blur(48px) saturate(140%);
-      -webkit-backdrop-filter: blur(48px) saturate(140%);
-      border-radius: var(--r);
-      box-shadow: 0 2px 12px rgba(44,42,36,0.06), 0 10px 40px rgba(44,42,36,0.08);
-    }
-    .glass-hi {
-      background: rgba(255,255,255,0.48);
-      border: 1px solid rgba(255,255,255,0.70);
-      backdrop-filter: blur(56px) saturate(150%);
-      -webkit-backdrop-filter: blur(56px) saturate(150%);
-      border-radius: var(--r);
-      box-shadow: 0 2px 16px rgba(44,42,36,0.07), 0 12px 48px rgba(44,42,36,0.09);
-    }
-
-    /* ── BOTTOM NAV — floating pill ── */
-    .bottom-nav {
-      position: absolute; bottom: 18px; left: 18px; right: 18px;
-      height: 62px;
-      background: rgba(245,242,236,0.90);
-      border: none;
-      backdrop-filter: blur(40px) saturate(130%);
-      -webkit-backdrop-filter: blur(40px) saturate(130%);
-      border-radius: 32px;
-      display: flex; align-items: center; justify-content: space-around;
-      padding: 0 10px;
-      z-index: 100;
-      box-shadow:
-        0 2px 8px rgba(44,42,36,0.08),
-        0 8px 32px rgba(44,42,36,0.12),
-        inset 0 1px 0 rgba(255,255,255,0.70);
-    }
-    .nav-btn {
-      display: flex; flex-direction: column; align-items: center; gap: 2px;
-      padding: 6px 8px; cursor: pointer;
-      border-radius: 20px; border: none; background: none;
-      transition: all .22s ease;
-      min-width: 52px;
-    }
-    .nav-btn.active { background: rgba(44,42,36,0.08); }
-    .nav-emoji {
-      font-size: 19px; line-height: 1;
-      filter: grayscale(0.4) opacity(0.4);
-      transition: filter .22s, transform .22s;
-    }
-    .nav-btn.active .nav-emoji {
-      filter: grayscale(0) opacity(1);
-      transform: scale(1.10);
-    }
-    .nav-label {
-      font-size: 9px; font-weight: 500; letter-spacing: .2px;
-      color: rgba(44,42,36,0.35); transition: color .22s;
-    }
-    .nav-btn.active .nav-label { color: rgba(44,42,36,0.82); }
-    /* active dot indicator */
-    .nav-btn.active .nav-label {
-      position: relative;
-    }
-    .nav-dot {
-      width: 4px; height: 4px; border-radius: 50%;
-      background: rgba(44,42,36,0.55);
-      margin: 0 auto; margin-top: 2px;
-      opacity: 0; transition: opacity .22s;
-    }
-    .nav-btn.active .nav-dot { opacity: 1; }
-
-    /* ── ANIMATIONS ── */
-    @keyframes fadeUp   { from { transform: translateY(18px); opacity: 0; } to { transform: none; opacity: 1; } }
-    @keyframes slideUp  { from { transform: translateY(100%); } to { transform: none; } }
-    @keyframes spin     { to { transform: rotate(360deg); } }
-    @keyframes typeBounce {
-      0%, 60%, 100% { transform: translateY(0); }
-      30%           { transform: translateY(-5px); }
-    }
-
-    .fade-up { animation: fadeUp .45s ease-out both; }
-    .d1 { animation-delay: .06s; } .d2 { animation-delay: .12s; }
-    .d3 { animation-delay: .18s; } .d4 { animation-delay: .24s; }
-    .d5 { animation-delay: .30s; } .d6 { animation-delay: .36s; }
-
-    /* ── HOME ── */
-    .home-header {
-      padding: 18px 26px 0;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .avatar-wrap { display: flex; align-items: center; gap: 12px; }
-    .avatar {
-      width: 46px; height: 46px; border-radius: 50%;
-      background: rgba(255,255,255,0.72);
-      border: none;
-      display: flex; align-items: center; justify-content: center; font-size: 22px;
-      box-shadow: 0 2px 16px rgba(44,42,36,0.12);
-    }
-    /* streak pill */
-    .streak-badge {
-      padding: 5px 11px; border-radius: 18px;
-      background: rgba(255,190,60,0.18); border: 1px solid rgba(255,170,40,0.28);
-      font-size: 12px; font-weight: 600; color: rgba(44,38,10,0.80);
-      display: flex; align-items: center; gap: 3px; letter-spacing: .1px;
-    }
-
-    .greet-sub  {
-      font-size: 11px; color: var(--deep-40); font-weight: 400;
-      letter-spacing: .3px; margin-bottom: 2px;
-    }
-    .greet-name { font-family: var(--display); font-size: 22px; font-weight: 600; color: var(--deep); line-height: 1.2; letter-spacing: -.2px; }
-    .header-right { display: flex; gap: 10px; align-items: center; }
-    .menu-btn {
-      width: 40px; height: 40px; border-radius: 50%;
-      background: rgba(255,255,255,0.62); border: none;
-      backdrop-filter: blur(20px);
-      box-shadow: 0 2px 12px rgba(44,42,36,0.10);
-      display: flex; align-items: center; justify-content: center; cursor: pointer;
-    }
-
-    /* (sky-spacer defined in grain section above) */
-
-    .daily-thought { padding: 0 28px 20px; }
-    .thought-label {
-      font-size: 11px; font-weight: 500; letter-spacing: .8px;
-      text-transform: uppercase;
-      color: rgba(44,42,36,0.42); margin-bottom: 8px;
-    }
-    .thought-quote {
-      font-family: var(--display);
-      font-size: 42px; font-weight: 600;
-      color: var(--deep); line-height: 1.08; letter-spacing: -.3px;
-    }
-
-    /* condition card */
-    .cond-card   { margin: 0 22px 2px; padding: 10px 16px 8px; }
-    .cond-head   { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .cond-title  { font-size: 10.5px; font-weight: 600; color: var(--deep-40);
-                   letter-spacing: .8px; text-transform: uppercase; }
-    .toggle-grp  { display: flex; background: rgba(44,42,36,0.06); border-radius: 22px; padding: 3px; }
-    .tog {
-      padding: 5px 14px; border-radius: 18px; font-size: 11px; font-weight: 500;
-      border: none; cursor: pointer; color: var(--deep-40); background: transparent;
-      font-family: var(--body); transition: all .22s;
-    }
-    .tog.on { background: rgba(255,255,255,0.88); color: var(--deep);
-              box-shadow: 0 1px 8px rgba(44,42,36,0.10); }
-    .cond-body   { display: flex; gap: 18px; align-items: flex-start; }
-    .cond-date   {
-      text-align: center; min-width: 44px;
-      padding-right: 16px;
-      border-right: 1px solid rgba(44,42,36,0.08);
-    }
-    .cond-day    { font-family: var(--display); font-size: 40px; font-weight: 300;
-                   color: var(--deep); line-height: 1; }
-    .cond-month  { font-size: 10px; color: var(--deep-40); font-weight: 600;
-                   text-transform: uppercase; letter-spacing: .6px; margin-top: 2px; }
-    .cond-text   { flex: 1; font-size: 12px; line-height: 1.65; color: var(--deep-60); }
-    /* soft pill CTA */
-    .sol-btn {
-      display: inline-flex; align-items: center; gap: 6px;
-      margin-top: 8px; padding: 7px 16px;
-      background: rgba(44,42,36,0.06); color: var(--deep-60);
-      border: none; border-radius: 22px; font-family: var(--body);
-      font-size: 12px; font-weight: 500; letter-spacing: .2px;
-      cursor: pointer; transition: background .22s;
-    }
-    .sol-btn::after { content: '→'; font-size: 13px; color: var(--deep-40); }
-    .sol-btn:hover { background: rgba(44,42,36,0.11); }
-
-    /* ── ESSENTIALS SECTION ── */
-    .essentials-wrap {
-      padding: 6px 18px 100px;
-      display: flex; flex-direction: column;
-    }
-    .essentials-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 10px;
-    }
-    .essentials-title {
-      font-family: var(--display);
-      font-size: 18px; font-weight: 600;
-      color: var(--deep); letter-spacing: -.2px;
-    }
-    .essentials-more {
-      width: 32px; height: 32px; border-radius: 50%; border: none;
-      background: rgba(44,42,36,0.07);
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; color: var(--deep);
-    }
-    .feats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    .feat-card {
-      background: rgba(255,255,255,0.52);
-      border: 1px solid rgba(255,255,255,0.72);
-      backdrop-filter: blur(48px) saturate(130%);
-      -webkit-backdrop-filter: blur(48px) saturate(130%);
-      border-radius: 22px;
-      padding: 18px 16px 16px;
-      box-shadow: 0 2px 10px rgba(44,42,36,0.05), 0 8px 28px rgba(44,42,36,0.07);
-      cursor: pointer; transition: transform .20s ease, box-shadow .20s ease;
-      display: flex; flex-direction: column;
-      justify-content: space-between;
-      min-height: 158px;
-      overflow: hidden;
-      position: relative;
-    }
-    .feat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(44,42,36,0.09), 0 14px 40px rgba(44,42,36,0.10); }
-    .feat-card:active { transform: scale(.97); }
-    /* card top: title + desc */
-    .feat-card-top { flex: 1; }
-    .feat-card-name {
-      font-family: var(--display);
-      font-size: 20px; font-weight: 600;
-      color: var(--deep); line-height: 1.18;
-      letter-spacing: -.2px; margin-bottom: 6px;
-    }
-    .feat-card-desc {
-      font-size: 11.5px; font-weight: 400;
-      color: rgba(44,42,36,0.50); line-height: 1.48;
-    }
-    /* card bottom: arrow left, illustration right */
-    .feat-card-footer {
-      display: flex; align-items: flex-end;
-      justify-content: space-between;
-      margin-top: 14px;
-    }
-    .feat-arrow {
-      width: 30px; height: 30px; border-radius: 50%; border: none;
-      background: rgba(44,42,36,0.09);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px; color: var(--deep); line-height: 1;
-      flex-shrink: 0;
-    }
-    .feat-illus {
-      font-size: 44px; line-height: 1;
-      opacity: 0.55; margin-bottom: -4px;
-      filter: saturate(0.6);
-    }
-
-    /* ── MOOD CHECK-IN ── */
-    .sheet-overlay {
-      position: absolute; inset: 0; z-index: 200;
-      background: rgba(0,0,0,.35); backdrop-filter: blur(4px);
-      display: flex; align-items: flex-end;
-    }
-    .sheet {
-      width: 100%; padding: 20px 28px 48px;
-      border-radius: 32px 32px 0 0;
-      background: rgba(242,240,236,0.97);
-      border-top: none;
-      box-shadow: 0 -4px 32px rgba(44,42,36,0.10);
-      animation: slideUp .38s cubic-bezier(.32,.72,0,1);
-    }
-    .sheet-handle { width: 36px; height: 4px; background: rgba(40,38,30,.2); border-radius: 2px; margin: 0 auto 20px; }
-    .sheet-title  { font-family: var(--display); font-size: 28px; font-weight: 400; color: var(--deep); margin-bottom: 4px; }
-    .sheet-sub    { font-size: 12px; color: var(--deep-60); margin-bottom: 22px; }
-
-    .mood-row   { display: flex; justify-content: space-between; margin-bottom: 22px; }
-    .mood-opt   {
-      display: flex; flex-direction: column; align-items: center; gap: 6px;
-      padding: 10px 6px; border-radius: 16px; border: 2px solid transparent;
-      cursor: pointer; background: transparent; transition: all .2s; min-width: 56px;
-    }
-    .mood-opt.sel { background: rgba(255,255,255,.52); border-color: rgba(255,255,255,.82); }
-    .m-emoji { font-size: 28px; }
-    .m-label { font-size: 10px; font-weight: 500; color: var(--deep-60); }
-
-    .tags-lbl  { font-size: 11px; font-weight: 600; letter-spacing: .6px; text-transform: uppercase; color: var(--deep-40); margin-bottom: 9px; }
-    .tags-wrap { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 18px; }
-    .tag-pill  {
-      padding: 6px 13px; border-radius: 20px;
-      border: 1px solid rgba(40,38,30,.2); background: transparent;
-      font-family: var(--body); font-size: 12px; color: var(--deep-60);
-      cursor: pointer; transition: all .2s;
-    }
-    .tag-pill.on { background: rgba(36,34,26,.74); border-color: transparent; color: rgba(255,255,255,.92); }
-
-    .note-ta {
-      width: 100%; background: rgba(255,255,255,.34);
-      border: 1px solid rgba(255,255,255,.52); border-radius: 14px;
-      padding: 11px 14px; font-family: var(--body); font-size: 13px;
-      color: var(--deep); resize: none; outline: none; margin-bottom: 18px;
-    }
-    .note-ta::placeholder { color: var(--deep-40); }
-
-    .primary-btn {
-      width: 100%; padding: 16px;
-      background: rgba(44,42,36,0.78); color: rgba(255,255,255,.94);
-      border: none; border-radius: 20px; font-family: var(--body);
-      font-size: 15px; font-weight: 500; cursor: pointer; transition: all .2s;
-      letter-spacing: .2px;
-    }
-    .primary-btn:hover { background: rgba(44,42,36,0.90); }
-
-    /* ── GENERIC HEADER ── */
-    .scr-header { padding: 18px 24px 0; display: flex; align-items: center; justify-content: space-between; }
-    .scr-title  { font-family: var(--display); font-size: 30px; font-weight: 400; color: var(--deep); }
-    .back-btn   {
-      width: 36px; height: 36px; border-radius: 12px;
-      background: var(--glass-mid); border: 1px solid var(--glass-bdr);
-      display: flex; align-items: center; justify-content: center; cursor: pointer;
-    }
-    .chat-head-title { flex: 1; margin-left: 12px; }
-    .cht-main { font-size: 16px; font-weight: 600; color: var(--deep); }
-    .cht-sub  { font-size: 11px; color: var(--deep-60); }
-
-    /* ── INSIGHTS ── */
-    .stats-row { display: flex; gap: 10px; padding: 0 24px; margin: 14px 0 0; }
-    .stat-card { flex: 1; padding: 14px; text-align: center; }
-    .stat-num  { font-family: var(--display); font-size: 32px; font-weight: 400; color: var(--deep); line-height: 1; }
-    .stat-lbl  { font-size: 10px; font-weight: 500; color: var(--deep-60); margin-top: 3px; letter-spacing: .2px; }
-
-    .chart-card { margin: 14px 24px; padding: 16px; }
-    .chart-sub  { font-size: 11px; color: var(--deep-60); margin-bottom: 12px; font-weight: 500; letter-spacing: .2px; }
-
-    /* ── MOOD CALENDAR ── */
-    .cal-card   { margin: 14px 24px; padding: 16px 14px 14px; }
-    .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-    .cal-title  { font-size: 13px; font-weight: 600; color: var(--deep); }
-    .cal-count  { font-size: 11px; color: var(--deep-60); }
-    .cal-plus   { width: 28px; height: 28px; border-radius: 50%; background: rgba(44,42,36,0.10);
-                  border: none; cursor: pointer; font-size: 16px; color: var(--deep);
-                  display: flex; align-items: center; justify-content: center; }
-    .cal-dow    { display: grid; grid-template-columns: repeat(7,1fr); margin-bottom: 4px; }
-    .cal-dow span { text-align: center; font-size: 10px; font-weight: 600; color: var(--deep-40);
-                    letter-spacing: .3px; padding: 2px 0; }
-    .cal-grid   { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; }
-    .cal-cell   { aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-                  border-radius: 50%; font-size: 11px; color: rgba(44,42,36,0.35); font-weight: 600;
-                  position: relative; cursor: default; }
-    .cal-cell.today { background: rgba(44,42,36,0.12); box-shadow: 0 0 0 2.5px rgba(44,42,36,0.70); }
-    .cal-cell.has-entry { font-size: 22px; color: rgba(0,0,0,1); }
-    .cal-cell.today.has-entry { box-shadow: 0 0 0 2.5px rgba(44,42,36,0.80); }
-    .cal-cell.empty { opacity: 0; pointer-events: none; }
-    .cal-cell.has-entry { cursor: pointer; transition: transform .15s; }
-    .cal-cell.has-entry:active { transform: scale(0.85); }
-    .cal-cell.selected { box-shadow: 0 0 0 2.5px var(--deep); background: rgba(44,42,36,0.08); }
-
-    /* ── DAY DETAIL CARD ── */
-    .day-detail {
-      margin: 10px 0 0; padding: 12px 14px;
-      background: rgba(255,255,255,0.55); border-radius: 16px;
-      border: 1px solid rgba(255,255,255,0.65);
-      display: flex; align-items: center; gap: 14px;
-      animation: fadeUp .25s ease both;
-    }
-    .day-detail-emoji { font-size: 32px; flex-shrink: 0; }
-    .day-detail-info  { flex: 1; }
-    .day-detail-date  { font-size: 11px; color: var(--deep-40); font-weight: 600; letter-spacing: .3px; }
-    .day-detail-label { font-size: 16px; font-weight: 600; color: var(--deep); margin: 2px 0; }
-    .day-detail-tags  { font-size: 11px; color: var(--deep-60); }
-    .day-detail-note  { font-size: 11px; color: var(--deep-60); font-style: italic; margin-top: 3px; }
-
-    .sec-label { font-size: 11px; font-weight: 600; letter-spacing: .8px; text-transform: uppercase; color: var(--deep-40); padding: 14px 24px 6px; }
-
-    .history-list { padding: 0 24px; display: flex; flex-direction: column; gap: 9px; }
-    .hist-row { display: flex; align-items: center; gap: 14px; padding: 12px 15px; }
-    .hist-date { text-align: center; min-width: 34px; }
-    .hist-d  { font-family: var(--display); font-size: 22px; font-weight: 400; color: var(--deep); line-height: 1; }
-    .hist-m  { font-size: 9px; color: var(--deep-60); font-weight: 500; text-transform: uppercase; }
-    .hist-emoji { font-size: 22px; }
-    .hist-info  { flex: 1; }
-    .hist-name  { font-size: 13px; font-weight: 500; color: var(--deep); }
-    .hist-tags  { font-size: 11px; color: var(--deep-60); }
-
-    /* ── CHAT ── */
-    .msgs-wrap { flex: 1; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
-    .msgs-wrap::-webkit-scrollbar { display: none; }
-    .msgs-inner { padding: 8px 20px; display: flex; flex-direction: column; gap: 11px; }
-
-    .bubble {
-      max-width: 78%; padding: 11px 15px;
-      font-size: 13px; line-height: 1.55;
-      border-radius: 18px;
-      animation: fadeUp .28s ease-out both;
-    }
-    .bubble.bot {
-      align-self: flex-start; border-bottom-left-radius: 5px;
-      background: rgba(255,255,255,.44); border: 1px solid rgba(255,255,255,.62);
-      backdrop-filter: blur(12px); color: var(--deep);
-    }
-    .bubble.me {
-      align-self: flex-end; border-bottom-right-radius: 5px;
-      background: rgba(36,34,26,.76); color: rgba(255,255,255,.94);
-    }
-
-    .typing-ind { display: flex; gap: 4px; align-items: center; padding: 12px 14px; }
-    .typing-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--deep-40); animation: typeBounce 1.4s infinite; }
-    .typing-dot:nth-child(2) { animation-delay: .2s; }
-    .typing-dot:nth-child(3) { animation-delay: .4s; }
-
-    /* ── AI CHAT LANDING ── */
-    .ai-landing {
-      padding: 0; display: flex; flex-direction: column; flex: 1; min-height: 0;
-    }
-    .ai-top-bar {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 20px 8px; flex-shrink: 0;
-    }
-    .ai-top-back { width: 34px; height: 34px; border-radius: 50%;
-      background: rgba(255,255,255,0.35); border: 1px solid rgba(44,42,36,0.06);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px; color: var(--deep); cursor: pointer; }
-    .ai-top-title { font-family: var(--display); font-size: 18px; font-weight: 600;
-      color: var(--deep); letter-spacing: -.2px; }
-    .ai-top-plus { width: 34px; height: 34px; border-radius: 50%;
-      background: rgba(255,255,255,0.35); border: 1px solid rgba(44,42,36,0.06);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px; color: var(--deep); cursor: pointer; }
-
-    /* greeting card */
-    .ai-greet-card {
-      margin: 6px 18px 14px; padding: 22px 20px 18px;
-      background: rgba(255,255,255,0.32);
-      backdrop-filter: blur(28px) saturate(130%);
-      -webkit-backdrop-filter: blur(28px) saturate(130%);
-      border-radius: 22px; border: 1px solid rgba(255,255,255,0.50);
-    }
-    .ai-greet-row {
-      display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
-    }
-    .ai-greet-text {
-      font-family: var(--body); font-size: 13px; font-weight: 500; color: var(--deep);
-      letter-spacing: .1px;
-    }
-    .ai-greet-avatar {
-      width: 28px; height: 28px; border-radius: 50%;
-      background: linear-gradient(135deg, rgba(255,200,180,0.6), rgba(255,160,140,0.3));
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px;
-    }
-    .ai-greet-msg {
-      font-family: var(--display); font-size: 24px; font-weight: 600;
-      color: var(--deep); line-height: 1.18;
-      letter-spacing: -.3px;
-    }
-    .ai-greet-msg .ai-highlight {
-      display: inline-flex; align-items: center; gap: 4px;
-      background: rgba(255,200,180,0.30); border-radius: 8px; padding: 1px 6px;
-    }
-    .ai-greet-meta {
-      display: flex; align-items: center; gap: 12px;
-      margin-top: 14px; font-family: var(--body); font-size: 10px; color: var(--deep-40);
-      font-weight: 500; letter-spacing: .3px;
-    }
-    .ai-greet-meta span { display: flex; align-items: center; gap: 3px; }
-
-    /* combined greeting + insight card */
-    .ai-combined-card {
-      margin: 6px 18px 12px;
-      background: rgba(255,255,255,0.32);
-      backdrop-filter: blur(28px) saturate(130%);
-      -webkit-backdrop-filter: blur(28px) saturate(130%);
-      border-radius: 22px; border: 1px solid rgba(255,255,255,0.50);
-      overflow: hidden;
-      display: flex; flex-direction: column;
-    }
-    .ai-combined-top {
-      padding: 22px 20px 0;
-    }
-    /* expand toggle button */
-    .ai-expand-btn {
-      display: flex; align-items: center; justify-content: center;
-      padding: 10px 0 12px; cursor: pointer;
-      border: none; background: transparent; width: 100%;
-      color: var(--deep-40); transition: color .2s;
-    }
-    .ai-expand-btn:hover { color: var(--deep-60); }
-    .ai-expand-chevron {
-      display: flex; align-items: center; justify-content: center;
-      width: 26px; height: 26px; border-radius: 50%;
-      background: rgba(44,42,36,0.06);
-      transition: transform .32s cubic-bezier(.32,.72,0,1);
-    }
-    .ai-expand-chevron.open { transform: rotate(180deg); }
-
-    /* insight card */
-    .ai-insight-card {
-      background: linear-gradient(165deg, rgba(255,225,200,0.30), rgba(255,200,180,0.15), rgba(255,240,230,0.20));
-      border-top: 1px solid rgba(255,255,255,0.40);
-      display: flex; flex-direction: column;
-      overflow: hidden;
-      max-height: 0;
-      padding: 0 18px;
-      transition: max-height .38s cubic-bezier(.32,.72,0,1), padding .28s ease;
-    }
-    .ai-insight-card.expanded {
-      max-height: 280px;
-      padding: 14px 18px 14px;
-    }
-    .ai-insight-journal {
-      font-family: var(--body); font-size: 11.5px; color: var(--deep-60);
-      line-height: 1.55; margin-bottom: 10px; font-weight: 400;
-    }
-    .ai-insight-quote {
-      font-family: var(--display); font-size: 16px; font-weight: 600;
-      color: var(--deep); line-height: 1.28;
-      letter-spacing: -.1px; opacity: 0.78; margin-bottom: 12px;
-    }
-    .ai-insight-tips {
-      font-family: var(--body); font-size: 11px; color: var(--deep-60);
-      line-height: 1.5; margin-bottom: 6px; font-weight: 400;
-    }
-    .ai-insight-tip {
-      display: flex; align-items: flex-start; gap: 7px; margin-bottom: 6px;
-    }
-    .ai-insight-tip .tip-ic { flex-shrink: 0; font-size: 12px; margin-top: 0px; }
-    .ai-action-row {
-      display: flex; gap: 8px; margin-top: auto;
-    }
-    .ai-action-pill {
-      display: flex; align-items: center; gap: 6px;
-      padding: 8px 14px; border-radius: 20px;
-      background: rgba(255,255,255,0.45); border: 1px solid rgba(255,255,255,0.55);
-      font-family: var(--body); font-size: 11px; font-weight: 500;
-      color: var(--deep); cursor: pointer; transition: transform .15s;
-      letter-spacing: .2px;
-    }
-    .ai-action-pill:active { transform: scale(.96); }
-    .ai-action-pill .pill-ic { font-size: 14px; }
-
-    /* bottom: pills + input anchored together */
-    .ai-bottom-anchor {
-      margin-top: auto; flex-shrink: 0;
-    }
-    .ai-bottom-bar {
-      padding: 6px 18px 14px;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .ai-bottom-plus {
-      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
-      background: rgba(255,255,255,0.35); border: 1px solid rgba(44,42,36,0.08);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px; color: var(--deep-40); cursor: pointer;
-    }
-    .ai-bottom-input {
-      flex: 1; height: 40px; border-radius: 22px;
-      background: rgba(255,255,255,0.30); border: 1px solid rgba(44,42,36,0.08);
-      padding: 0 16px; font-family: var(--body); font-size: 13px;
-      color: var(--deep); outline: none;
-    }
-    .ai-bottom-input::placeholder { color: var(--deep-40); font-style: italic; font-family: var(--display); font-size: 13px; }
-    .ai-bottom-send {
-      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
-      background: linear-gradient(135deg, rgba(255,180,160,0.6), rgba(255,140,120,0.4));
-      border: none; display: flex; align-items: center; justify-content: center;
-      font-size: 16px; color: #fff; cursor: pointer; transition: transform .15s;
-    }
-    .ai-bottom-send:active { transform: scale(.92); }
-
-    /* quick-start pills row */
-    .ai-qs-row {
-      display: flex; gap: 8px; overflow-x: auto; padding: 0 18px 12px;
-      scrollbar-width: none; flex-shrink: 0;
-    }
-    .ai-qs-row::-webkit-scrollbar { display: none; }
-    .ai-qs-pill {
-      flex-shrink: 0; padding: 7px 14px; border-radius: 18px;
-      background: rgba(255,255,255,0.35); border: 1px solid rgba(255,255,255,0.50);
-      font-family: var(--body); font-size: 11px; font-weight: 500;
-      color: var(--deep); cursor: pointer; white-space: nowrap;
-      transition: transform .15s;
-    }
-    .ai-qs-pill:active { transform: scale(.95); }
-
-    .crisis-banner {
-      flex-shrink: 0; margin: 0 20px 8px;
-      padding: 9px 14px; border-radius: 12px;
-      background: rgba(232,88,0,.10); border: 1px solid rgba(232,88,0,.20);
-      display: flex; align-items: center; gap: 10px;
-    }
-    .crisis-banner-text { flex: 1; font-size: 11px; color: var(--deep-60); }
-    .crisis-banner-link { font-size: 11px; font-weight: 600; color: var(--orange); cursor: pointer; }
-
-    .input-bar {
-      flex-shrink: 0; padding: 10px 20px 14px;
-      background: rgba(185,200,183,.85); backdrop-filter: blur(24px);
-      border-top: 1px solid rgba(255,255,255,.32);
-      display: flex; gap: 10px; align-items: center;
-    }
-    .chat-inp {
-      flex: 1; background: rgba(255,255,255,.40);
-      border: 1px solid rgba(255,255,255,.62); border-radius: 22px;
-      padding: 10px 16px; font-family: var(--body); font-size: 13px;
-      color: var(--deep); outline: none;
-    }
-    .chat-inp::placeholder { color: var(--deep-40); }
-    .send-btn {
-      width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
-      background: rgba(36,34,26,.78); border: none;
-      display: flex; align-items: center; justify-content: center; cursor: pointer;
-    }
-
-    /* ── PROFILE ── */
-    .prof-hero {
-      position: relative; display: flex; flex-direction: column; align-items: center;
-      padding: 28px 24px 22px;
-    }
-    .prof-avatar-wrap { position: relative; margin-bottom: 14px; }
-    .prof-avatar {
-      width: 86px; height: 86px; border-radius: 50%;
-      background: linear-gradient(135deg, rgba(200,210,195,0.70), rgba(155,175,152,0.45));
-      border: 3px solid rgba(255,255,255,0.80);
-      box-shadow: 0 4px 20px rgba(44,42,36,0.14);
-      display: flex; align-items: center; justify-content: center; font-size: 40px;
-    }
-    .prof-edit-btn {
-      position: absolute; bottom: 0; right: 0;
-      width: 26px; height: 26px; border-radius: 50%;
-      background: rgba(44,42,36,0.82); border: 2px solid rgba(255,255,255,0.90);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; cursor: pointer; color: white;
-    }
-    .prof-name  { font-family: var(--display); font-size: 26px; font-weight: 600; color: var(--deep); letter-spacing: -.3px; margin-bottom: 3px; }
-    .prof-email { font-size: 12px; color: var(--deep-40); margin-bottom: 14px; }
-    .prof-badges { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-    .prof-badge {
-      padding: 5px 12px; border-radius: 18px;
-      font-size: 11px; font-weight: 500; letter-spacing: .2px;
-      display: flex; align-items: center; gap: 4px;
-    }
-    .prof-badge.green  { background: rgba(80,155,95,0.14);  color: rgba(30,90,50,0.85);  border: 1px solid rgba(80,155,95,0.22); }
-    .prof-badge.amber  { background: rgba(200,150,30,0.14); color: rgba(100,70,10,0.85); border: 1px solid rgba(200,150,30,0.22); }
-    .prof-badge.blue   { background: rgba(70,130,200,0.14); color: rgba(30,70,140,0.85); border: 1px solid rgba(70,130,200,0.22); }
-
-    .prof-stats-row { display: flex; gap: 1px; margin: 0 24px 18px; overflow: hidden; border-radius: 18px; }
-    .prof-stat {
-      flex: 1; padding: 14px 8px; text-align: center;
-      background: rgba(255,255,255,0.42); border: 1px solid rgba(255,255,255,0.60);
-      backdrop-filter: blur(32px);
-    }
-    .prof-stat:first-child { border-radius: 18px 0 0 18px; }
-    .prof-stat:last-child  { border-radius: 0 18px 18px 0; }
-    .prof-stat-n { font-family: var(--display); font-size: 26px; font-weight: 500; color: var(--deep); line-height: 1; }
-    .prof-stat-l { font-size: 10px; font-weight: 500; color: var(--deep-60); margin-top: 3px; letter-spacing: .2px; }
-
-    .prof-section-title {
-      font-size: 11px; font-weight: 600; letter-spacing: .8px; text-transform: uppercase;
-      color: var(--deep-40); padding: 0 24px 8px;
-    }
-    .prof-menu { margin: 0 24px 18px; border-radius: 18px; overflow: hidden; }
-    .prof-row {
-      display: flex; align-items: center; gap: 14px;
-      padding: 14px 16px;
-      background: rgba(255,255,255,0.42); border: 1px solid rgba(255,255,255,0.60);
-      backdrop-filter: blur(32px); margin-bottom: 1px;
-      cursor: pointer; transition: background .18s;
-    }
-    .prof-row:first-child { border-radius: 18px 18px 0 0; }
-    .prof-row:last-child  { border-radius: 0 0 18px 18px; margin-bottom: 0; }
-    .prof-row:only-child  { border-radius: 18px; }
-    .prof-row:hover { background: rgba(255,255,255,0.58); }
-    .prof-row-ic {
-      width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center; font-size: 16px;
-    }
-    .prof-row-body { flex: 1; }
-    .prof-row-title { font-size: 13.5px; font-weight: 500; color: var(--deep); }
-    .prof-row-sub   { font-size: 11px; color: var(--deep-40); margin-top: 1px; }
-    .prof-row-chev  { font-size: 14px; color: var(--deep-40); }
-    .prof-row-badge {
-      font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px;
-      background: rgba(200,80,0,0.12); color: var(--orange);
-    }
-
-    .prof-signout {
-      width: calc(100% - 48px); margin: 0 24px 32px;
-      padding: 14px; border-radius: 16px; border: none;
-      background: rgba(200,80,0,0.08); border: 1px solid rgba(200,80,0,0.16);
-      font-family: var(--body); font-size: 14px; font-weight: 500;
-      color: var(--orange); cursor: pointer; letter-spacing: .1px;
-      transition: background .18s;
-    }
-    .prof-signout:hover { background: rgba(200,80,0,0.14); }
-
-    /* ── RESOURCES ── */
-    .filter-bar { padding: 10px 24px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
-    .filter-bar::-webkit-scrollbar { display: none; }
-    .chip {
-      padding: 7px 16px; border-radius: 20px; white-space: nowrap;
-      font-size: 12px; font-weight: 500; font-family: var(--body);
-      border: 1px solid rgba(40,38,30,.2); background: transparent;
-      color: var(--deep-60); cursor: pointer; transition: all .2s;
-    }
-    .chip.on { background: rgba(36,34,26,.74); border-color: transparent; color: rgba(255,255,255,.92); }
-
-    .res-list { padding: 0 24px 100px; display: flex; flex-direction: column; gap: 10px; }
-    .res-card { padding: 16px; }
-    .res-row  { display: flex; gap: 14px; align-items: flex-start; }
-    .res-ic   { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-    .res-name { font-size: 14px; font-weight: 600; color: var(--deep); margin-bottom: 3px; }
-    .res-desc { font-size: 12px; color: var(--deep-60); line-height: 1.55; margin-bottom: 7px; }
-    .res-contact { font-size: 12px; font-weight: 500; color: var(--deep); display: flex; align-items: center; gap: 5px; }
-    .res-hours { font-size: 11px; color: var(--deep-40); margin-top: 2px; }
-
-    /* ── CRISIS ── */
-    .crisis-hero  { margin: 10px 24px 14px; padding: 24px; text-align: center; }
-    .crisis-big-ic { font-size: 46px; margin-bottom: 10px; }
-    .crisis-title { font-family: var(--display); font-size: 26px; font-weight: 400; color: var(--deep); margin-bottom: 6px; }
-    .crisis-sub   { font-size: 12px; color: var(--deep-60); line-height: 1.6; }
-    .call-now-btn {
-      display: flex; align-items: center; justify-content: center; gap: 9px;
-      width: 100%; padding: 16px; margin-top: 16px;
-      background: linear-gradient(135deg, #D05000, #F06820);
-      border: none; border-radius: 18px;
-      color: white; font-family: var(--body); font-size: 16px; font-weight: 600;
-      cursor: pointer; letter-spacing: .3px;
-      box-shadow: 0 8px 24px rgba(208,80,0,.30);
-    }
-    .crisis-list { padding: 0 24px; display: flex; flex-direction: column; gap: 9px; }
-    .cr-row  { padding: 13px 15px; display: flex; align-items: center; gap: 13px; }
-    .cr-ic   { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; }
-    .cr-name { font-size: 13px; font-weight: 600; color: var(--deep); }
-    .cr-det  { font-size: 11px; color: var(--deep-60); }
-    .cr-act  {
-      padding: 7px 13px; border-radius: 16px; margin-left: auto;
-      background: rgba(40,38,30,.10); border: 1px solid rgba(40,38,30,.15);
-      font-family: var(--body); font-size: 12px; font-weight: 500;
-      color: var(--deep); cursor: pointer; white-space: nowrap;
+    @media (max-width: 430px) {
+      body { padding: 12px 0; align-items: flex-start; }
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to   { transform: none; }
+    }
+    /* Cloud character animations */
+    @keyframes cloudSad {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-8px); }
+    }
+    @keyframes cloudGood {
+      0%, 100% { transform: translateY(0) scale(1); }
+      30%      { transform: translateY(-14px) scale(1.04); }
+      60%      { transform: translateY(-4px) scale(0.98); }
+    }
+    @keyframes cloudExhausted {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      30%      { transform: translateY(3px) rotate(-2deg); }
+      70%      { transform: translateY(3px) rotate(2deg); }
+    }
+    @keyframes tearFall {
+      0%   { opacity: 0.9; transform: translateY(0) scale(1); }
+      80%  { opacity: 0.4; }
+      100% { opacity: 0;   transform: translateY(28px) scaleY(1.4); }
+    }
+    @keyframes eyeIdle {
+      0%, 90%, 100% { transform: scaleY(1); }
+      95%           { transform: scaleY(0.15); }
+    }
+    @keyframes moodFadeIn {
+      from { opacity: 0; transform: scale(0.88); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    @keyframes bgFade {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes slideFromRight {
+      from { transform: translateX(100%); }
+      to   { transform: translateX(0); }
+    }
+    @keyframes slideFromLeft {
+      from { transform: translateX(-100%); }
+      to   { transform: translateX(0); }
+    }
+    @keyframes slideOutToLeft {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-100%); }
+    }
+    @keyframes slideOutToRight {
+      from { transform: translateX(0); }
+      to   { transform: translateX(100%); }
     }
   </style>
 </head>
 <body>
   <div id="root"></div>
-
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
 
-    /* ─── VIDEO BACKGROUND COMPONENT ────────────────────────────────────── */
-    function VideoBg() {
-      const vidRef = useRef(null);
+    /* ── FIGMA ASSETS ── */
+    const imgVideoBg      = 'https://www.figma.com/api/mcp/asset/2580263c-667c-4f1c-80c4-a349ec021e4f';
+    /* Mood Log card (node 30-2074) – fresh URLs */
+    const imgGradientHalo = 'https://www.figma.com/api/mcp/asset/bb45f349-3e5f-46b5-8d30-eb0f1950b1cc';
+    const imgVector1      = 'https://www.figma.com/api/mcp/asset/7001f82d-e173-43d9-b95f-6785ae04753e';
+    const imgGroup6       = 'https://www.figma.com/api/mcp/asset/3b801f89-dc3f-4693-b06e-b923062ad7f0';
+    const imgGroup14      = 'https://www.figma.com/api/mcp/asset/bc4a6c78-2888-4555-b1cf-3af49062e661';
+    const imgGroup12      = 'https://www.figma.com/api/mcp/asset/6ecc0be1-a277-4f7d-a654-251093223ca8';
+    const imgVectorFace   = 'https://www.figma.com/api/mcp/asset/4536f205-a4d6-4346-bf96-1857c05b82f9';
+    const imgVecL         = 'https://www.figma.com/api/mcp/asset/031d7533-0f76-49bb-84d1-aa2d39dd5946';
+    const imgVecR         = 'https://www.figma.com/api/mcp/asset/a3023bd3-a005-4ec8-b5f0-23f73436613e';
+    const imgVecDot       = 'https://www.figma.com/api/mcp/asset/65840c8c-b587-4e65-ba0b-3c0a898704ff';
+    /* Urgent Support card (node 28-1644) – fresh URLs */
+    const imgGroup24      = 'https://www.figma.com/api/mcp/asset/47d1c37a-535a-4448-8f86-e7d9694783fb';
+    const imgRectangle4   = 'https://www.figma.com/api/mcp/asset/558c1989-b9a4-4694-a2c7-8e179e29f146';
+    const imgGroup3       = 'https://www.figma.com/api/mcp/asset/1aadbce5-4957-48ba-b535-60d24fb40406';
+    /* Log Mood page (node 77-1264) – fresh URLs */
+    const imgLogCloudChar = 'https://www.figma.com/api/mcp/asset/d25179a4-b539-4185-af15-4cd8d5984a1c';
+    const imgLogEllipse1  = 'https://www.figma.com/api/mcp/asset/5790a353-34d1-411f-853c-5721dfaff6ee';
+    const imgLogEllipse5  = 'https://www.figma.com/api/mcp/asset/dd6c9513-a1f5-4ab6-8b9e-38f73b4f0561';
+    const imgLogBubble    = 'https://www.figma.com/api/mcp/asset/eb936309-40c6-42b3-8daa-3d2dc138e749';
+    /* Good mood (node 52-340, 52-352) – fresh URLs */
+    const imgGoodChar     = 'https://www.figma.com/api/mcp/asset/882b8c0d-0742-4ff2-bf83-ae7bb6a5929c';
+    const imgGoodFace     = 'https://www.figma.com/api/mcp/asset/d59190bb-f312-44e3-b2d9-8fe527d4329a';
+    const imgGoodBubble   = 'https://www.figma.com/api/mcp/asset/a8904e24-0184-4c00-8d82-46c76d23b296';
+    /* Calm Mode card (node 30-2147) – fresh URLs */
+    const imgMesshu       = 'https://www.figma.com/api/mcp/asset/4412b00a-8bb8-41a2-8528-fdfdecb20837';
+    const imgHourglass    = 'https://www.figma.com/api/mcp/asset/82c4a6f8-649d-45e5-b608-6372f1ba9c5e';
+    const imgFrame31      = 'https://www.figma.com/api/mcp/asset/201a4bf4-ec19-465a-af16-ba48470ee1bc';
+    /* Nav / misc */
+    const imgIcon         = 'https://www.figma.com/api/mcp/asset/f734d6df-3b4a-42a9-8c3f-388c22480f6a';
+    /* Good mood face (node 52-340) – fresh URLs */
+    const imgGoodFaceBody = 'https://www.figma.com/api/mcp/asset/0f3404e8-9733-4b3d-a806-4682944d73da';
+    const imgGoodFaceSmile= 'https://www.figma.com/api/mcp/asset/9790efa6-7ab6-4eb1-a43c-3deea5491787';
+    /* Day-card faces (node 70-91) – fresh URLs */
+    const imgDayGoodBlob    = 'https://www.figma.com/api/mcp/asset/89163802-f512-4042-ac30-08797cd46f13';
+    const imgDayGoodSmile   = 'https://www.figma.com/api/mcp/asset/04c8dadb-d70f-43ed-b0a6-72f4a6849dd5';
+    const imgDaySadFace     = 'https://www.figma.com/api/mcp/asset/7db808b7-1749-4d36-84b3-d81084ef6047';
+    const imgDayAnxiousFace = 'https://www.figma.com/api/mcp/asset/397a5454-4058-4a8d-9965-2779926979dd';
+    const imgGroup8       = 'https://www.figma.com/api/mcp/asset/d086ffca-9f89-49d6-bb10-628b8e9fbcf1';
+    const imgGroup15      = 'https://www.figma.com/api/mcp/asset/9b1313d9-1b85-49df-9777-f4fdd8a67628';
+    const imgVector3      = 'https://www.figma.com/api/mcp/asset/951b8a11-03af-4db7-b0e2-77d99c3e0a9a';
+    const imgHandCoin     = 'https://www.figma.com/api/mcp/asset/9a14edad-7210-4c45-aafa-8874e40ec466';
+    const imgShield       = 'https://www.figma.com/api/mcp/asset/4f53258e-9bed-4a60-a303-aa79f3e8250c';
 
-      useEffect(() => {
-        const v = vidRef.current; if (!v) return;
+    /* ── WAVEFORM HEIGHTS ── */
+    const WAVES = [21,45,29,45,36,18,23,29,33,36,45,55,49,45,38,38,38,38,38];
 
-        const tryPlay = () => { v.play().catch(() => {}); };
-
-        // Attempt autoplay immediately
-        tryPlay();
-
-        // Retry on first user interaction (needed for WeChat / iOS WebView)
-        const onTouch = () => { tryPlay(); document.removeEventListener('touchstart', onTouch); document.removeEventListener('click', onTouch); };
-        document.addEventListener('touchstart', onTouch, { once: true, passive: true });
-        document.addEventListener('click',      onTouch, { once: true });
-
-        return () => {
-          document.removeEventListener('touchstart', onTouch);
-          document.removeEventListener('click', onTouch);
-        };
-      }, []);
-
-      return (
-        <div className="video-bg">
-          <video
-            ref={vidRef}
-            src="bg2.mp4"
-            autoPlay muted loop
-            playsInline
-            webkit-playsinline="true"
-            x5-playsinline="true"
-            x5-video-player-type="h5"
-            x5-video-player-fullscreen="false"
-            preload="auto"
-          />
-        </div>
-      );
-    }
-
-    /* ─── SVG ICONS ──────────────────────────────────────────────────────── */
-    const IC = {
-      home: (s=22,c='currentColor') => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>,
-      chart: (s=22,c='currentColor') => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>,
-      chat: (s=22,c='currentColor') => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>,
-      peer: (s=22,c='currentColor') => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><circle cx="9" cy="7" r="3"/><path d="M3 21v-1a6 6 0 0112 0v1"/><circle cx="17" cy="9" r="2.5"/><path d="M20 21v-.8a5 5 0 00-4-4.9"/></svg>,
-      grid: (s=22,c='currentColor') => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>,
-      right: (s=20,c='currentColor') => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>,
-      back: (s=18,c='currentColor') => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round"><path d="M15 18l-6-6 6-6"/></svg>,
-      send: (s=16,c='currentColor') => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>,
-      phone: (s=20,c='currentColor') => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 014.21 14.9a19.79 19.79 0 01-3.07-8.67A2 2 0 013.12 4h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L7.09 11.9a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>,
-      dots: () => <svg width="18" height="12" viewBox="0 0 18 12" fill="none"><circle cx="2" cy="2" r="2" fill="rgba(44,42,36,.55)"/><circle cx="9" cy="2" r="2" fill="rgba(44,42,36,.55)"/><circle cx="16" cy="2" r="2" fill="rgba(44,42,36,.55)"/><circle cx="2" cy="10" r="2" fill="rgba(44,42,36,.55)"/><circle cx="9" cy="10" r="2" fill="rgba(44,42,36,.55)"/><circle cx="16" cy="10" r="2" fill="rgba(44,42,36,.55)"/></svg>,
-    };
-
-    /* ─── STATIC DATA ─────────────────────────────────────────────────────── */
+    /* ── MOOD DATA ── */
     const MOODS = [
-      {val:1, emoji:'😔', label:'Rough'},
-      {val:2, emoji:'😕', label:'Low'},
-      {val:3, emoji:'😌', label:'Okay'},
-      {val:4, emoji:'🙂', label:'Good'},
-      {val:5, emoji:'😊', label:'Great'},
+      { val:1, emoji:'😔', label:'Rough' },
+      { val:2, emoji:'😕', label:'Low'   },
+      { val:3, emoji:'😌', label:'Okay'  },
+      { val:4, emoji:'🙂', label:'Good'  },
+      { val:5, emoji:'😊', label:'Great' },
     ];
     const TAGS = ['Academic','Sleep','Social','Health','Finance','Relationships','Work'];
 
-    const DEFAULT_HISTORY = [
-      {day:14,mon:'APR',emoji:'😊',label:'Great',tags:'Academic · Sleep',val:5},
-      {day:13,mon:'APR',emoji:'😌',label:'Okay', tags:'Social',val:3},
-      {day:12,mon:'APR',emoji:'😕',label:'Low',  tags:'Academic · Finance',val:2},
-      {day:11,mon:'APR',emoji:'🙂',label:'Good', tags:'Sleep · Health',val:4},
-      {day:10,mon:'APR',emoji:'😌',label:'Okay', tags:'Work',val:3},
-      {day:9, mon:'APR',emoji:'😊',label:'Great',tags:'Social',val:5},
-      {day:8, mon:'APR',emoji:'😔',label:'Rough',tags:'Academic',val:1},
-    ];
-    const MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-    function loadHistory() {
-      try { const s = localStorage.getItem('illinicare_history'); return s ? JSON.parse(s) : DEFAULT_HISTORY; }
-      catch(e) { return DEFAULT_HISTORY; }
+    function getGreeting() {
+      const h = new Date().getHours();
+      return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
     }
 
-    const RESOURCES = [
-      {cat:'counseling',icon:'🏥',bg:'rgba(100,165,120,.22)',name:'CAPS — Counseling Center',desc:'Free individual & group counseling for UIUC students. Same-day crisis slots available.',contact:'(217) 333-3704',hours:'Mon–Fri  8am–5pm'},
-      {cat:'health',    icon:'🩺',bg:'rgba(80,145,185,.22)', name:'McKinley Health Center',  desc:'Student health services including mental health, wellness programs, and psychiatry.',contact:'(217) 333-2700',hours:'Mon–Fri  8am–5pm'},
-      {cat:'crisis',    icon:'☎️',bg:'rgba(218,98,78,.22)',  name:'988 Suicide & Crisis Lifeline',desc:'Free, confidential support for people in distress. Call or text 988 any time.',contact:'Call or text  988',hours:'24 / 7'},
-      {cat:'wellness',  icon:'🧘',bg:'rgba(155,128,200,.22)',name:'Counseling & Wellness Hub',desc:'Stress management workshops, mindfulness sessions, and one-on-one wellness coaching.',contact:'wellness.illinois.edu',hours:'See website'},
-      {cat:'crisis',    icon:'💬',bg:'rgba(218,140,58,.22)', name:'Crisis Text Line',         desc:'Text HOME to 741741 to connect with a trained crisis counselor instantly.',contact:'Text HOME → 741741',hours:'24 / 7'},
-      {cat:'wellness',  icon:'🌿',bg:'rgba(118,162,98,.22)', name:'Illini Resiliency Program',desc:'Peer-led resilience workshops and stress management resources on campus.',contact:'resilience@illinois.edu',hours:'Varies by week'},
-    ];
-
-    const AI_POOLS = {
-      default:  ["I hear you — it sounds like something's weighing on you. Would you like to share a little more about what's been going on?","Thank you for opening up. Your feelings are completely valid. Let's explore this together — what do you think is contributing most to how you're feeling?","That makes a lot of sense. Many UIUC students go through similar moments, especially mid-semester. You're not navigating this alone.","I'm right here with you. One small thing that might help right now: breathe in for 4 counts, hold for 4, out for 6. You can do that at any time. Would you like to try another technique?"],
-      stress:   ["Academic pressure at UIUC can feel genuinely crushing sometimes. Have you had any moments to step away and breathe, even briefly?","When everything piles up, breaking it into one thing at a time can help. What's the single most urgent task you're facing today?","It's okay to ask for help — CAPS offers free counseling and has same-day crisis appointments if things feel too heavy to carry alone."],
-      anxiety:  ["Anxiety can be really consuming, especially with exams or deadlines looming. You're brave for putting it into words.","A quick grounding exercise: name 5 things you can see right now. It sounds simple, but it gently pulls you back to the present.","Anxiety often comes from uncertainty. What feels most unknown for you right now? Sometimes naming it out loud helps shrink it."],
-      sad:      ["I'm really sorry you're feeling this way. Sadness deserves space, not dismissal — and you deserve support.","It takes courage to acknowledge when we're struggling. Would you like to talk about what's been on your mind lately?","Please remember — it's okay to not be okay. If these feelings stay heavy, reaching out to CAPS or a peer supporter can make a real difference."],
-    };
-
-    function getReply(msg) {
-      const t = msg.toLowerCase();
-      let pool = AI_POOLS.default;
-      if (/stress|overwhelm|exam|homework|deadline|grade/.test(t)) pool = AI_POOLS.stress;
-      else if (/anxi|nervous|worry|panic/.test(t))               pool = AI_POOLS.anxiety;
-      else if (/sad|depress|cry|hopeless|alone|empty/.test(t))   pool = AI_POOLS.sad;
-      return pool[Math.floor(Math.random() * pool.length)];
+    /* ── VECTOR face icon (used in mood grid) ── */
+    function VectorFace({ style }) {
+      return (
+        <div style={{ position:'relative', width:18, height:18, ...style }}>
+          <img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgVectorFace} />
+          <div style={{ position:'absolute', top:'35.54%', right:'56.79%', bottom:'55.75%', left:'36.24%' }}>
+            <div style={{ position:'absolute', top:'-30%', right:'-28.63%', bottom:'-30%', left:'-37.51%' }}>
+              <img alt="" style={{ display:'block', maxWidth:'none', width:'100%', height:'100%' }} src={imgVecL} />
+            </div>
+          </div>
+          <div style={{ position:'absolute', display:'flex', top:'35.54%', right:'36.24%', bottom:'55.75%', left:'56.79%', alignItems:'center', justifyContent:'center' }}>
+            <div style={{ transform:'scaleX(-1)', width:'100%', height:'100%' }}>
+              <div style={{ position:'relative', width:'100%', height:'100%' }}>
+                <div style={{ position:'absolute', top:'-30%', right:'-28.63%', bottom:'-30%', left:'-37.51%' }}>
+                  <img alt="" style={{ display:'block', maxWidth:'none', width:'100%', height:'100%' }} src={imgVecR} />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style={{ position:'absolute', top:'46.34%', right:'43.9%', bottom:'45.47%', left:'44.25%' }}>
+            <div style={{ position:'absolute', top:'-25.53%', right:'-13.01%', bottom:'-25.53%', left:'-13.01%' }}>
+              <img alt="" style={{ display:'block', maxWidth:'none', width:'100%', height:'100%' }} src={imgVecDot} />
+            </div>
+          </div>
+        </div>
+      );
     }
 
-    /* ─── STATUS BAR ─────────────────────────────────────────────────────── */
+    /* ── MOOD GRID CELL: Vector1 + Group6 (the good/check face) ── */
+    function GoodFaceCell() {
+      return (
+        <div style={{ display:'inline-grid', gridTemplateColumns:'max-content', gridTemplateRows:'max-content', lineHeight:0, placeItems:'start', position:'relative', flexShrink:0 }}>
+          <div style={{ gridColumn:1, height:18.481, marginLeft:0, marginTop:0, position:'relative', gridRow:1, width:18.809 }}>
+            <img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgVector1} />
+          </div>
+          <div style={{ gridColumn:1, height:3.146, marginLeft:6.42, marginTop:7.05, position:'relative', gridRow:1, width:6.029 }}>
+            <div style={{ position:'absolute', top:0, right:0, bottom:'-15.63%', left:0 }}>
+              <img alt="" style={{ display:'block', maxWidth:'none', width:'100%', height:'100%' }} src={imgGroup6} />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* ── MOOD GRID CELL: Group14 + Group12 (different face) ── */
+    function SadFaceCell() {
+      return (
+        <div style={{ display:'inline-grid', gridTemplateColumns:'max-content', gridTemplateRows:'max-content', lineHeight:0, placeItems:'start', position:'relative', flexShrink:0 }}>
+          <div style={{ gridColumn:1, marginLeft:0, marginTop:0, position:'relative', gridRow:1, width:18, height:18 }}>
+            <img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgGroup14} />
+          </div>
+          <div style={{ gridColumn:1, height:5.77, marginLeft:11.98, marginTop:2.63, position:'relative', gridRow:1, width:4.704 }}>
+            <img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgGroup12} />
+          </div>
+        </div>
+      );
+    }
+
+    /* ── MOOD LOG CARD ── */
+    function MoodLogCard({ count }) {
+      const E = { w:17, h:17, br:8.5 };
+      const emptyBox = (key, extra={}) => (
+        <div key={key} style={{ background:'white', border:'1px solid rgba(20,20,19,0.12)', borderRadius:E.br, flexShrink:0, width:E.w, height:E.h, ...extra }} />
+      );
+      const emptyBoxE3 = (key, extra={}) => (
+        <div key={key} style={{ background:'white', border:'1px solid #e3e3e3', borderRadius:E.br, flexShrink:0, width:E.w, height:E.h, ...extra }} />
+      );
+
+      return (
+        <div style={{ position:'absolute', background:'rgba(252,251,250,0.92)', border:'1px solid rgba(20,20,19,0.07)', height:165, left:0, overflow:'hidden', borderRadius:20, boxShadow:'0 4px 24px rgba(0,0,0,0.04), 0 24px 48px rgba(0,0,0,0.08)', top:0, width:168 }}>
+          {/* Gradient halo */}
+          <div style={{ position:'absolute', height:298.667, left:-1, top:-122, width:168 }}>
+            <img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgGradientHalo} onError={e => e.target.style.display='none'} />
+          </div>
+          {/* Header */}
+          <div style={{ position:'absolute', height:28, left:13, top:14, width:140 }}>
+            <div style={{ position:'absolute', display:'flex', height:17, alignItems:'flex-start', left:-0.24, top:9, width:56 }}>
+              <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, lineHeight:'17.5px', flexShrink:0, color:'#141413', fontSize:14, letterSpacing:'-0.28px', whiteSpace:'nowrap' }}>Mood Log</p>
+            </div>
+            <div style={{ position:'absolute', left:111.79, width:28, height:28, top:0 }}>
+              <p style={{ transform:'translateX(-100%)', position:'absolute', fontFamily:'Sofia Sans,sans-serif', fontWeight:400, lineHeight:0, left:28.79, color:'#141413', fontSize:0, textAlign:'right', top:0, letterSpacing:'-0.56px', whiteSpace:'nowrap' }}>
+                <span style={{ lineHeight:'28px', fontSize:28 }}>{count}</span>
+                <span style={{ lineHeight:'9px', color:'#696969', fontSize:9, letterSpacing:'0.2px' }}>/30</span>
+              </p>
+            </div>
+          </div>
+          {/* Grid */}
+          <div style={{ position:'absolute', height:99, left:13, top:52, width:140 }}>
+            {/* Row 1: 7 empty */}
+            <div style={{ position:'absolute', display:'flex', gap:4, alignItems:'center', left:0, top:0 }}>
+              {[0,1,2,3,4,5,6].map(i => emptyBox(i))}
+            </div>
+            {/* Row 2: mixed faces */}
+            <div style={{ position:'absolute', display:'flex', alignItems:'center', justifyContent:'space-between', left:0, top:18.01, width:143 }}>
+              <GoodFaceCell />
+              <SadFaceCell />
+              <GoodFaceCell />
+              <VectorFace />
+              {emptyBox('r2e1', { border:'1px solid #e3e3e3' })}
+              <VectorFace />
+              {emptyBox('r2e2', { border:'1px solid #e3e3e3' })}
+            </div>
+            {/* Row 3: 7 empty */}
+            <div style={{ position:'absolute', display:'flex', gap:4, alignItems:'center', left:0, top:41 }}>
+              {[0,1,2,3,4,5,6].map(i => emptyBox(i))}
+            </div>
+            {/* Row 4: individually placed */}
+            {emptyBoxE3('r4a', { position:'absolute', left:0, top:61.5 })}
+            {emptyBoxE3('r4b', { position:'absolute', left:20.5, top:61.5 })}
+            <VectorFace style={{ position:'absolute', left:41, top:61.5 }} />
+            <div style={{ position:'absolute', left:61.5, top:61.5 }}><GoodFaceCell /></div>
+            {emptyBoxE3('r4c', { position:'absolute', left:82, top:61.5 })}
+            <div style={{ position:'absolute', left:102.5, top:61.5 }}><GoodFaceCell /></div>
+            {emptyBoxE3('r4d', { position:'absolute', left:123, top:61.5 })}
+            {/* Row 5 */}
+            {emptyBoxE3('r5a', { position:'absolute', left:0, top:82 })}
+            {emptyBoxE3('r5b', { position:'absolute', left:20.5, top:82 })}
+          </div>
+        </div>
+      );
+    }
+
+    /* ── URGENT SUPPORT CARD ── */
+    function UrgentCard() {
+      const tag = (text, style={}) => (
+        <div style={{ position:'absolute', background:'#f1f7ff', border:'1px solid rgba(20,20,19,0.07)', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden', padding:'3px 7px', borderRadius:20, ...style }}>
+          <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:400, lineHeight:'14px', flexShrink:0, fontSize:10, color:'black', whiteSpace:'nowrap' }}>{text}</p>
+        </div>
+      );
+      return (
+        <div style={{ position:'absolute', height:165, left:178, overflow:'hidden', borderRadius:20, top:0, width:168 }}>
+          {/* Gradient mesh — full card, node 28-1644 */}
+          <div style={{ position:'absolute', height:311.111, left:-7, overflow:'hidden', top:-69, width:175, backgroundImage:'linear-gradient(127.12deg, rgb(254,255,210) 32.456%, rgb(136,216,205) 52.164%, rgb(154,217,208) 70.728%, rgb(165,213,161) 91.019%, rgb(224,200,109) 101.92%)' }}>
+            <div style={{ position:'absolute', height:375.934, left:-51, top:-26, width:258.85 }}>
+              <div style={{ position:'absolute', top:'-1.81%', right:'-2.63%', bottom:'-4.79%', left:'-2.63%' }}>
+                <img alt="" style={{ display:'block', maxWidth:'none', width:'100%', height:'100%' }} src={imgGroup24} onError={e=>e.target.style.display='none'} />
+              </div>
+            </div>
+          </div>
+          {/* Title */}
+          <p style={{ position:'absolute', fontFamily:'Sofia Sans,sans-serif', fontWeight:500, lineHeight:'17.5px', left:16, fontSize:14, color:'#141413', top:22, letterSpacing:'-0.28px', width:134 }}>Urgent Support</p>
+          {/* Arrow */}
+          <div style={{ position:'absolute', left:123, width:29, height:29, top:18 }}>
+            <img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgGroup3} onError={e=>{e.target.style.display='none';const p=e.target.parentNode;p.style.background='rgba(255,255,255,0.8)';p.style.borderRadius='50%';p.style.display='flex';p.style.alignItems='center';p.style.justifyContent='center';p.innerHTML='↗';}} />
+          </div>
+          {/* Tags */}
+          {tag('Mental class', { left:16, top:68 })}
+          {tag('Mental kit',   { left:91, top:68 })}
+          <div style={{ position:'absolute', background:'#f1f7ff', display:'flex', alignItems:'center', justifyContent:'center', left:161, overflow:'hidden', padding:'3px 7px', borderRadius:20, top:68 }}>
+            <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:400, lineHeight:'14px', flexShrink:0, fontSize:10, color:'black', whiteSpace:'nowrap' }}>Mental kit</p>
+          </div>
+          {tag('Mental kit',   { left:5,   top:93, width:75 })}
+          {tag('Mental kit',   { left:87,  top:93 })}
+          {tag('Mental kit',   { left:153, top:93 })}
+          {tag('Mental kit',   { left:39,  top:118.01, width:88 })}
+        </div>
+      );
+    }
+
+    /* ── CALM MODE CARD ── */
+    function CalmModeCard() {
+      return (
+        <div style={{ border:'1px solid rgba(20,20,19,0.07)', height:141, overflow:'hidden', position:'relative', borderRadius:20, boxShadow:'0 4px 24px rgba(0,0,0,0.04), 0 24px 48px rgba(0,0,0,0.08)', flexShrink:0, width:346 }}>
+          {/* Background flow image */}
+          <div style={{ position:'absolute', height:246.044, left:-1, top:-22.99, width:346 }}>
+            <img alt="" style={{ position:'absolute', inset:0, maxWidth:'none', objectFit:'cover', pointerEvents:'none', width:'100%', height:'100%', filter:'brightness(1.35) saturate(1.1)' }} src={imgMesshu} onError={e=>{e.target.style.display='none';e.target.parentNode.style.background='linear-gradient(135deg,#f8e8d8 0%,#f0d8e8 30%,#d8d0f0 60%,#c8e0f0 80%)';}} />
+          </div>
+          {/* White fade right */}
+          <div style={{ position:'absolute', height:142, left:161, top:-1.99, width:184, backgroundImage:'linear-gradient(263.75deg, rgb(255,255,255) 3.8943%, rgba(255,255,255,0) 94.555%)' }} />
+          {/* "Calm Mode" title */}
+          <p style={{ transform:'translateX(-50%)', position:'absolute', fontFamily:'Sofia Sans,sans-serif', fontWeight:500, lineHeight:'22px', left:46.5, fontSize:14, color:'black', textAlign:'center', top:22.01, whiteSpace:'nowrap' }}>Calm Mode</p>
+          {/* "10" large number */}
+          <p style={{ transform:'translateX(-50%)', position:'absolute', fontFamily:'Sofia Sans,sans-serif', fontWeight:400, lineHeight:'38px', left:33.5, color:'#141413', fontSize:38, textAlign:'center', top:84.01, letterSpacing:'-0.76px', whiteSpace:'nowrap' }}>10</p>
+          {/* Hourglass */}
+          <div style={{ position:'absolute', left:53, width:16, height:16, top:98.01 }}>
+            <img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgHourglass} onError={e=>e.target.style.display='none'} />
+          </div>
+          {/* Ambient tag */}
+          <div style={{ position:'absolute', background:'#f1f7ff', display:'flex', height:20, alignItems:'center', justifyContent:'center', left:13, overflow:'hidden', padding:'3px 7px', borderRadius:20, top:49.01 }}>
+            <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:400, lineHeight:'22px', flexShrink:0, fontSize:10, color:'black', whiteSpace:'nowrap' }}>Ambient</p>
+          </div>
+          {/* 10 mins tag */}
+          <div style={{ position:'absolute', background:'#f1f7ff', display:'flex', height:20, alignItems:'center', justifyContent:'center', left:73, overflow:'hidden', padding:'3px 7px', borderRadius:20, top:49.01 }}>
+            <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:400, lineHeight:'22px', flexShrink:0, fontSize:10, color:'black', whiteSpace:'nowrap' }}>10 mins</p>
+          </div>
+          {/* Waveform bars */}
+          <div style={{ position:'absolute', filter:'blur(2px)', display:'flex', gap:8, alignItems:'flex-end', left:147, top:65.01 }}>
+            {WAVES.map((h, i) => (
+              <div key={i} style={{ background:'white', height:h, borderRadius:20, flexShrink:0, width:2 }} />
+            ))}
+          </div>
+          {/* Play button */}
+          <div style={{ position:'absolute', left:300, width:29, height:29, top:18.01 }}>
+            <img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgFrame31} onError={e=>{e.target.style.display='none';const p=e.target.parentNode;p.style.background='rgba(255,255,255,0.85)';p.style.borderRadius='50%';p.style.display='flex';p.style.alignItems='center';p.style.justifyContent='center';p.style.fontSize='12px';p.innerHTML='▶';}} />
+          </div>
+        </div>
+      );
+    }
+
+    /* ── WEEK DAY CARD ── */
+    function DayCard({ label, faceContent, moodLabel, onClick }) {
+      return (
+        <div onClick={onClick}
+          style={{ background:'rgba(255,255,255,0.88)', border:'1px solid rgba(20,20,19,0.08)', height:92, position:'relative', borderRadius:20, boxShadow:'0 4px 24px rgba(0,0,0,0.04)', flexShrink:0, width:64, cursor: onClick ? 'pointer' : 'default' }}>
+          <div style={{ display:'flex', flexDirection:'column', gap:4, alignItems:'center', justifyContent:'flex-end', paddingBottom:11, paddingTop:1, paddingLeft:1, paddingRight:1, width:'100%', height:'100%' }}>
+            <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:600, lineHeight:'normal', flexShrink:0, fontSize:15, color:'black', letterSpacing:'-0.3px', whiteSpace:'nowrap', textAlign:'center' }}>{label}</p>
+            <div style={{ position:'relative', flexShrink:0 }}>
+              <div style={{ display:'flex', flexDirection:'column', gap:4, alignItems:'center', width:'100%', height:'100%' }}>
+                <div style={{ height:22, flexShrink:0, width:26, position:'relative' }}>
+                  {faceContent}
+                </div>
+                <div style={{ display:'flex', height:9, alignItems:'center', justifyContent:'center', flexShrink:0, minWidth:15 }}>
+                  <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, lineHeight:'normal', flexShrink:0, color:'#696969', fontSize:8, textAlign:'center', letterSpacing:'0.3px', textTransform:'uppercase', whiteSpace:'nowrap' }}>{moodLabel}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* ── STATUS BAR ── */
     function StatusBar() {
-      const [time, setTime] = useState('');
+      const [time, setTime] = useState(() => {
+        const n = new Date(); return `${n.getHours()}:${String(n.getMinutes()).padStart(2,'0')}`;
+      });
       useEffect(() => {
-        const fmt = () => { const n=new Date(); return `${n.getHours()}:${String(n.getMinutes()).padStart(2,'0')}`; };
-        setTime(fmt());
-        const id = setInterval(() => setTime(fmt()), 30000);
+        const id = setInterval(() => {
+          const n = new Date(); setTime(`${n.getHours()}:${String(n.getMinutes()).padStart(2,'0')}`);
+        }, 30000);
         return () => clearInterval(id);
       }, []);
       return (
-        <div className="status-bar">
-          <span className="status-time">{time || '9:41'}</span>
-          <div className="status-icons">
-            <svg width="17" height="11" viewBox="0 0 17 11" fill="rgba(255,255,255,.88)">
+        <div style={{ position:'absolute', top:14, left:0, right:0, display:'flex', justifyContent:'space-between', alignItems:'center', padding:'0 28px', zIndex:10 }}>
+          <span style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:600, fontSize:15, color:'rgba(20,20,19,0.78)', letterSpacing:'-0.3px' }}>{time}</span>
+          <div style={{ display:'flex', gap:6, alignItems:'center' }}>
+            <svg width="17" height="11" viewBox="0 0 17 11" fill="rgba(20,20,19,0.68)">
               <rect x="0" y="7" width="3" height="4" rx=".5"/><rect x="4.5" y="5" width="3" height="6" rx=".5"/>
               <rect x="9" y="2.5" width="3" height="8.5" rx=".5"/><rect x="13.5" y="0" width="3" height="11" rx=".5" opacity=".35"/>
             </svg>
-            <svg width="16" height="11" viewBox="0 0 16 11" fill="none" stroke="rgba(255,255,255,.88)" strokeWidth="1.5" strokeLinecap="round">
+            <svg width="16" height="11" viewBox="0 0 16 11" fill="none" stroke="rgba(20,20,19,0.68)" strokeWidth="1.5" strokeLinecap="round">
               <path d="M8 9h.01"/><path d="M5.5 7a3.5 3.5 0 015 0"/><path d="M3 4.5a7 7 0 0110 0"/>
             </svg>
             <svg width="25" height="12" viewBox="0 0 25 12" fill="none">
-              <rect x=".5" y=".5" width="21" height="11" rx="3" stroke="rgba(255,255,255,.88)" strokeWidth="1"/>
-              <rect x="2" y="2" width="16" height="8" rx="1.5" fill="rgba(255,255,255,.88)"/>
-              <path d="M22.5 4v4a1.5 1.5 0 000-4z" fill="rgba(255,255,255,.88)"/>
+              <rect x=".5" y=".5" width="21" height="11" rx="3" stroke="rgba(20,20,19,0.68)" strokeWidth="1"/>
+              <rect x="2" y="2" width="16" height="8" rx="1.5" fill="rgba(20,20,19,0.68)"/>
+              <path d="M22.5 4v4a1.5 1.5 0 000-4z" fill="rgba(20,20,19,0.68)"/>
             </svg>
           </div>
         </div>
       );
     }
 
-    /* ─── MOOD CHECK-IN SHEET ─────────────────────────────────────────────── */
+    /* ── CHECK-IN SHEET ── */
     function CheckinSheet({ onClose, onSave }) {
-      const [sel, setSel]   = useState(null); // sel = full mood object
+      const [sel, setSel]   = useState(null);
       const [tags, setTags] = useState([]);
       const [note, setNote] = useState('');
-      const tog = t => setTags(p => p.includes(t) ? p.filter(x=>x!==t) : [...p, t]);
+      const togTag = t => setTags(p => p.includes(t) ? p.filter(x=>x!==t) : [...p,t]);
       return (
-        <div className="sheet-overlay" onClick={e => e.target===e.currentTarget && onClose()}>
-          <div className="sheet">
-            <div className="sheet-handle"/>
-            <div className="sheet-title">How are you feeling?</div>
-            <div className="sheet-sub">A quick check-in — no pressure to share everything.</div>
-            <div className="mood-row">
+        <div style={{ position:'absolute', inset:0, zIndex:300, background:'rgba(0,0,0,0.32)', backdropFilter:'blur(4px)', display:'flex', alignItems:'flex-end' }}
+          onClick={e => e.target===e.currentTarget && onClose()}>
+          <div style={{ width:'100%', padding:'20px 24px 48px', background:'rgba(250,247,245,0.98)', borderRadius:'28px 28px 0 0', boxShadow:'0 -4px 32px rgba(0,0,0,0.10)', animation:'slideUp .38s cubic-bezier(.32,.72,0,1)' }}>
+            <div style={{ width:36, height:4, background:'rgba(20,20,19,0.20)', borderRadius:2, margin:'0 auto 20px' }}/>
+            <div style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:28, fontWeight:600, color:'#141413', marginBottom:4 }}>How are you feeling?</div>
+            <div style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:12, color:'rgba(20,20,19,0.55)', marginBottom:22 }}>A quick check-in — no pressure.</div>
+            <div style={{ display:'flex', justifyContent:'space-between', marginBottom:22 }}>
               {MOODS.map(m => (
-                <button key={m.val} className={`mood-opt ${sel?.val===m.val?'sel':''}`} onClick={() => setSel(m)}>
-                  <span className="m-emoji">{m.emoji}</span>
-                  <span className="m-label">{m.label}</span>
+                <button key={m.val}
+                  style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:6, padding:'10px 6px', borderRadius:16, border:`2px solid ${sel?.val===m.val?'rgba(255,255,255,0.80)':'transparent'}`, cursor:'pointer', background:sel?.val===m.val?'rgba(255,255,255,0.55)':'transparent', transition:'all .2s', minWidth:56, fontFamily:'Sofia Sans,sans-serif' }}
+                  onClick={() => setSel(m)}>
+                  <span style={{ fontSize:28 }}>{m.emoji}</span>
+                  <span style={{ fontSize:10, fontWeight:500, color:'rgba(20,20,19,0.60)' }}>{m.label}</span>
                 </button>
               ))}
             </div>
-            <div className="tags-lbl">What's on your mind?</div>
-            <div className="tags-wrap">
-              {TAGS.map(t => <button key={t} className={`tag-pill ${tags.includes(t)?'on':''}`} onClick={() => tog(t)}>{t}</button>)}
-            </div>
-            <textarea className="note-ta" rows={2} placeholder="Optional note to yourself…" value={note} onChange={e=>setNote(e.target.value)}/>
-            <button className="primary-btn" disabled={!sel} onClick={() => { if(sel){ onSave({mood:sel,tags,note}); onClose(); } }}>Save Check-in</button>
-          </div>
-        </div>
-      );
-    }
-
-    /* ─── HOME SCREEN ─────────────────────────────────────────────────────── */
-    function HomeScreen({ nav, openCheckin, history }) {
-      const [condDay, setCondDay] = useState('today');
-      const now   = new Date();
-      const hour  = now.getHours();
-      const greetingText = hour < 12 ? 'Good morning ☀️' : hour < 17 ? 'Good afternoon 🌤' : 'Good evening 🌙';
-
-      const todayD = now.getDate();
-      const todayM = now.toLocaleString('en-US', { month: 'short' });
-      const yest   = new Date(now); yest.setDate(now.getDate() - 1);
-      const yesterD = yest.getDate();
-      const yesterM = yest.toLocaleString('en-US', { month: 'short' });
-
-      // consecutive-day streak
-      const streak = (() => {
-        if (!history.length) return 0;
-        const MON = {JAN:0,FEB:1,MAR:2,APR:3,MAY:4,JUN:5,JUL:6,AUG:7,SEP:8,OCT:9,NOV:10,DEC:11};
-        const yr = now.getFullYear();
-        const unique = [...new Set(history.map(h => new Date(yr, MON[h.mon]||0, h.day).toDateString()))];
-        let count = 0, d = new Date(now);
-        while (unique.includes(d.toDateString())) { count++; d.setDate(d.getDate() - 1); }
-        return count;
-      })();
-
-      return (
-        <div className="screen screen-home">
-          <div className="home-header fade-up d1">
-            <div className="avatar-wrap">
-              <div className="avatar">🧑</div>
-              <div>
-                <div className="greet-sub">{greetingText}</div>
-                <div className="greet-name">Alex</div>
-              </div>
-            </div>
-            <div className="header-right">
-              {streak > 0 && <div className="streak-badge">🔥 {streak}d</div>}
-              <div className="menu-btn">{IC.dots()}</div>
-            </div>
-          </div>
-
-          <div className="sky-spacer"/>
-          <div className="daily-thought fade-up d2">
-            <div className="thought-label">Today's Thought</div>
-            <div className="thought-quote">Healing isn't linear.<br/>Honor your pace.</div>
-          </div>
-
-          <div className="glass cond-card fade-up d3">
-            <div className="cond-head">
-              <span className="cond-title">Your Condition</span>
-              <div className="toggle-grp">
-                <button className={`tog ${condDay==='today'?'on':''}`} onClick={()=>setCondDay('today')}>Today</button>
-                <button className={`tog ${condDay==='yesterday'?'on':''}`} onClick={()=>setCondDay('yesterday')}>Yesterday</button>
-              </div>
-            </div>
-            <div className="cond-body">
-              <div className="cond-date">
-                <div className="cond-day">{condDay==='today' ? todayD : yesterD}</div>
-                <div className="cond-month">{condDay==='today' ? todayM : yesterM}</div>
-              </div>
-              <div className="cond-text">
-                {condDay==='today'
-                  ? "Today your mental state shows signs of moderate stress and low energy. That's okay — some days are harder than others. Take a moment to breathe and be gentle with yourself."
-                  : "Yesterday showed mixed signals — a dip in energy early on but some recovery toward evening. Rest and routine go hand-in-hand. Keep building those small consistent habits."}
-              </div>
-            </div>
-            <button className="sol-btn" onClick={() => nav('ai-chat')}>Need Solutions?</button>
-          </div>
-
-          <div className="essentials-wrap fade-up d4">
-            <div className="essentials-header">
-              <div className="essentials-title">Your Mindful Essentials</div>
-              <button className="essentials-more">{IC.dots()}</button>
-            </div>
-            <div className="feats">
-              <div className="feat-card" onClick={openCheckin}>
-                <div className="feat-card-top">
-                  <div className="feat-card-name">Log Mood</div>
-                  <div className="feat-card-desc">Track how you feel and spot patterns over time</div>
-                </div>
-                <div className="feat-card-footer">
-                  <div className="feat-arrow">→</div>
-                  <div className="feat-illus">🌸</div>
-                </div>
-              </div>
-
-              <div className="feat-card" onClick={() => nav('resources')}>
-                <div className="feat-card-top">
-                  <div className="feat-card-name">Book Session</div>
-                  <div className="feat-card-desc">Schedule a 1:1 with a certified counselor</div>
-                </div>
-                <div className="feat-card-footer">
-                  <div className="feat-arrow">→</div>
-                  <div className="feat-illus">🫶</div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    /* ─── INSIGHTS SCREEN ─────────────────────────────────────────────────── */
-    function InsightsScreen({ history, openCheckin }) {
-      const [selDay, setSelDay] = useState(null);
-      const now      = new Date();
-      const todayD   = now.getDate();
-      const curMon   = MONTHS[now.getMonth()];
-      const daysInMon = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
-      const firstDow  = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
-
-      // map day → full entry for this month
-      const dayMap = {};
-      history.forEach(h => { if(h.mon === curMon && !dayMap[h.day]) dayMap[h.day] = h; });
-
-      const loggedThisMon = Object.keys(dayMap).length;
-      const avg = history.length
-        ? (history.reduce((a,b)=>a+b.val,0)/history.length).toFixed(1) : '—';
-
-      const cells = [];
-      for(let i=0;i<firstDow;i++) cells.push({blank:true});
-      for(let d=1;d<=daysInMon;d++) cells.push({day:d, entry:dayMap[d]||null, today:d===todayD});
-
-      const handleCellClick = (c) => {
-        if(c.entry) {
-          setSelDay(selDay === c.day ? null : c.day);
-        } else if(c.day <= todayD) {
-          openCheckin();
-        }
-      };
-
-      const selEntry = selDay ? dayMap[selDay] : null;
-
-      return (
-        <div className="screen">
-          <div className="scr-header">
-            <div className="scr-title">Your Journey</div>
-          </div>
-
-          <div className="stats-row">
-            {[{n:avg,l:'Avg Mood'},{n:history.length,l:'Entries'},{n:'🌱',l:'Growing'}].map((s,i)=>(
-              <div key={i} className="glass stat-card"><div className="stat-num">{s.n}</div><div className="stat-lbl">{s.l}</div></div>
-            ))}
-          </div>
-
-          {history.length > 0 && (
-            <div className="glass chart-card">
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',marginBottom:12}}>
-                <div style={{fontSize:'13px',fontWeight:600,color:'var(--deep)'}}>7-Day Mood Trend</div>
-                <div className="chart-sub" style={{marginBottom:0}}>tap to see details</div>
-              </div>
-              <svg width="100%" height="76" viewBox="0 0 280 76" preserveAspectRatio="xMidYMid meet" style={{overflow:'visible'}}>
-                {history.slice(0,7).reverse().map((h,i) => {
-                  const slots = Math.min(history.length, 7);
-                  const slotW = 280 / slots;
-                  const x = i * slotW + slotW * 0.18;
-                  const barW = slotW * 0.52;
-                  const barH = Math.max(8, (h.val / 5) * 52);
-                  const y = 58 - barH;
-                  const color = h.val >= 4
-                    ? 'rgba(80,155,95,0.68)'
-                    : h.val === 3
-                      ? 'rgba(190,155,60,0.68)'
-                      : 'rgba(200,90,70,0.68)';
-                  return (
-                    <g key={i}>
-                      <rect x={x} y={y} width={barW} height={barH} rx="5" fill={color}/>
-                      <text x={x + barW/2} y="72" textAnchor="middle" fontSize="8.5"
-                        fill="rgba(44,42,36,0.42)"
-                        fontFamily="'Jost',system-ui,sans-serif" fontWeight="500">
-                        {h.mon.slice(0,1)}{h.day}
-                      </text>
-                      <text x={x + barW/2} y={y - 3} textAnchor="middle" fontSize="12">
-                        {h.emoji}
-                      </text>
-                    </g>
-                  );
-                })}
-              </svg>
-            </div>
-          )}
-
-          <div className="glass cal-card">
-            <div className="cal-header">
-              <div>
-                <div className="cal-title">{now.toLocaleString('en-US',{month:'long'})} {now.getFullYear()}</div>
-                <div className="cal-count">{loggedThisMon}/{daysInMon} moods logged</div>
-              </div>
-              <button className="cal-plus" onClick={openCheckin}>+</button>
-            </div>
-            <div className="cal-dow">
-              {['Su','Mo','Tu','We','Th','Fr','Sa'].map(d=><span key={d}>{d}</span>)}
-            </div>
-            <div className="cal-grid">
-              {cells.map((c,i)=>(
-                c.blank
-                  ? <div key={i} className="cal-cell empty"/>
-                  : <div key={i}
-                      className={`cal-cell${c.today?' today':''}${c.entry?' has-entry':''}${selDay===c.day?' selected':''}`}
-                      onClick={()=>handleCellClick(c)}>
-                      {c.entry ? c.entry.emoji : c.day}
-                    </div>
+            <div style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:11, fontWeight:600, letterSpacing:'.6px', textTransform:'uppercase', color:'rgba(20,20,19,0.40)', marginBottom:9 }}>What's on your mind?</div>
+            <div style={{ display:'flex', flexWrap:'wrap', gap:7, marginBottom:18 }}>
+              {TAGS.map(t => (
+                <button key={t}
+                  style={{ padding:'6px 13px', borderRadius:20, border:`1px solid ${tags.includes(t)?'transparent':'rgba(20,20,19,0.20)'}`, background:tags.includes(t)?'rgba(20,20,19,0.76)':'transparent', fontFamily:'Sofia Sans,sans-serif', fontSize:12, color:tags.includes(t)?'rgba(255,255,255,0.92)':'rgba(20,20,19,0.65)', cursor:'pointer', transition:'all .2s' }}
+                  onClick={() => togTag(t)}>{t}</button>
               ))}
             </div>
+            <textarea rows={2} placeholder="Optional note to yourself…" value={note} onChange={e=>setNote(e.target.value)}
+              style={{ width:'100%', background:'rgba(255,255,255,0.36)', border:'1px solid rgba(255,255,255,0.55)', borderRadius:14, padding:'11px 14px', fontFamily:'Sofia Sans,sans-serif', fontSize:13, color:'#141413', resize:'none', outline:'none', marginBottom:18 }} />
+            <button disabled={!sel} onClick={() => { if(sel){onSave({mood:sel,tags,note});onClose();} }}
+              style={{ width:'100%', padding:16, background:'rgba(20,20,19,0.80)', color:'rgba(255,255,255,0.94)', border:'none', borderRadius:20, fontFamily:'Sofia Sans,sans-serif', fontSize:15, fontWeight:500, cursor:sel?'pointer':'not-allowed', opacity:sel?1:0.4, letterSpacing:'.2px' }}>
+              Save Check-in
+            </button>
+          </div>
+        </div>
+      );
+    }
 
-            {selEntry && (
-              <div className="day-detail" key={selDay}>
-                <div className="day-detail-emoji">{selEntry.emoji}</div>
-                <div className="day-detail-info">
-                  <div className="day-detail-date">{curMon} {selEntry.day}, {now.getFullYear()}</div>
-                  <div className="day-detail-label">{selEntry.label}</div>
-                  <div className="day-detail-tags">{selEntry.tags}</div>
-                  {selEntry.note && <div className="day-detail-note">"{selEntry.note}"</div>}
+    /* ── LOG MOOD PAGE ── */
+    const LOG_WAVE_BARS = [
+      {h:52,c:'white'},{h:52,c:'white'},{h:52,c:'white'},{h:52,c:'white'},
+      {h:52,c:'#eafaff'},{h:52,c:'#eafaff'},{h:52,c:'#eafaff'},{h:63,c:'#eafaff'},
+      {h:75,c:'#e4f9ff'},{h:88,c:'#e4f9ff'},{h:101,c:'#e4f9ff'},
+      {h:115,c:'#daf6ff'},{h:124,c:'#daf6ff'},
+      {h:135,c:'#c7ecf7'},
+      {h:157,c:'#91e4fb'},
+      {h:135,c:'#c7ecf7'},
+      {h:124,c:'#daf6ff'},{h:115,c:'#daf6ff'},
+      {h:101,c:'#e4f9ff'},{h:88,c:'#e4f9ff'},{h:75,c:'#e4f9ff'},
+      {h:63,c:'#eafaff'},{h:52,c:'#eafaff'},{h:52,c:'#eafaff'},{h:52,c:'#eafaff'},
+      {h:52,c:'white'},{h:52,c:'white'},{h:52,c:'white'},{h:52,c:'white'},
+    ];
+    const LOG_MOOD_OPTIONS = ['Exhausted','Sad','Good'];
+
+    function LogMoodPage({ onBack, onSave }) {
+      const [selected, setSelected] = useState('Sad');
+      const [prevMood, setPrevMood]  = useState(null);   // slides out
+      const [slideDir, setSlideDir]  = useState(null);   // 'left' | 'right'
+      const dragRef  = useRef({ startX:0, dragging:false });
+      const timerRef = useRef(null);
+
+      const switchMood = (mood) => {
+        if (mood === selected) return;
+        const oldIdx = LOG_MOOD_OPTIONS.indexOf(selected);
+        const newIdx = LOG_MOOD_OPTIONS.indexOf(mood);
+        if (timerRef.current) clearTimeout(timerRef.current);
+        setPrevMood(selected);
+        setSlideDir(newIdx > oldIdx ? 'left' : 'right');
+        setSelected(mood);
+        timerRef.current = setTimeout(() => setPrevMood(null), 420);
+      };
+
+      /* ── Per-mood helpers ── */
+      const moodBgFilter = (id) =>
+        id==='Good' ? 'hue-rotate(240deg) saturate(0.9)' :
+        id==='Sad'  ? 'hue-rotate(0deg)' : 'hue-rotate(30deg) saturate(0.55) brightness(1.05)';
+
+      /* Solid fallback color — always opaque even if images fail to load */
+      const moodBgColor = (id) =>
+        id==='Good' ? '#c8eea8' : id==='Sad' ? '#c2e4f5' : '#cec8f0';
+
+      const renderSlot = (moodId) => {
+        const mg = moodId==='Good', ms = moodId==='Sad';
+        const ci = mg ? imgGoodChar : imgLogCloudChar;
+        const cf = mg ? 'none' : !ms ? 'saturate(0.2) brightness(0.85) hue-rotate(250deg)' : 'none';
+        const ca = mg ? 'cloudGood 1.6s cubic-bezier(.36,.07,.19,.97) infinite' :
+                   !ms  ? 'cloudExhausted 5s ease-in-out infinite' : 'cloudSad 3s ease-in-out infinite';
+        const ec = mg ? null : ms ? '#58c2ff' : '#9090b0';
+        const esy = !ms && !mg ? 0.45 : 1;
+        const bi = mg ? imgGoodBubble : imgLogBubble;
+        const bws = mg
+          ? { background:'linear-gradient(-1.89deg,rgb(164,217,156) 36.791%,rgb(109,189,44) 107.79%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }
+          : ms ? { color:'#47d9ff' } : { color:'#a090d0' };
+        return (
+          <>
+            {/* Bubble */}
+            <div style={{ position:'absolute', left:'50%', marginLeft:-85, top:22, width:170, height:78 }}>
+              <div style={{ position:'absolute', top:0, right:0, bottom:'12.86%', left:0 }}>
+                <img alt="" style={{ display:'block', maxWidth:'none', width:'100%', height:'100%' }} src={bi}
+                  onError={e=>{ e.target.style.display='none'; const p=e.target.parentNode; p.style.background='white'; p.style.borderRadius='18px'; p.style.boxShadow='0 2px 12px rgba(0,0,0,0.08)'; }} />
+              </div>
+              <p style={{ position:'absolute', left:'50%', transform:'translateX(-50%)', fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:24, color:'black', textAlign:'center', top:14, letterSpacing:'0.3px', whiteSpace:'nowrap', width:136 }}>
+                {'I feel '}<span style={bws}>{moodId}</span>{' !'}
+              </p>
+            </div>
+            {/* Character */}
+            <div style={{ position:'absolute', left:'50%', marginLeft:-143.5, top:106, width:287, height:287 }}>
+              <div style={{ position:'relative', width:'100%', height:'100%', filter:cf, animation:ca }}>
+                <img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={ci} onError={e=>e.target.style.display='none'} />
+                {mg && <div style={{ position:'absolute', height:48, left:97, top:131, width:92 }}><div style={{ position:'absolute', top:0, right:0, bottom:'-15.63%', left:0 }}><img alt="" style={{ display:'block', maxWidth:'none', width:'100%', height:'100%' }} src={imgGoodFace} onError={e=>e.target.style.display='none'} /></div></div>}
+                {ec && <>
+                  <div style={{ position:'absolute', background:ec, height:11, left:183, borderRadius:20, top:133, width:21, transform:`scaleY(${esy})`, transformOrigin:'center', animation:'eyeIdle 4s ease-in-out 0.3s infinite' }} />
+                  <div style={{ position:'absolute', background:ec, height:11, left:82,  borderRadius:20, top:133, width:21, transform:`scaleY(${esy})`, transformOrigin:'center', animation:'eyeIdle 4s ease-in-out 0.5s infinite' }} />
+                </>}
+                {ms && <>
+                  <div style={{ position:'absolute', width:5, height:9, borderRadius:'50% 50% 50% 50% / 40% 40% 60% 60%', background:'#58c2ff', left:89,  top:148, animation:'tearFall 2s ease-in 0s   infinite' }} />
+                  <div style={{ position:'absolute', width:5, height:9, borderRadius:'50% 50% 50% 50% / 40% 40% 60% 60%', background:'#58c2ff', left:89,  top:148, animation:'tearFall 2s ease-in 1s   infinite' }} />
+                  <div style={{ position:'absolute', width:5, height:9, borderRadius:'50% 50% 50% 50% / 40% 40% 60% 60%', background:'#58c2ff', left:192, top:148, animation:'tearFall 2s ease-in 0.5s infinite' }} />
+                  <div style={{ position:'absolute', width:5, height:9, borderRadius:'50% 50% 50% 50% / 40% 40% 60% 60%', background:'#58c2ff', left:192, top:148, animation:'tearFall 2s ease-in 1.5s infinite' }} />
+                </>}
+              </div>
+            </div>
+          </>
+        );
+      };
+
+      /* Drag/swipe — attach a non-passive touchmove to block browser scroll */
+      const waveRef = useRef(null);
+      useEffect(() => {
+        const el = waveRef.current;
+        if (!el) return;
+        const prevent = (e) => { if (dragRef.current.dragging) e.preventDefault(); };
+        el.addEventListener('touchmove', prevent, { passive: false });
+        return () => el.removeEventListener('touchmove', prevent);
+      }, []);
+
+      const onDragStart = (e) => {
+        const x = e.clientX ?? e.touches?.[0]?.clientX ?? 0;
+        dragRef.current = { startX: x, dragging: true };
+      };
+      const onDragMove  = (e) => {
+        if (!dragRef.current.dragging) return;
+        const x = e.clientX ?? e.touches?.[0]?.clientX ?? 0;
+        const dx = x - dragRef.current.startX;
+        if (Math.abs(dx) > 48) {
+          const idx = LOG_MOOD_OPTIONS.indexOf(selected);
+          if (dx < 0 && idx < LOG_MOOD_OPTIONS.length - 1) switchMood(LOG_MOOD_OPTIONS[idx + 1]);
+          else if (dx > 0 && idx > 0) switchMood(LOG_MOOD_OPTIONS[idx - 1]);
+          dragRef.current.dragging = false;
+        }
+      };
+      const onDragEnd = () => { dragRef.current.dragging = false; };
+
+      const isGood = selected==='Good', isSad = selected==='Sad';
+      const pillShadow = isGood ? '#90d870' : isSad ? '#91e4fb' : '#c0b0e8';
+      const inAnim  = slideDir==='left'  ? 'slideFromRight 0.4s cubic-bezier(0.25,0.46,0.45,0.94) both' :
+                      slideDir==='right' ? 'slideFromLeft  0.4s cubic-bezier(0.25,0.46,0.45,0.94) both' : 'none';
+      const outAnim = slideDir==='left'  ? 'slideOutToLeft  0.4s cubic-bezier(0.25,0.46,0.45,0.94) forwards' :
+                      slideDir==='right' ? 'slideOutToRight 0.4s cubic-bezier(0.25,0.46,0.45,0.94) forwards' : 'none';
+
+      return (
+        <div style={{ position:'absolute', inset:0, zIndex:200, borderRadius:'inherit' }}>
+
+          {/* ── Background: NEVER has filter on this div → always fully opaque ── */}
+          <div style={{ position:'absolute', inset:0, background:'white', overflow:'hidden', borderRadius:'inherit' }}>
+            {/* Ellipse 1 – filter applied here, not on parent */}
+            <div style={{ position:'absolute', height:638, left:-38, top:81, width:476,
+              filter: moodBgFilter(selected), transition:'filter 0.42s cubic-bezier(0.25,0.46,0.45,0.94)', willChange:'filter' }}>
+              <div style={{ position:'absolute', top:'-55.87%', right:'-74.98%', bottom:'-55.87%', left:'-74.98%' }}>
+                <img alt="" style={{ display:'block', maxWidth:'none', width:'100%', height:'100%' }} src={imgLogEllipse1} onError={e=>e.target.style.display='none'} />
+              </div>
+            </div>
+            {/* Ellipse 5 – filter applied on the inner rotate div, outside the color-burn container */}
+            <div style={{ position:'absolute', display:'flex', height:1136, alignItems:'center', justifyContent:'center', left:-306, mixBlendMode:'color-burn', top:-25, width:1136 }}>
+              <div style={{ transform:'rotate(145.14deg)',
+                filter: moodBgFilter(selected), transition:'filter 0.42s cubic-bezier(0.25,0.46,0.45,0.94)', willChange:'filter' }}>
+                <div style={{ height:816, position:'relative', width:816 }}>
+                  <div style={{ position:'absolute', top:'-6.56%', right:'-6.55%', bottom:'-6.56%', left:'-6.55%' }}>
+                    <img alt="" style={{ display:'block', maxWidth:'none', width:'100%', height:'100%' }} src={imgLogEllipse5} onError={e=>e.target.style.display='none'} />
+                  </div>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Sliding zone: overflow:hidden clips characters during transition ── */}
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:400, overflow:'hidden' }}>
+            {/* Previous mood slides OUT */}
+            {prevMood && (
+              <div key={'out-'+prevMood} style={{ position:'absolute', inset:0, animation:outAnim, willChange:'transform' }}>
+                {renderSlot(prevMood)}
               </div>
             )}
+            {/* Current mood slides IN */}
+            <div key={'in-'+selected} style={{ position:'absolute', inset:0, animation: prevMood ? inAnim : 'none', willChange:'transform' }}>
+              {renderSlot(selected)}
+            </div>
           </div>
 
-          <div className="sec-label">Recent Entries</div>
-          <div className="history-list">
-            {history.map((h,i)=>(
-              <div key={i} className="glass hist-row">
-                <div className="hist-date"><div className="hist-d">{h.day}</div><div className="hist-m">{h.mon}</div></div>
-                <div className="hist-emoji">{h.emoji}</div>
-                <div className="hist-info"><div className="hist-name">{h.label}</div><div className="hist-tags">{h.tags}</div></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    }
-
-    /* ─── AI CHAT SCREEN ──────────────────────────────────────────────────── */
-    const QUICK_STARTS = [
-      {name:'Feel stressed',     bg:'linear-gradient(135deg, rgba(255,200,180,0.45), rgba(255,160,140,0.25))', topic:'stress'},
-      {name:'Feel anxious',      bg:'linear-gradient(135deg, rgba(200,220,255,0.45), rgba(170,190,255,0.25))', topic:'anxiety'},
-      {name:'Feel sad',          bg:'linear-gradient(135deg, rgba(200,240,200,0.45), rgba(160,220,170,0.25))', topic:'sad'},
-      {name:'Need to talk',      bg:'linear-gradient(135deg, rgba(240,220,255,0.45), rgba(210,180,240,0.25))', topic:'stress'},
-    ];
-
-    function AIChatScreen({ nav, toCrisis }) {
-      const [mode, setMode]   = useState('landing'); // landing | chat
-      const [msgs, setMsgs]   = useState([]);
-      const [inp, setInp]     = useState('');
-      const [landInp, setLandInp] = useState('');
-      const [typing, setT]    = useState(false);
-      const [expanded, setExpanded] = useState(false);
-      const endRef            = useRef(null);
-
-      useEffect(()=>{ endRef.current?.scrollIntoView({behavior:'smooth'}); }, [msgs, typing]);
-
-      const startChat = (firstMsg) => {
-        const greeting = {from:'bot', text:"Hi there 👋 I'm here to listen — no judgment, just support."};
-        setMsgs([greeting, {from:'me', text:firstMsg}]);
-        setMode('chat');
-        setT(true);
-        setTimeout(()=>{ setT(false); setMsgs(p=>[...p,{from:'bot',text:getReply(firstMsg)}]); }, 1100+Math.random()*900);
-      };
-
-      const send = () => {
-        const t = inp.trim(); if(!t) return;
-        setMsgs(p=>[...p,{from:'me',text:t}]); setInp(''); setT(true);
-        setTimeout(()=>{ setT(false); setMsgs(p=>[...p,{from:'bot',text:getReply(t)}]); }, 1100+Math.random()*900);
-      };
-
-      const landSend = () => {
-        const t = landInp.trim(); if(!t) return;
-        startChat(t); setLandInp('');
-      };
-
-      if (mode === 'landing') return (
-        <div className="screen" style={{display:'flex',flexDirection:'column'}}>
-          <div className="ai-landing">
-            {/* Top bar */}
-            <div className="ai-top-bar">
-              <div className="ai-top-back" onClick={()=>nav('home')}>‹</div>
-              <div className="ai-top-title">IlliniCare Chat</div>
-              <div className="ai-top-plus" onClick={()=>startChat('Hello, I need support')}>+</div>
+          {/* ── Bottom sheet ── */}
+          <div style={{ position:'absolute', background:'#faf7f5', height:453, left:0, overflow:'hidden', borderRadius:50, top:391, width:390 }}>
+            {/* Waveform — drag to switch */}
+            <div ref={waveRef}
+              onMouseDown={onDragStart} onMouseMove={onDragMove} onMouseUp={onDragEnd} onMouseLeave={onDragEnd}
+              onTouchStart={onDragStart} onTouchMove={onDragMove} onTouchEnd={onDragEnd}
+              style={{ position:'absolute', display:'flex', gap:7, alignItems:'flex-end', left:10, top:184, height:156, cursor:'ew-resize', userSelect:'none', touchAction:'none' }}>
+              {LOG_WAVE_BARS.map((bar,i) => (
+                <div key={i} style={{ background:bar.c, height:bar.h, borderRadius:20, flexShrink:0, width:6 }} />
+              ))}
             </div>
-
-            {/* Combined greeting + insight card */}
-            <div className="ai-combined-card">
-              <div className="ai-combined-top">
-                <div className="ai-greet-row">
-                  <span className="ai-greet-text">Good morning,</span>
-                  <span className="ai-greet-avatar">🧑‍🎓</span>
-                  <span className="ai-greet-text" style={{fontWeight:700}}>Alex!</span>
-                </div>
-                <div className="ai-greet-msg">
-                  Today, I have prepared you{' '}
-                  <span className="ai-highlight">💛 gentle insights</span>{' '}
-                  for your mindful day.
-                </div>
-                <div className="ai-greet-meta">
-                  <span>12 min ago</span>
-                  <span>📋 3</span>
-                  <span>✅ 2</span>
-                  <span>🎧 1</span>
-                </div>
-              </div>
-
-              {/* Expand toggle */}
-              <button className="ai-expand-btn" onClick={()=>setExpanded(e=>!e)}>
-                <div className={`ai-expand-chevron ${expanded?'open':''}`}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M6 9l6 6 6-6"/></svg>
-                </div>
-              </button>
-
-              {/* Collapsible insight section */}
-              <div className={`ai-insight-card ${expanded?'expanded':''}`}>
-                <div className="ai-insight-journal">
-                  Stress patterns around academics detected. Let's work through it together.
-                </div>
-                <div className="ai-insight-quote">
-                  "You don't have to control your thoughts — just stop letting them control you."
-                </div>
-                <div className="ai-insight-tips">
-                  <div className="ai-insight-tip"><span className="tip-ic">🧘</span> 5-min body scan before your next study session</div>
-                  <div className="ai-insight-tip"><span className="tip-ic">🌙</span> Sleep improved this week — keep it up!</div>
-                </div>
-                <div className="ai-action-row" style={{marginTop:'auto'}}>
-                  <div className="ai-action-pill" onClick={()=>startChat('I want to try a breathing exercise')}>
-                    <span className="pill-ic">🫁</span> Breathing mode
-                  </div>
-                  <div className="ai-action-pill" onClick={()=>startChat('Generate a wellness report for me')}>
-                    <span className="pill-ic">📊</span> Weekly report
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick start pills + input — anchored to bottom together */}
-            <div className="ai-bottom-anchor">
-              <div style={{padding:'0 18px 6px', fontSize:'10.5px', fontWeight:600, letterSpacing:'.5px', textTransform:'uppercase', color:'var(--deep-40)'}}>Start a conversation</div>
-              <div className="ai-qs-row">
-                {QUICK_STARTS.map((q,i)=>(
-                  <div key={i} className="ai-qs-pill" onClick={()=>startChat(`I ${q.name.toLowerCase()}`)}>
-                    {q.name}
+            {/* Title + pills + dots */}
+            <div style={{ position:'absolute', left:13, top:27, width:345 }}>
+              <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, lineHeight:'normal', fontSize:30, color:'black', textAlign:'center', letterSpacing:'0.3px', width:320, margin:'0 auto' }}>
+                HOW do you feeling right now?
+              </p>
+              <div style={{ display:'flex', gap:12, alignItems:'center', justifyContent:'center', marginTop:24 }}>
+                {LOG_MOOD_OPTIONS.map(mood => (
+                  <div key={mood} onClick={() => switchMood(mood)}
+                    style={{ background:'white', border:'1px solid rgba(20,20,19,0.07)', display:'flex', height:36, alignItems:'center', justifyContent:'center', padding:'0 26px', borderRadius:20,
+                      boxShadow: mood===selected ? `0 2px 10.6px 0 ${pillShadow}` : '0 2px 10.6px 0 #d0d0d0',
+                      flexShrink:0, cursor:'pointer', userSelect:'none', transition:'box-shadow 0.2s ease' }}>
+                    <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:14, color:'black', letterSpacing:'-0.2px', whiteSpace:'nowrap' }}>{mood}</p>
                   </div>
                 ))}
               </div>
-              <div className="ai-bottom-bar">
-                <div className="ai-bottom-plus">+</div>
-                <input className="ai-bottom-input" placeholder="Ask IlliniCare something…"
-                  value={landInp} onChange={e=>setLandInp(e.target.value)}
-                  onKeyDown={e=>e.key==='Enter'&&landSend()} />
-                <div className="ai-bottom-send" onClick={landSend}>✦</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-
-      return (
-        <div className="screen-chat">
-          <div className="scr-header" style={{paddingBottom:12, flexShrink:0}}>
-            <div className="back-btn" onClick={()=>setMode('landing')}>{IC.back()}</div>
-            <div className="chat-head-title">
-              <div className="cht-main">AI Support</div>
-              <div className="cht-sub">🟢 Always available · Confidential</div>
-            </div>
-          </div>
-
-          <div className="msgs-wrap">
-            <div className="msgs-inner">
-              {msgs.map((m,i)=><div key={i} className={`bubble ${m.from}`}>{m.text}</div>)}
-              {typing && <div className="bubble bot"><div className="typing-ind"><div className="typing-dot"/><div className="typing-dot"/><div className="typing-dot"/></div></div>}
-              <div ref={endRef}/>
-            </div>
-          </div>
-
-          <div className="crisis-banner">
-            <span style={{fontSize:15}}>🆘</span>
-            <span className="crisis-banner-text">In immediate danger? Reach out now.</span>
-            <span className="crisis-banner-link" onClick={toCrisis}>Crisis →</span>
-          </div>
-
-          <div className="input-bar">
-            <input className="chat-inp" placeholder="Share what's on your mind…" value={inp} onChange={e=>setInp(e.target.value)} onKeyDown={e=>e.key==='Enter'&&send()}/>
-            <button className="send-btn" onClick={send}>{IC.send(16,'rgba(255,255,255,.92)')}</button>
-          </div>
-        </div>
-      );
-    }
-
-    /* ─── PROFILE SCREEN ─────────────────────────────────────────────────── */
-    function ProfileScreen({ nav, history, openCheckin }) {
-      const avg = history.length
-        ? (history.reduce((a,b)=>a+b.val,0)/history.length).toFixed(1) : '—';
-
-      // streak calc
-      const streak = (() => {
-        if (!history.length) return 0;
-        const MON = {JAN:0,FEB:1,MAR:2,APR:3,MAY:4,JUN:5,JUL:6,AUG:7,SEP:8,OCT:9,NOV:10,DEC:11};
-        const now = new Date(); const yr = now.getFullYear();
-        const unique = [...new Set(history.map(h => new Date(yr, MON[h.mon]||0, h.day).toDateString()))];
-        let count = 0, d = new Date(now);
-        while (unique.includes(d.toDateString())) { count++; d.setDate(d.getDate()-1); }
-        return count;
-      })();
-
-      const MENU_ITEMS = [
-        { section: 'Wellness', rows: [
-          { ic:'🌸', bg:'rgba(255,180,180,0.20)', title:'Mood History',       sub:'View all your past entries',      chev:true },
-          { ic:'🔔', bg:'rgba(255,200,100,0.20)', title:'Reminders',          sub:'Daily check-in at 9:00 PM',       chev:true },
-          { ic:'🎯', bg:'rgba(100,180,255,0.20)', title:'Wellness Goals',     sub:'3 active goals this month',       chev:true },
-        ]},
-        { section: 'Account', rows: [
-          { ic:'🔒', bg:'rgba(140,200,140,0.20)', title:'Privacy & Data',     sub:'Control what you share',          chev:true },
-          { ic:'🎓', bg:'rgba(200,160,255,0.20)', title:'University',         sub:'University of Illinois · UIUC',   chev:true },
-          { ic:'❓', bg:'rgba(200,200,200,0.20)', title:'Help & Support',     sub:'FAQs, contact, feedback',         chev:true, badge:'2' },
-        ]},
-      ];
-
-      return (
-        <div className="screen">
-          {/* Hero */}
-          <div className="prof-hero fade-up d1">
-            <div className="prof-avatar-wrap">
-              <div className="prof-avatar">🧑</div>
-              <div className="prof-edit-btn">✎</div>
-            </div>
-            <div className="prof-name">Alex</div>
-            <div className="prof-email">alex@illinois.edu</div>
-            <div className="prof-badges">
-              <span className="prof-badge green">🌱 {streak}d streak</span>
-              <span className="prof-badge amber">⭐ {history.length} entries</span>
-              <span className="prof-badge blue">🎓 Junior · CS</span>
-            </div>
-          </div>
-
-          {/* Stats */}
-          <div className="prof-stats-row fade-up d2">
-            <div className="prof-stat">
-              <div className="prof-stat-n">{avg}</div>
-              <div className="prof-stat-l">Avg Mood</div>
-            </div>
-            <div className="prof-stat">
-              <div className="prof-stat-n">{streak}</div>
-              <div className="prof-stat-l">Day Streak</div>
-            </div>
-            <div className="prof-stat">
-              <div className="prof-stat-n">{history.length}</div>
-              <div className="prof-stat-l">Check-ins</div>
-            </div>
-            <div className="prof-stat">
-              <div className="prof-stat-n">🌱</div>
-              <div className="prof-stat-l">Growing</div>
-            </div>
-          </div>
-
-          {/* Menu sections */}
-          {MENU_ITEMS.map((sec, si) => (
-            <div key={si} className="fade-up" style={{animationDelay:`${(si+3)*0.06}s`}}>
-              <div className="prof-section-title">{sec.section}</div>
-              <div className="prof-menu">
-                {sec.rows.map((r, ri) => (
-                  <div key={ri} className={`prof-row${ri===0?' prof-row-first':''}${ri===sec.rows.length-1?' prof-row-last':''}`}
-                    onClick={r.title==='Mood History' ? ()=>nav('insights') : undefined}>
-                    <div className="prof-row-ic" style={{background:r.bg}}>{r.ic}</div>
-                    <div className="prof-row-body">
-                      <div className="prof-row-title">{r.title}</div>
-                      <div className="prof-row-sub">{r.sub}</div>
-                    </div>
-                    {r.badge && <span className="prof-row-badge">{r.badge} new</span>}
-                    {r.chev && <span className="prof-row-chev">›</span>}
-                  </div>
+              <div style={{ display:'flex', gap:6, justifyContent:'center', marginTop:12 }}>
+                {LOG_MOOD_OPTIONS.map(m => (
+                  <div key={m} onClick={() => switchMood(m)} style={{ width:m===selected?18:6, height:6, borderRadius:3, background:m===selected?'#141413':'rgba(20,20,19,0.18)', cursor:'pointer', transition:'all 0.25s ease' }} />
                 ))}
               </div>
             </div>
-          ))}
-
-          {/* Sign out */}
-          <button className="prof-signout fade-up d6">Sign Out</button>
-        </div>
-      );
-    }
-
-    /* ─── RESOURCES SCREEN ────────────────────────────────────────────────── */
-    function ResourcesScreen() {
-      const [filter, setFilter] = useState('all');
-      const cats = ['all','counseling','health','crisis','wellness'];
-      const list = filter==='all' ? RESOURCES : RESOURCES.filter(r=>r.cat===filter);
-      return (
-        <div className="screen">
-          <div className="scr-header"><div className="scr-title">Resources</div></div>
-          <div className="filter-bar">
-            {cats.map(c=><button key={c} className={`chip ${filter===c?'on':''}`} onClick={()=>setFilter(c)}>{c.charAt(0).toUpperCase()+c.slice(1)}</button>)}
-          </div>
-          <div className="res-list">
-            {list.map((r,i)=>(
-              <div key={i} className="glass res-card">
-                <div className="res-row">
-                  <div className="res-ic" style={{background:r.bg}}>{r.icon}</div>
-                  <div style={{flex:1}}>
-                    <div className="res-name">{r.name}</div>
-                    <div className="res-desc">{r.desc}</div>
-                    <div className="res-contact">{IC.phone(12,'var(--deep-60)')}{r.contact}</div>
-                    <div className="res-hours">{r.hours}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    }
-
-    /* ─── CRISIS SCREEN ───────────────────────────────────────────────────── */
-    function CrisisScreen({ nav }) {
-      return (
-        <div className="screen">
-          <div className="scr-header" style={{paddingBottom:4}}>
-            <div className="back-btn" onClick={()=>nav('home')}>{IC.back()}</div>
-            <div style={{flex:1,marginLeft:12}}>
-              <div className="cht-main">Crisis Support</div>
-              <div className="cht-sub">Immediate help · always available</div>
+            {/* Submit */}
+            <div onClick={() => { onSave(selected); onBack(); }}
+              style={{ position:'absolute', background:'#d9d9d9', height:45, left:19, borderRadius:20, top:366, width:352, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+              <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:16, color:'white', letterSpacing:'-0.2px' }}>Log Mood</p>
             </div>
           </div>
 
-          <div className="glass-hi crisis-hero">
-            <div className="crisis-big-ic">🌸</div>
-            <div className="crisis-title">You're not alone.</div>
-            <div className="crisis-sub">If you're in immediate distress or having thoughts of self-harm, please reach out right now. Help is here 24 / 7.</div>
-            <button className="call-now-btn">{IC.phone(20,'white')} Call 988 Now</button>
+          {/* ── Back button ── */}
+          <div onClick={onBack}
+            style={{ position:'absolute', left:20, top:56, zIndex:10,
+              background: isGood ? 'rgba(164,217,156,0.7)' : !isSad ? 'rgba(180,160,220,0.6)' : 'rgba(255,255,255,0.75)',
+              backdropFilter:'blur(8px)', borderRadius:20, padding:'7px 14px', cursor:'pointer',
+              border: isGood ? '1px solid rgba(109,189,44,0.25)' : !isSad ? '1px solid rgba(160,144,208,0.3)' : '1px solid rgba(20,20,19,0.08)',
+              boxShadow:'0 2px 8px rgba(0,0,0,0.06)', transition:'background 0.4s ease, border 0.4s ease' }}>
+            <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:13, color:'#141413', letterSpacing:'-0.1px' }}>← Back</p>
           </div>
 
-          <div className="sec-label">Emergency Resources</div>
-          <div className="crisis-list">
-            {[
-              {ic:'🏥',bg:'rgba(100,165,120,.24)',name:'CAPS Crisis Line',       det:'(217) 333-3704 · After-hours available',action:'Call'},
-              {ic:'💬',bg:'rgba(100,142,202,.24)',name:'Crisis Text Line',        det:'Text HOME to 741741',                   action:'Text'},
-              {ic:'🚨',bg:'rgba(218,98,78,.24)',  name:'988 Lifeline',            det:'Call or text 988 · 24/7 nationwide',    action:'Call'},
-              {ic:'🚑',bg:'rgba(178,148,78,.24)', name:'UIUC Emergency',          det:'University Police: (217) 333-1216',     action:'Call'},
-              {ic:'🏃',bg:'rgba(138,118,182,.24)',name:'McKinley Walk-in',        det:'1109 S Lincoln Ave · 8am–5pm',          action:'Map'},
-            ].map((r,i)=>(
-              <div key={i} className="glass cr-row">
-                <div className="cr-ic" style={{background:r.bg}}>{r.ic}</div>
-                <div><div className="cr-name">{r.name}</div><div className="cr-det">{r.det}</div></div>
-                <button className="cr-act">{r.action}</button>
-              </div>
-            ))}
-          </div>
+          <StatusBar />
+          <div style={{ position:'absolute', inset:0, pointerEvents:'none', borderRadius:'inherit', boxShadow:'inset 0px 1px 0px 0px rgba(255,255,255,0.12)' }} />
         </div>
       );
     }
 
-    /* ─── ROOT APP ────────────────────────────────────────────────────────── */
-    const NAV_TABS = [
-      {id:'home',      icon:'🏠',  label:'Home'},
-      {id:'insights',  icon:'📈',  label:'Insights'},
-      {id:'ai-chat',   icon:'💬',  label:'AI Chat'},
-      {id:'resources', icon:'📚',  label:'Resources'},
-      {id:'profile',   icon:'🧑',  label:'Profile'},
-    ];
-
+    /* ── APP ── */
     function App() {
-      const [screen,       setScreen]  = useState('home');
-      const [tab,          setTab]     = useState('home');
-      const [showCheckin,  setCheckin] = useState(false);
-      const [history,      setHistory] = useState(loadHistory);
+      const [page, setPage] = useState('home');
+      const [checkinOpen, setCheckin] = useState(false);
+      const [todayMood, setTodayMood] = useState(null);
+      const [count, setCount] = useState(7);
+      const greeting = getGreeting();
 
-      const nav = s => {
-        setScreen(s);
-        const tabId = ['home','insights','ai-chat','resources','profile'].includes(s) ? s : tab;
-        setTab(tabId);
+      const handleSave = entry => {
+        setTodayMood(entry);
+        setCount(c => c + 1);
+        setCheckin(false);
       };
 
-      const addEntry = ({mood, tags, note}) => {
-        if (!mood) return;
-        const now = new Date();
-        const entry = {
-          day:   now.getDate(),
-          mon:   MONTHS[now.getMonth()],
-          emoji: mood.emoji,
-          label: mood.label,
-          tags:  tags.length ? tags.join(' · ') : 'General',
-          val:   mood.val,
-          note:  note || '',
-        };
-        const updated = [entry, ...history];
-        setHistory(updated);
-        try { localStorage.setItem('illinicare_history', JSON.stringify(updated)); } catch(e) {}
+      const handleLogMoodSave = (moodLabel) => {
+        setTodayMood({ mood: { label: moodLabel, emoji: moodLabel==='Good'?'🙂':moodLabel==='Sad'?'😔':'😩' } });
+        setCount(c => c + 1);
       };
 
-      const hideNav = screen === 'crisis';
+      /* TODAY face content */
+      const todayFace = todayMood
+        ? <span style={{ position:'absolute', left:'50%', top:'50%', transform:'translate(-50%,-50%)', fontSize:20 }}>{todayMood.mood.emoji}</span>
+        : <div style={{ position:'absolute', background:'white', border:'1px solid rgba(20,20,19,0.12)', left:1, borderRadius:28, width:25, height:25, top:-1 }} />;
 
-      return (
-        <div className="phone">
-          {/* ── Grainient WebGL background ── */}
-          <VideoBg/>
+      const todayLabel = todayMood ? todayMood.mood.label : '?';
 
-          {/* ── Shell ── */}
-          <div className="shell">
-            <StatusBar/>
-
-            <div className="screens">
-              {screen==='home'      && <HomeScreen      nav={nav} openCheckin={()=>setCheckin(true)} history={history}/>}
-              {screen==='insights'  && <InsightsScreen history={history} openCheckin={()=>setCheckin(true)}/>}
-              {screen==='ai-chat'   && <AIChatScreen    nav={nav} toCrisis={()=>nav('crisis')}/>}
-              {screen==='resources' && <ResourcesScreen/>}
-              {screen==='profile'   && <ProfileScreen   nav={nav} history={history} openCheckin={()=>setCheckin(true)}/>}
-              {screen==='crisis'    && <CrisisScreen    nav={nav}/>}
+      /* MON face (node 70-91 exact) */
+      const goodFace = (
+        <div style={{ position:'absolute', height:22, left:2, top:1, width:26 }}>
+          <div style={{ position:'absolute', top:'-9.09%', right:'9.39%', bottom:'-3.74%', left:'-6.55%' }}>
+            <img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgDayGoodBlob} onError={e=>e.target.style.display='none'} />
+          </div>
+          <div style={{ position:'absolute', top:'33.92%', right:'42.23%', bottom:'46.88%', left:'26.63%' }}>
+            <div style={{ position:'absolute', top:0, right:0, bottom:'-11.63%', left:0 }}>
+              <img alt="" style={{ display:'block', maxWidth:'none', width:'100%', height:'100%' }} src={imgDayGoodSmile} onError={e=>e.target.style.display='none'} />
             </div>
-
-            {!hideNav && (
-              <div className="bottom-nav">
-                {NAV_TABS.map(t=>(
-                  <button key={t.id} className={`nav-btn ${tab===t.id?'active':''}`} onClick={()=>nav(t.id)}>
-                    <span className="nav-emoji">{t.icon}</span>
-                    <span className="nav-label">{t.label}</span>
-                    <span className="nav-dot"/>
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {showCheckin && (
-              <CheckinSheet
-                onClose={()=>setCheckin(false)}
-                onSave={d=>{ addEntry(d); setCheckin(false); }}
-              />
-            )}
           </div>
         </div>
+      );
+
+      /* TUE face (node 70-91 exact) */
+      const sadFace = (
+        <div style={{ position:'absolute', left:1.4, width:25, height:25, top:-1 }}>
+          <div style={{ position:'absolute', left:0, width:24.398, height:24.398, top:0 }}>
+            <img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgDaySadFace} onError={e=>e.target.style.display='none'} />
+          </div>
+          <div style={{ position:'absolute', background:'#58c2ff', height:0.935, left:15.56, borderRadius:20, top:11.31, width:1.785 }} />
+          <div style={{ position:'absolute', background:'#58c2ff', height:0.935, left:6.97, borderRadius:20, top:11.31, width:1.785 }} />
+        </div>
+      );
+
+      /* WED face (node 70-91 exact) */
+      const wedFace = (
+        <>
+          <div style={{ position:'absolute', top:'-3.96%', right:'1.54%', bottom:'-8.87%', left:'1.3%' }}>
+            <img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgDayGoodBlob} onError={e=>e.target.style.display='none'} />
+          </div>
+          <div style={{ position:'absolute', top:'39.05%', right:'34.38%', bottom:'41.74%', left:'34.47%' }}>
+            <div style={{ position:'absolute', top:0, right:0, bottom:'-11.63%', left:0 }}>
+              <img alt="" style={{ display:'block', maxWidth:'none', width:'100%', height:'100%' }} src={imgDayGoodSmile} onError={e=>e.target.style.display='none'} />
+            </div>
+          </div>
+        </>
+      );
+
+      /* THUR face (node 70-91 exact) */
+      const thurFace = (
+        <div style={{ position:'absolute', left:0.2, width:25.26, height:25.26, top:-1 }}>
+          <img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgDayAnxiousFace} onError={e=>e.target.style.display='none'} />
+        </div>
+      );
+
+      return (
+        <>
+          <div className="phone-frame" style={{
+            width: 390, height: 844,
+            position: 'relative', overflow: 'hidden',
+            borderRadius: 52, flexShrink: 0,
+            boxShadow: '0 0 0 1px rgba(255,255,255,0.18), 0 0 0 11px #1a1a18, 0 0 0 12px rgba(255,255,255,0.08), 0 40px 90px rgba(0,0,0,0.55)',
+          }}>
+            {/* ── BACKGROUND ── */}
+            <div style={{ position:'absolute', height:844, left:0, top:0, width:390 }}>
+              <img alt="" style={{ position:'absolute', inset:0, maxWidth:'none', objectFit:'cover', pointerEvents:'none', width:'100%', height:'100%' }}
+                src={imgVideoBg}
+                onError={e=>{ e.target.style.display='none'; e.target.parentNode.style.background='linear-gradient(170deg,#f5c0aa 0%,#f0b5a5 10%,#e8bdb5 25%,#dbc4cf 40%,#c8c8e8 55%,#b8d0ea 65%,#bcd4e8 75%,#cce0ec 85%,#d8e8f0 100%)'; }}
+              />
+            </div>
+
+            {/* ── MAIN CONTAINER ── */}
+            <div style={{ position:'absolute', height:844, left:0, overflow:'hidden', top:0, width:390 }}>
+
+              {/* ── BOTTOM SHEET: top:413 ── */}
+              <div style={{ position:'absolute', background:'#faf7f5', display:'flex', flexDirection:'column', gap:10, height:492, alignItems:'center', left:0, paddingBottom:123, paddingTop:9, borderRadius:20, top:413, width:390 }}>
+
+                {/* Handle */}
+                <div style={{ background:'#696969', height:5, borderRadius:20, flexShrink:0, width:82 }} />
+
+                {/* Cards section */}
+                <div style={{ display:'flex', flexDirection:'column', gap:18, alignItems:'center', position:'relative', flexShrink:0 }}>
+
+                  {/* Row 1: cards container */}
+                  <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-start', justifyContent:'flex-end', paddingLeft:22, flexShrink:0, width:390 }}>
+                    <div style={{ height:165, position:'relative', flexShrink:0, width:346 }}>
+                      <MoodLogCard count={count} />
+                      <UrgentCard />
+                    </div>
+                  </div>
+
+                  {/* Row 2: Calm Mode */}
+                  <CalmModeCard />
+                </div>
+
+                {/* Pagination dots */}
+                <div style={{ position:'absolute', background:'#696969', height:5, left:153, borderRadius:20, top:377, width:47 }} />
+                <div style={{ position:'absolute', background:'#696969', height:5, left:203, borderRadius:20, top:377, width:14 }} />
+                <div style={{ position:'absolute', background:'#696969', height:5, left:220, borderRadius:20, top:377, width:8 }} />
+              </div>
+
+              {/* ── HEADER: top:44 ── */}
+              <div style={{ position:'absolute', display:'flex', height:56, alignItems:'center', justifyContent:'space-between', left:0, paddingLeft:26.156, paddingRight:26, paddingTop:14, top:44, width:390 }}>
+                <div style={{ height:42, position:'relative', flexShrink:0, width:139 }}>
+                  <div style={{ display:'flex', gap:10.156, alignItems:'center', height:'100%' }}>
+                    {/* Avatar */}
+                    <div style={{ background:'rgba(255,255,255,0.92)', border:'1px solid rgba(20,20,19,0.08)', borderRadius:21, boxShadow:'0 4px 24px rgba(0,0,0,0.04)', flexShrink:0, width:42, height:42, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                      <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:400, lineHeight:'normal', flexShrink:0, fontSize:20, color:'black', whiteSpace:'nowrap' }}>🧑</p>
+                    </div>
+                    {/* Greeting */}
+                    <div style={{ height:38, flexShrink:0, width:87, display:'flex', flexDirection:'column', gap:2 }}>
+                      <div style={{ display:'flex', height:12, alignItems:'flex-start', width:'100%' }}>
+                        <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, lineHeight:'normal', flexShrink:0, color:'#696969', fontSize:10, letterSpacing:'0.4px', textTransform:'uppercase', whiteSpace:'nowrap' }}>{greeting}</p>
+                      </div>
+                      <div style={{ display:'flex', height:24, alignItems:'flex-start', width:'100%' }}>
+                        <p style={{ fontFamily:'Sofia Sans,sans-serif', flex:'1 0 0', fontWeight:600, lineHeight:'24px', minWidth:1, color:'#141413', fontSize:20, letterSpacing:'-0.4px' }}>Alex</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* Menu button */}
+                <div style={{ flexShrink:0, width:38, height:38, display:'flex', alignItems:'center' }}>
+                  <div style={{ background:'rgba(255,255,255,0.9)', border:'1px solid rgba(20,20,19,0.08)', flex:'1 0 0', height:38, minWidth:1, borderRadius:19, boxShadow:'0 4px 24px rgba(0,0,0,0.04)', display:'flex', alignItems:'center', justifyContent:'center', padding:'1px 10px' }}>
+                    <div style={{ height:12, position:'relative', flexShrink:0, width:18 }}>
+                      <img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgIcon}
+                        onError={e=>{e.target.style.display='none';e.target.parentNode.innerHTML='<svg width="18" height="12" viewBox="0 0 18 12" fill="none"><circle cx="2" cy="2" r="2" fill="rgba(20,20,19,0.5)"/><circle cx="9" cy="2" r="2" fill="rgba(20,20,19,0.5)"/><circle cx="16" cy="2" r="2" fill="rgba(20,20,19,0.5)"/><circle cx="2" cy="10" r="2" fill="rgba(20,20,19,0.5)"/><circle cx="9" cy="10" r="2" fill="rgba(20,20,19,0.5)"/><circle cx="16" cy="10" r="2" fill="rgba(20,20,19,0.5)"/></svg>';}}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ── WEEK STRIP: top:296 ── */}
+              <div style={{ position:'absolute', display:'flex', alignItems:'center', justifyContent:'space-between', left:0, paddingLeft:22.203, paddingRight:22.2, paddingTop:12, paddingBottom:12, top:296, width:390 }}>
+                <DayCard label="MON"   faceContent={goodFace}   moodLabel="Good"    />
+                <DayCard label="TUE"   faceContent={sadFace}    moodLabel="SAD"     />
+                <DayCard label="TODAY" faceContent={todayFace}  moodLabel={todayLabel} onClick={() => setPage('logMood')} />
+                <DayCard label="WED"   faceContent={wedFace}    moodLabel="Good"    />
+                <DayCard label="THUR"  faceContent={thurFace}   moodLabel="Anxious" />
+              </div>
+
+              {/* ── DAILY CHECK-IN: top:198 ── */}
+              <div style={{ position:'absolute', display:'flex', flexDirection:'column', gap:10, alignItems:'flex-start', left:22, top:198, width:347 }}>
+                <div style={{ height:12, position:'relative', flexShrink:0, width:95 }}>
+                  <div style={{ position:'absolute', background:'#fcec6a', left:0, borderRadius:3.5, width:7, height:7, top:2.5 }} />
+                  <p style={{ position:'absolute', fontFamily:'Sofia Sans,sans-serif', fontWeight:700, lineHeight:'normal', left:14, color:'#141413', fontSize:10, top:0, letterSpacing:'0.7px', textTransform:'uppercase', whiteSpace:'nowrap' }}>Daily check-in</p>
+                </div>
+                <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, lineHeight:'35.64px', minWidth:'100%', flexShrink:0, color:'#141413', fontSize:33, letterSpacing:'-0.66px', width:'min-content' }}>
+                  {greeting}, Alex. How do you feel today?
+                </p>
+              </div>
+
+              {/* ── BOTTOM NAV: top:764 ── */}
+              <div style={{ position:'absolute', background:'rgba(255,237,229,0.5)', border:'1px solid rgba(20,20,19,0.06)', display:'flex', flexDirection:'column', height:62, alignItems:'center', left:52, padding:6, borderRadius:999, boxShadow:'0 4px 24px rgba(0,0,0,0.04), 0 24px 48px rgba(0,0,0,0.08)', top:764, width:294, zIndex:10 }}>
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', flexShrink:0, width:'100%' }}>
+                  {/* Home (active) */}
+                  <div style={{ background:'white', display:'flex', flexDirection:'column', height:51, alignItems:'center', justifyContent:'center', paddingLeft:11, paddingRight:18, paddingTop:10, paddingBottom:10, borderRadius:999, flexShrink:0, width:115, cursor:'pointer' }}>
+                    <div style={{ display:'flex', gap:10, alignItems:'center', flexShrink:0 }}>
+                      <div style={{ height:19.93, flexShrink:0, width:18.96, position:'relative' }}>
+                        <img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgVector3}
+                          onError={e=>{e.target.style.display='none';e.target.parentNode.innerHTML='<svg width="19" height="20" viewBox="0 0 24 24" fill="none" stroke="#141413" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>';}}
+                        />
+                      </div>
+                      <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, lineHeight:'normal', flexShrink:0, color:'#141413', fontSize:14, textAlign:'center', letterSpacing:'0.3px', textTransform:'uppercase', whiteSpace:'nowrap' }}>Home</p>
+                    </div>
+                  </div>
+                  {/* Stats */}
+                  <div style={{ background:'white', display:'flex', alignItems:'flex-start', padding:11, borderRadius:23, flexShrink:0, width:46, height:46, cursor:'pointer', boxSizing:'border-box' }}>
+                    <div style={{ position:'relative', flexShrink:0, width:24, height:24 }}>
+                      <div style={{ position:'absolute', background:'rgba(0,0,0,0.5)', border:'2px solid #808080', bottom:'16.67%', left:'75%', right:'8.33%', borderRadius:1, top:'29.17%' }} />
+                      <div style={{ position:'absolute', background:'rgba(0,0,0,0.5)', border:'2px solid #808080', top:'54.17%', right:'41.67%', bottom:'16.67%', left:'41.67%', borderRadius:1 }} />
+                      <div style={{ position:'absolute', background:'rgba(0,0,0,0.5)', border:'2px solid #808080', bottom:'16.67%', left:'8.33%', right:'75%', borderRadius:1, top:'37.5%' }} />
+                    </div>
+                  </div>
+                  {/* Peers */}
+                  <div style={{ background:'white', display:'flex', alignItems:'flex-start', paddingBottom:10, paddingTop:12, paddingLeft:11, paddingRight:11, borderRadius:23, flexShrink:0, width:46, height:46, cursor:'pointer', boxSizing:'border-box' }}>
+                    <div style={{ flexShrink:0, width:24, height:24, position:'relative' }}>
+                      <img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgHandCoin}
+                        onError={e=>{e.target.style.display='none';e.target.parentNode.innerHTML='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#808080" strokeWidth="1.8" strokeLinecap="round"><circle cx="9" cy="7" r="3"/><path d="M3 21v-1a6 6 0 0112 0v1"/><circle cx="17" cy="9" r="2.5"/><path d="M20 21v-.8a5 5 0 00-4-4.9"/></svg>';}}
+                      />
+                    </div>
+                  </div>
+                  {/* Profile */}
+                  <div style={{ background:'white', display:'flex', alignItems:'flex-start', paddingBottom:9, paddingLeft:10, paddingRight:11, paddingTop:12, borderRadius:23, flexShrink:0, width:46, height:46, cursor:'pointer', boxSizing:'border-box' }}>
+                    <div style={{ flexShrink:0, width:25, height:25, position:'relative' }}>
+                      <img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgShield}
+                        onError={e=>{e.target.style.display='none';e.target.parentNode.innerHTML='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#808080" strokeWidth="1.8" strokeLinecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';}}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Status bar on top */}
+              <StatusBar />
+            </div>
+
+            {/* Inner highlight ring */}
+            <div style={{ position:'absolute', inset:0, pointerEvents:'none', borderRadius:'inherit', boxShadow:'inset 0px 1px 0px 0px rgba(255,255,255,0.12)' }} />
+
+            {/* Check-in modal */}
+            {checkinOpen && <CheckinSheet onClose={() => setCheckin(false)} onSave={handleSave} />}
+
+            {/* Log Mood page */}
+            {page === 'logMood' && <LogMoodPage onBack={() => setPage('home')} onSave={handleLogMoodSave} />}
+          </div>
+        </>
       );
     }
 
