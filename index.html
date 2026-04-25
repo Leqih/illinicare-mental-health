@@ -1164,7 +1164,7 @@
             <div style={{ position:'absolute', height:844, left:0, overflow:'hidden', top:0, width:390 }}>
 
               {/* ── BOTTOM SHEET ── */}
-              <div style={{ position:'absolute', background:'#faf7f5', display:'flex', flexDirection:'column', gap:10, height:492, alignItems:'center', left:0, paddingBottom:123, paddingTop:9, borderRadius:20, top: todayMood ? 465 : 413, width:390, transition:'top 0.3s ease' }}>
+              <div style={{ position:'absolute', background:'#faf7f5', display:'flex', flexDirection:'column', gap:10, height:492, alignItems:'center', left:0, paddingBottom:123, paddingTop:9, borderRadius:20, top: 413, width:390 }}>
 
                 {/* Handle */}
                 <div style={{ background:'#696969', height:5, borderRadius:20, flexShrink:0, width:82 }} />
@@ -1222,7 +1222,7 @@
               </div>
 
               {/* ── WEEK STRIP ── */}
-              <div style={{ position:'absolute', display:'flex', alignItems:'center', justifyContent:'space-between', left:0, paddingLeft:22.203, paddingRight:22.2, paddingTop:12, paddingBottom:12, top: todayMood ? 348 : 296, width:390, transition:'top 0.3s ease' }}>
+              <div style={{ position:'absolute', display:'flex', alignItems:'center', justifyContent:'space-between', left:0, paddingLeft:22.203, paddingRight:22.2, paddingTop:12, paddingBottom:12, top: 296, width:390 }}>
                 <DayCard label="MON"   faceContent={goodFace}   moodLabel="Good"    />
                 <DayCard label="TUE"   faceContent={sadFace}    moodLabel="SAD"     />
                 <DayCard label="TODAY" faceContent={todayFace}  moodLabel={todayLabel} onClick={() => setPage('logMood')} />
@@ -1238,13 +1238,13 @@
                 </div>
                 <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, lineHeight:'35.64px', minWidth:'100%', flexShrink:0, color:'#141413', fontSize:33, letterSpacing:'-0.66px', width:'min-content' }}>
                   {todayMood ? (
-                    todayMood.mood.label === 'Sad'       ? "It seems like today feels a bit heavy. I'm here with you." :
-                    todayMood.mood.label === 'Angry'     ? "It's okay to feel angry. Let's work through it together." :
-                    todayMood.mood.label === 'Exhausted' ? "Rest is productive too. Take it easy today, Alex." :
-                    todayMood.mood.label === 'Boring'    ? "A change of pace might be just what you need today." :
-                    todayMood.mood.label === 'Good'      ? "Glad to hear you're feeling good today, Alex!" :
-                    todayMood.mood.label === 'Happy'     ? "You're radiating good energy today, Alex. Keep it up!" :
-                    todayMood.mood.label === 'Grateful'  ? "A grateful heart goes a long way. Good to see you, Alex!" :
+                    todayMood.mood.label === 'Sad'       ? "Today feels heavy. I'm here with you." :
+                    todayMood.mood.label === 'Angry'     ? "It's okay to feel angry. I'm with you." :
+                    todayMood.mood.label === 'Exhausted' ? "Rest is productive too. Take it easy." :
+                    todayMood.mood.label === 'Boring'    ? "A change of pace might help today." :
+                    todayMood.mood.label === 'Good'      ? "Glad you're feeling good today, Alex!" :
+                    todayMood.mood.label === 'Happy'     ? "Good energy today, Alex. Keep it up!" :
+                    todayMood.mood.label === 'Grateful'  ? "A grateful heart goes a long way!" :
                     `${greeting}, Alex. How do you feel today?`
                   ) : `${greeting}, Alex. How do you feel today?`}
                 </p>
