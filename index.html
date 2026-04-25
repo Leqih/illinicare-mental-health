@@ -1049,8 +1049,10 @@
       const [tab, setTab]         = useState('week');
       const [selDay, setSelDay]   = useState(4); // default Fri selected in mood history
 
-      const POS  = '#7dc97d';  // positive bar colour
-      const NEG  = '#e8956a';  // negative bar colour
+      const POS     = '#6dbd2c';  // positive – matches home Good gradient
+      const NEG     = '#e85040';  // negative – matches home Angry gradient
+      const POS_GRD = 'linear-gradient(to top, rgb(109,189,44), rgb(164,217,156))';   // exact home Good
+      const NEG_GRD = 'linear-gradient(to top, rgb(215,50,30),  rgb(255,105,80))';    // exact home Angry
       const CARD = { background:'white', borderRadius:22, padding:'18px 16px', boxShadow:'0 2px 16px rgba(0,0,0,0.05)', border:'1px solid rgba(20,20,19,0.06)', flexShrink:0 };
       const isPos = m => ['Good','Happy','Grateful'].includes(m);
 
@@ -1157,9 +1159,9 @@
               {/* Legend + period pill */}
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:18 }}>
                 <div style={{ display:'flex', gap:14 }}>
-                  {[[POS,'Positive'],[NEG,'Negative']].map(([c,l]) => (
-                    <div key={l} style={{ display:'flex', alignItems:'center', gap:5 }}>
-                      <div style={{ width:9, height:9, borderRadius:5, background:c, flexShrink:0 }} />
+                  {[[POS_GRD,'Positive'],[NEG_GRD,'Negative']].map(([grd,l]) => (
+                    <div key={l} style={{ display:'flex', alignItems:'center', gap:6 }}>
+                      <div style={{ width:10, height:10, borderRadius:5, background:grd, flexShrink:0 }} />
                       <p style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:12, color:'rgba(20,20,19,0.55)', margin:0 }}>{l}</p>
                     </div>
                   ))}
@@ -1176,25 +1178,24 @@
                 <div style={{ display:'flex', gap:6, alignItems:'flex-end', height: TRACK_H + 30, marginBottom:2 }}>
                   {weekRows.map((d, i) => {
                     const isBarSel = i === selDay;
-                    const color = d.mood ? (isPos(d.mood) ? POS : NEG) : 'rgba(20,20,19,0.10)';
+                    const pos = d.mood ? isPos(d.mood) : null;
+                    const grd = pos === true ? POS_GRD : pos === false ? NEG_GRD : null;
+                    const glowColor = pos === true ? 'rgba(109,189,44,0.55)' : 'rgba(215,50,30,0.45)';
                     const fh = FILL_H[i];
-                    const pct = d.mood && fh > 0 ? Math.round(fh / TRACK_H * 100) : 0;
                     return (
                       <div key={i} onClick={() => d.mood && setSelDay(i)}
                         style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:7, cursor: d.mood ? 'pointer' : 'default' }}>
                         {/* Track + fill */}
                         <div style={{ width:20, height:TRACK_H, background:'rgba(20,20,19,0.07)', borderRadius:99, position:'relative', overflow:'hidden', flexShrink:0,
                           transition:'opacity 0.15s',
-                          opacity: (!d.mood || fh===0) ? 0.45 : 1,
+                          opacity: (!d.mood || fh===0) ? 0.4 : 1,
                         }}>
                           {d.mood && fh > 0 && (
                             <div style={{
                               position:'absolute', bottom:0, left:0, right:0, height:fh,
-                              background: isPos(d.mood)
-                                ? `linear-gradient(to top, #5aaa5a, #8fce6e)`
-                                : `linear-gradient(to top, #d4703a, #f0a870)`,
+                              background: grd,
                               borderRadius:99,
-                              boxShadow:`0 -6px 18px ${color}70`,
+                              boxShadow:`0 -8px 20px ${glowColor}`,
                             }} />
                           )}
                         </div>
@@ -1203,7 +1204,7 @@
                           fontFamily:'Sofia Sans,sans-serif',
                           fontWeight: isBarSel && d.mood ? 700 : 500,
                           fontSize:11,
-                          color: isBarSel && d.mood ? (isPos(d.mood) ? '#4a8f4a' : '#c85820') : 'rgba(20,20,19,0.38)',
+                          color: isBarSel && d.mood ? (isPos(d.mood) ? '#5aaa18' : '#cc3820') : 'rgba(20,20,19,0.38)',
                           margin:0, letterSpacing:'0.3px',
                         }}>{d.s}</p>
                       </div>
@@ -1213,9 +1214,9 @@
               ) : (
                 <div style={{ display:'flex', flexWrap:'wrap', gap:5, marginBottom:8 }}>
                   {monthRows.map((d,i) => {
-                    const c = d.mood ? (isPos(d.mood)?POS:NEG) : 'rgba(20,20,19,0.07)';
+                    const bg = d.mood ? (isPos(d.mood) ? POS_GRD : NEG_GRD) : 'rgba(20,20,19,0.07)';
                     return (
-                      <div key={i} style={{ width:28, height:28, borderRadius:9, background:c, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                      <div key={i} style={{ width:28, height:28, borderRadius:9, background:bg, display:'flex', alignItems:'center', justifyContent:'center' }}>
                         <p style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:9, fontWeight:500, color:d.mood?'white':'rgba(20,20,19,0.28)', margin:0 }}>{d.day}</p>
                       </div>
                     );
@@ -1276,14 +1277,14 @@
 
               {/* Frequency slider */}
               <div style={{ height:22, background:'rgba(20,20,19,0.07)', borderRadius:11, position:'relative', overflow:'hidden', marginBottom:7 }}>
-                {/* Diagonal stripe fill */}
+                {/* Gradient fill – matches home page Good mood */}
                 <div style={{
                   position:'absolute', left:0, top:0, bottom:0, width:`${ins.freq*100}%`,
-                  background:'repeating-linear-gradient(45deg,#c8e870,#c8e870 5px,#d8f290 5px,#d8f290 10px)',
+                  background:'linear-gradient(to right, rgb(109,189,44), rgb(164,217,156))',
                   borderRadius:'11px 0 0 11px',
                 }} />
                 {/* Indicator line */}
-                <div style={{ position:'absolute', top:0, bottom:0, width:3, left:`calc(${ins.freq*100}% - 1.5px)`, background:'#3a6a3a', borderRadius:2 }} />
+                <div style={{ position:'absolute', top:0, bottom:0, width:3, left:`calc(${ins.freq*100}% - 1.5px)`, background:'rgb(70,140,20)', borderRadius:2 }} />
               </div>
               <div style={{ display:'flex', justifyContent:'space-between' }}>
                 <p style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:11, color:'rgba(20,20,19,0.38)', margin:0 }}>Rarely</p>
