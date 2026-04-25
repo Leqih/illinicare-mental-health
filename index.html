@@ -189,6 +189,7 @@
     const imgDayGoodSmile   = 'https://www.figma.com/api/mcp/asset/04c8dadb-d70f-43ed-b0a6-72f4a6849dd5';
     const imgDaySadFace     = 'https://www.figma.com/api/mcp/asset/7db808b7-1749-4d36-84b3-d81084ef6047';
     const imgDayAnxiousFace = 'https://www.figma.com/api/mcp/asset/397a5454-4058-4a8d-9965-2779926979dd';
+    const imgConditionStar  = 'https://www.figma.com/api/mcp/asset/9d1978bb-d547-469d-a4a9-ff60f286ef13';
     const imgGroup8       = 'https://www.figma.com/api/mcp/asset/d086ffca-9f89-49d6-bb10-628b8e9fbcf1';
     const imgGroup15      = 'https://www.figma.com/api/mcp/asset/9b1313d9-1b85-49df-9777-f4fdd8a67628';
     const imgVector3      = 'https://www.figma.com/api/mcp/asset/951b8a11-03af-4db7-b0e2-77d99c3e0a9a';
@@ -540,6 +541,9 @@
       const [dragX, setDragX]        = useState(0);      // real-time drag offset for wave
       const dragRef  = useRef({ startX:0, dragging:false });
       const timerRef = useRef(null);
+      const [showTellMore, setShowTellMore] = useState(false);
+      const [reason, setReason] = useState('');
+      const [note, setNote]     = useState('');
 
       const switchMood = (mood) => {
         if (mood === selected) return;
@@ -728,7 +732,7 @@
                   </div>
                   {/* Right eyebrow – mirrored then rotated, matching Figma -scale-x-100 rotate-[16.3deg] */}
                   <div style={{ position:'absolute', top:'41.96%', right:'37.52%', bottom:'56.37%', left:'56.79%', overflow:'visible', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                    <div style={{ position:'relative', width:17, height:1, transform:'scaleX(-1) rotate(16.3deg)', flexShrink:0, overflow:'visible' }}>
+                    <div style={{ position:'relative', width:17, height:1, transform:'scaleX(-1) rotate(-16.3deg)', flexShrink:0, overflow:'visible' }}>
                       <div style={{ position:'absolute', top:-7.5, bottom:-7.5, left:'-44.12%', right:'-44.12%' }}>
                         <img alt="" style={{ display:'block', width:'100%', height:'100%' }} src={imgBoringEyeR} onError={e=>e.target.style.display='none'} />
                       </div>
@@ -894,7 +898,7 @@
                 })()}
               </div>
             {/* Submit */}
-            <div onClick={() => { onSave(selected); onBack(); }}
+            <div onClick={() => setShowTellMore(true)}
               style={{ position:'absolute', background: isGrateful?'#d87830':isHappy?'#c8a000':isGood?'#5cb85c':isSad?'#3ab4dc':isAngry?'#e04040':isBoring?'#30b8b0':isExhausted?'#8050c8':'#9070cc', height:45, left:19, borderRadius:20, top:328, width:352, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', transition:'background 0.3s ease' }}>
               <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:16, color:'white', letterSpacing:'-0.2px' }}>Log Mood</p>
             </div>
@@ -912,6 +916,56 @@
 
           <StatusBar />
           <div style={{ position:'absolute', inset:0, pointerEvents:'none', borderRadius:'inherit', boxShadow:'inset 0px 1px 0px 0px rgba(255,255,255,0.12)' }} />
+
+          {/* ── Tell us more overlay ── */}
+          {showTellMore && (
+            <div style={{ position:'absolute', inset:0, zIndex:300, borderRadius:'inherit' }}>
+
+              {/* Character + bubble — rendered before panel so panel appears on top (matches How do you feel right now? layout) */}
+              <div style={{ position:'absolute', top:0, left:0, right:0, height:500, overflow:'hidden', pointerEvents:'none' }}>
+                {renderSlot(selected)}
+              </div>
+
+              {/* Form panel — identical to "How do you feel right now?" panel */}
+              <div style={{ position:'absolute', background:'rgb(250,247,245)', height:390, left:0, overflow:'hidden', borderRadius:50, top:454, width:390, padding:'24px 20px 20px', display:'flex', flexDirection:'column', gap:10, boxSizing:'border-box' }}>
+                <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:700, fontSize:26, color:'#141413', textAlign:'center', margin:0 }}>Tell us more</p>
+
+                <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+                  <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:14, color:'#141413', margin:0 }}>Why do you feel this way?</p>
+                  <input
+                    value={reason}
+                    onChange={e => setReason(e.target.value)}
+                    placeholder="Enter reason..."
+                    style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:14, color:'#141413', background:'white', border:'none', borderRadius:14, padding:'12px 16px', outline:'none', width:'100%', boxSizing:'border-box' }}
+                  />
+                </div>
+
+                <div style={{ display:'flex', flexDirection:'column', gap:6, flex:1 }}>
+                  <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:14, color:'#141413', margin:0 }}>Add a note</p>
+                  <textarea
+                    value={note}
+                    onChange={e => setNote(e.target.value)}
+                    placeholder="Write your thoughts..."
+                    style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:14, color:'#141413', background:'white', border:'none', borderRadius:14, padding:'12px 16px', outline:'none', width:'100%', boxSizing:'border-box', resize:'none', flex:1, minHeight:90 }}
+                  />
+                </div>
+
+                <div
+                  onClick={() => { onSave(selected, { reason, note }); onBack(); }}
+                  style={{ background: isGrateful?'#d87830':isHappy?'#c8a000':isGood?'#5cb85c':isSad?'#3ab4dc':isAngry?'#e04040':isBoring?'#30b8b0':isExhausted?'#8050c8':'#9070cc', height:45, borderRadius:20, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                  <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:16, color:'white', letterSpacing:'-0.2px', margin:0 }}>Save</p>
+                </div>
+              </div>
+
+              {/* Back button */}
+              <div onClick={() => setShowTellMore(false)}
+                style={{ position:'absolute', left:20, top:56, zIndex:10, background:'rgba(255,255,255,0.82)', backdropFilter:'blur(10px)', borderRadius:20, padding:'7px 14px', cursor:'pointer', border:'1px solid rgba(20,20,19,0.10)', boxShadow:'0 2px 8px rgba(0,0,0,0.08)' }}>
+                <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:13, color:'#141413', letterSpacing:'-0.1px', margin:0 }}>← Back</p>
+              </div>
+
+              <StatusBar />
+            </div>
+          )}
         </div>
       );
     }
@@ -936,9 +990,36 @@
       };
 
       /* TODAY face content */
-      const todayFace = todayMood
-        ? <span style={{ position:'absolute', left:'50%', top:'50%', transform:'translate(-50%,-50%)', fontSize:20 }}>{todayMood.mood.emoji}</span>
-        : <div style={{ position:'absolute', background:'white', border:'1px solid rgba(20,20,19,0.12)', left:1, borderRadius:28, width:25, height:25, top:-1 }} />;
+      const todayFace = (() => {
+        if (!todayMood) return <div style={{ position:'absolute', background:'white', border:'1px solid rgba(20,20,19,0.12)', left:1, borderRadius:28, width:25, height:25, top:-1 }} />;
+        const lbl = todayMood.mood.label;
+        if (lbl === 'Sad') return (
+          <div style={{ position:'absolute', left:1.4, width:25, height:25, top:-1 }}>
+            <div style={{ position:'absolute', left:0, width:24.398, height:24.398, top:0 }}>
+              <img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgDaySadFace} onError={e=>e.target.style.display='none'} />
+            </div>
+            <div style={{ position:'absolute', background:'#58c2ff', height:0.935, left:15.56, borderRadius:20, top:11.31, width:1.785 }} />
+            <div style={{ position:'absolute', background:'#58c2ff', height:0.935, left:6.97, borderRadius:20, top:11.31, width:1.785 }} />
+          </div>
+        );
+        if (lbl === 'Good' || lbl === 'Happy' || lbl === 'Grateful') return (
+          <div style={{ position:'absolute', height:22, left:2, top:1, width:26 }}>
+            <div style={{ position:'absolute', top:'-9.09%', right:'9.39%', bottom:'-3.74%', left:'-6.55%' }}>
+              <img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgDayGoodBlob} onError={e=>e.target.style.display='none'} />
+            </div>
+            <div style={{ position:'absolute', top:'33.92%', right:'42.23%', bottom:'46.88%', left:'26.63%' }}>
+              <div style={{ position:'absolute', top:0, right:0, bottom:'-11.63%', left:0 }}>
+                <img alt="" style={{ display:'block', maxWidth:'none', width:'100%', height:'100%' }} src={imgDayGoodSmile} onError={e=>e.target.style.display='none'} />
+              </div>
+            </div>
+          </div>
+        );
+        return (
+          <div style={{ position:'absolute', left:0.2, width:25.26, height:25.26, top:-1 }}>
+            <img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgDayAnxiousFace} onError={e=>e.target.style.display='none'} />
+          </div>
+        );
+      })();
 
       const todayLabel = todayMood ? todayMood.mood.label : '?';
 
@@ -1007,8 +1088,8 @@
             {/* ── MAIN CONTAINER ── */}
             <div style={{ position:'absolute', height:844, left:0, overflow:'hidden', top:0, width:390 }}>
 
-              {/* ── BOTTOM SHEET: top:413 ── */}
-              <div style={{ position:'absolute', background:'#faf7f5', display:'flex', flexDirection:'column', gap:10, height:492, alignItems:'center', left:0, paddingBottom:123, paddingTop:9, borderRadius:20, top:413, width:390 }}>
+              {/* ── BOTTOM SHEET: top:628 ── */}
+              <div style={{ position:'absolute', background:'#faf7f5', display:'flex', flexDirection:'column', gap:10, height:492, alignItems:'center', left:0, paddingBottom:123, paddingTop:9, borderRadius:20, top:628, width:390 }}>
 
                 {/* Handle */}
                 <div style={{ background:'#696969', height:5, borderRadius:20, flexShrink:0, width:82 }} />
@@ -1074,6 +1155,58 @@
                 <DayCard label="THUR"  faceContent={thurFace}   moodLabel="Anxious" />
               </div>
 
+              {/* ── YOUR CONDITION CARD: top:390 ── */}
+              <div style={{ position:'absolute', background:'#faf7f5', border:'1px solid rgba(20,20,19,0.07)', borderRadius:24, boxShadow:'0 4px 12px rgba(0,0,0,0.04), 0 24px 24px rgba(0,0,0,0.08)', top:390, left:19, width:352, padding:'15px 17px 8px', display:'flex', flexDirection:'column', gap:10, boxSizing:'border-box' }}>
+                {/* Header row */}
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', height:29 }}>
+                  <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:700, fontSize:9.5, color:'#696969', letterSpacing:'0.56px', textTransform:'uppercase', whiteSpace:'nowrap' }}>Your Condition</p>
+                  <div style={{ background:'rgba(20,20,19,0.05)', borderRadius:999, width:134, height:29, position:'relative', flexShrink:0 }}>
+                    <div style={{ position:'absolute', background:'white', borderRadius:999, boxShadow:'0 4px 12px rgba(0,0,0,0.04)', left:3, top:3, width:55, height:23, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                      <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:11, color:'#141413', letterSpacing:'-0.2px', whiteSpace:'nowrap' }}>Today</p>
+                    </div>
+                    <div style={{ position:'absolute', left:58, top:3, width:73, height:23, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                      <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:11, color:'#696969', letterSpacing:'-0.2px', whiteSpace:'nowrap' }}>Yesterday</p>
+                    </div>
+                  </div>
+                </div>
+                {/* Date + condition text */}
+                <div style={{ display:'flex', gap:18, alignItems:'flex-start' }}>
+                  <div style={{ borderRight:'1px solid rgba(20,20,19,0.08)', paddingRight:17, flexShrink:0, width:55 }}>
+                    <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:400, fontSize:38, lineHeight:'38px', color:'#141413', letterSpacing:'-0.76px', textAlign:'center' }}>{new Date().getDate()}</p>
+                    <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:700, fontSize:9, color:'#696969', letterSpacing:'0.56px', textTransform:'uppercase', textAlign:'center', marginTop:2 }}>{new Date().toLocaleString('en-US',{month:'short'})}</p>
+                  </div>
+                  <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:400, fontSize:12, color:'#555', lineHeight:'19.8px', flex:1 }}>
+                    {todayMood ? (
+                      todayMood.mood.label === 'Sad'       ? "Today your mental state shows signs of moderate stress and low energy. That's okay — take a moment to breathe." :
+                      todayMood.mood.label === 'Angry'     ? "Your emotional state feels tense today. A breathing exercise might help ease the tension." :
+                      todayMood.mood.label === 'Exhausted' ? "Your energy levels are low today. Rest is productive — be kind to yourself." :
+                      todayMood.mood.label === 'Boring'    ? "Today feels a bit flat. A small change of scenery might help spark some energy." :
+                      todayMood.mood.label === 'Good'      ? "Your mental state looks positive today. Keep nurturing this good energy, Alex!" :
+                      todayMood.mood.label === 'Happy'     ? "You're in a great headspace today. This positive energy supports your overall wellbeing!" :
+                      todayMood.mood.label === 'Grateful'  ? "Gratitude is a powerful state of mind. You're doing wonderfully today, Alex!" :
+                      "Log your mood to see your personalized condition report."
+                    ) : "Log your mood today to see your personalized condition report."}
+                  </p>
+                </div>
+                {/* Let our help you row */}
+                <div style={{ display:'flex', gap:10, alignItems:'center', justifyContent:'center', paddingBottom:4 }}>
+                  <div style={{ background:'linear-gradient(to right,#f9d3e1,#f6f7f7)', border:'1px solid #f7f6f7', borderRadius:20, width:239, height:29, display:'flex', alignItems:'center', justifyContent:'center', gap:5, cursor:'pointer' }}>
+                    <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:400, fontSize:10, color:'#696969', whiteSpace:'nowrap' }}>Let our help you</p>
+                    <p style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:10, color:'#696969' }}>∨</p>
+                  </div>
+                  <img alt="" src={imgConditionStar} style={{ width:29, height:29, flexShrink:0 }} onError={e=>e.target.style.display='none'} />
+                </div>
+              </div>
+
+              {/* ── ACTION BUTTONS: top:575 ── */}
+              <div style={{ position:'absolute', top:575, left:19, width:352, height:42, borderRadius:18, overflow:'hidden', display:'flex', background:'linear-gradient(to right,#f9d3e1,#f6f7f7)' }}>
+                {['Talk to someone','Quick calm exercise','Campus help'].map((label,i) => (
+                  <div key={i} style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(255,255,255,0.42)', border:'1px solid rgba(255,255,255,0.6)', borderRadius: i===0?'18px 0 0 18px':i===2?'0 18px 18px 0':0, cursor:'pointer', padding:'0 4px' }}>
+                    <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:400, fontSize:10, color:'black', textAlign:'center', lineHeight:'14px' }}>{label}</p>
+                  </div>
+                ))}
+              </div>
+
               {/* ── DAILY CHECK-IN: top:198 ── */}
               <div style={{ position:'absolute', display:'flex', flexDirection:'column', gap:10, alignItems:'flex-start', left:22, top:198, width:347 }}>
                 <div style={{ height:12, position:'relative', flexShrink:0, width:95 }}>
@@ -1081,7 +1214,16 @@
                   <p style={{ position:'absolute', fontFamily:'Sofia Sans,sans-serif', fontWeight:700, lineHeight:'normal', left:14, color:'#141413', fontSize:10, top:0, letterSpacing:'0.7px', textTransform:'uppercase', whiteSpace:'nowrap' }}>Daily check-in</p>
                 </div>
                 <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, lineHeight:'35.64px', minWidth:'100%', flexShrink:0, color:'#141413', fontSize:33, letterSpacing:'-0.66px', width:'min-content' }}>
-                  {greeting}, Alex. How do you feel today?
+                  {todayMood ? (
+                    todayMood.mood.label === 'Sad'       ? "It seems like today feels a bit heavy. I'm here with you." :
+                    todayMood.mood.label === 'Angry'     ? "It's okay to feel angry. Let's work through it together." :
+                    todayMood.mood.label === 'Exhausted' ? "Rest is productive too. Take it easy today, Alex." :
+                    todayMood.mood.label === 'Boring'    ? "A change of pace might be just what you need today." :
+                    todayMood.mood.label === 'Good'      ? "Glad to hear you're feeling good today, Alex!" :
+                    todayMood.mood.label === 'Happy'     ? "You're radiating good energy today, Alex. Keep it up!" :
+                    todayMood.mood.label === 'Grateful'  ? "A grateful heart goes a long way. Good to see you, Alex!" :
+                    `${greeting}, Alex. How do you feel today?`
+                  ) : `${greeting}, Alex. How do you feel today?`}
                 </p>
               </div>
 
