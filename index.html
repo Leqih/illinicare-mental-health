@@ -1044,6 +1044,223 @@
       );
     }
 
+    /* ── STATS PAGE ── */
+    function StatsPage({ onBack, onNav, todayMood, count }) {
+      const [tab, setTab] = useState('week');
+
+      const MOOD_COLORS = {
+        Good:'#5cb85c', Happy:'#c8a000', Grateful:'#d87830',
+        Sad:'#3ab4dc', Angry:'#e04040', Exhausted:'#8050c8',
+        Boring:'#30b8b0', Anxious:'#9070cc',
+      };
+
+      // Week data (matching the home screen week strip)
+      const todayLabel = todayMood ? todayMood.mood.label : null;
+      const weekData = [
+        { day:'MON',  mood:'Good'    },
+        { day:'TUE',  mood:'Sad'     },
+        { day:'TODAY',mood: todayLabel },
+        { day:'WED',  mood:'Good'    },
+        { day:'THUR', mood:'Anxious' },
+        { day:'FRI',  mood: null     },
+        { day:'SAT',  mood: null     },
+      ];
+      const monthData = Array.from({ length: 30 }, (_, i) => ({
+        day: i + 1,
+        mood: i < 8 ? ['Good','Sad','Good','Anxious','Boring','Good','Exhausted','Happy'][i % 8] : null,
+      }));
+      const data = tab === 'week' ? weekData : monthData;
+
+      // Mood counts from data
+      const moodCounts = {};
+      data.forEach(d => { if (d.mood) moodCounts[d.mood] = (moodCounts[d.mood] || 0) + 1; });
+      const totalLogged = data.filter(d => d.mood).length;
+      const topMoodEntry = Object.entries(moodCounts).sort((a, b) => b[1] - a[1])[0];
+
+      const BAR_MAX = 110;
+
+      // Bar heights (fake organic feel)
+      const barHeights = [88, 42, 95, 88, 58, 0, 0];
+      const monthBarHeights = Array.from({length:30},(_,i) => i < 8 ? [88,42,75,58,48,88,62,95][i%8] : 0);
+      const heights = tab === 'week' ? barHeights : monthBarHeights;
+
+      const displayDays = tab === 'week' ? weekData : monthData.slice(0, 30);
+
+      return (
+        <div style={{ position:'absolute', inset:0, background:'#f5f2ef', zIndex:200, borderRadius:'inherit', overflow:'hidden' }}>
+          <StatusBar />
+
+          {/* Header */}
+          <div style={{ position:'absolute', top:44, left:0, width:390, height:56, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 20px', boxSizing:'border-box' }}>
+            <div onClick={onBack} style={{ cursor:'pointer', background:'rgba(20,20,19,0.08)', borderRadius:20, padding:'8px 14px' }}>
+              <p style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:13, fontWeight:500, color:'#141413', margin:0 }}>← Back</p>
+            </div>
+            <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:700, fontSize:18, color:'#141413', margin:0, letterSpacing:'-0.3px' }}>Your Stats</p>
+            <div style={{ width:64 }} />
+          </div>
+
+          {/* Scrollable body */}
+          <div style={{ position:'absolute', top:100, left:0, right:0, bottom:90, overflowY:'auto', padding:'14px 18px 24px', display:'flex', flexDirection:'column', gap:14, boxSizing:'border-box' }}>
+
+            {/* Tab switcher */}
+            <div style={{ display:'flex', background:'rgba(20,20,19,0.07)', borderRadius:14, padding:4, gap:2 }}>
+              {['week','month'].map(t => (
+                <div key={t} onClick={() => setTab(t)}
+                  style={{ flex:1, textAlign:'center', padding:'8px 0', borderRadius:10, background: tab===t ? 'white':'transparent', cursor:'pointer', boxShadow: tab===t ? '0 2px 8px rgba(0,0,0,0.08)':'none' }}>
+                  <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight: tab===t?600:400, fontSize:14, color: tab===t?'#141413':'rgba(20,20,19,0.45)', margin:0 }}>
+                    {t === 'week' ? 'This Week' : 'This Month'}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Mood trend card */}
+            <div style={{ background:'white', borderRadius:22, padding:'18px 16px 16px', boxShadow:'0 2px 16px rgba(0,0,0,0.05)', border:'1px solid rgba(20,20,19,0.06)' }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:18 }}>
+                <div>
+                  <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:700, fontSize:16, color:'#141413', margin:0, letterSpacing:'-0.25px' }}>Mood Trend</p>
+                  <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:400, fontSize:12, color:'rgba(20,20,19,0.40)', margin:'3px 0 0' }}>
+                    {tab === 'week' ? 'Apr 19 – Apr 25' : 'April 2025'}
+                  </p>
+                </div>
+                <div style={{ background:'rgba(20,20,19,0.06)', borderRadius:10, padding:'4px 10px' }}>
+                  <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:12, color:'rgba(20,20,19,0.50)', margin:0 }}>{totalLogged}/{tab==='week'?7:30} logged</p>
+                </div>
+              </div>
+
+              {/* Bar chart */}
+              {tab === 'week' ? (
+                <div style={{ display:'flex', alignItems:'flex-end', gap:6, height: BAR_MAX + 26 }}>
+                  {weekData.map((d, i) => {
+                    const color = d.mood ? (MOOD_COLORS[d.mood]||'#ccc') : 'rgba(20,20,19,0.07)';
+                    const h = d.mood ? heights[i] : 12;
+                    const isToday = d.day === 'TODAY';
+                    return (
+                      <div key={i} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:6 }}>
+                        <div style={{ width:'100%', height: BAR_MAX, display:'flex', flexDirection:'column', justifyContent:'flex-end' }}>
+                          <div style={{ width:'100%', height:h, background: d.mood ? color : 'rgba(20,20,19,0.08)', borderRadius:'7px 7px 3px 3px',
+                            boxShadow: isToday && d.mood ? `0 4px 14px ${color}55` : 'none',
+                            outline: isToday && d.mood ? `2px solid ${color}` : 'none', outlineOffset:1 }} />
+                        </div>
+                        <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight: isToday?700:400, fontSize:10, color: isToday?'#141413':'rgba(20,20,19,0.38)', margin:0, letterSpacing:'0.4px', textTransform:'uppercase' }}>
+                          {d.day === 'TODAY' ? 'TDY' : d.day.slice(0,3)}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                /* Month: dot grid */
+                <div style={{ display:'flex', flexWrap:'wrap', gap:5 }}>
+                  {monthData.map((d, i) => {
+                    const color = d.mood ? (MOOD_COLORS[d.mood]||'#ccc') : 'rgba(20,20,19,0.08)';
+                    return (
+                      <div key={i} style={{ width:26, height:26, borderRadius:8, background:color, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                        <p style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:9, fontWeight:500, color: d.mood?'white':'rgba(20,20,19,0.3)', margin:0 }}>{d.day}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Legend */}
+              {Object.keys(moodCounts).length > 0 && (
+                <div style={{ display:'flex', flexWrap:'wrap', gap:'7px 14px', marginTop:14 }}>
+                  {Object.entries(moodCounts).sort((a,b)=>b[1]-a[1]).map(([mood, cnt]) => (
+                    <div key={mood} style={{ display:'flex', alignItems:'center', gap:5 }}>
+                      <div style={{ width:8, height:8, borderRadius:4, background: MOOD_COLORS[mood]||'#ccc' }} />
+                      <p style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:11, color:'rgba(20,20,19,0.50)', margin:0 }}>{mood} ×{cnt}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Top mood + streak row */}
+            <div style={{ display:'flex', gap:12 }}>
+              <div style={{ flex:1, background: topMoodEntry ? MOOD_COLORS[topMoodEntry[0]] : '#ddd', borderRadius:20, padding:'16px 14px', display:'flex', flexDirection:'column', gap:5, minHeight:108 }}>
+                <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:10, color:'rgba(255,255,255,0.72)', margin:0, letterSpacing:'0.7px', textTransform:'uppercase' }}>Top Mood</p>
+                <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:800, fontSize:24, color:'white', margin:0, letterSpacing:'-0.5px', lineHeight:1.1 }}>{topMoodEntry ? topMoodEntry[0] : '—'}</p>
+                <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:400, fontSize:12, color:'rgba(255,255,255,0.72)', margin:0 }}>{topMoodEntry ? `${topMoodEntry[1]} of ${totalLogged} days` : 'Keep logging!'}</p>
+              </div>
+              <div style={{ flex:1, background:'#fef3b4', borderRadius:20, padding:'16px 14px', display:'flex', flexDirection:'column', gap:5, minHeight:108 }}>
+                <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:10, color:'rgba(20,20,19,0.45)', margin:0, letterSpacing:'0.7px', textTransform:'uppercase' }}>Log Streak</p>
+                <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:800, fontSize:24, color:'#141413', margin:0, letterSpacing:'-0.5px', lineHeight:1.1 }}>🔥 5 days</p>
+                <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:400, fontSize:12, color:'rgba(20,20,19,0.50)', margin:0 }}>Keep it going!</p>
+              </div>
+            </div>
+
+            {/* Mood breakdown */}
+            <div style={{ background:'white', borderRadius:22, padding:'18px 16px', boxShadow:'0 2px 16px rgba(0,0,0,0.05)', border:'1px solid rgba(20,20,19,0.06)' }}>
+              <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:700, fontSize:16, color:'#141413', margin:'0 0 16px', letterSpacing:'-0.25px' }}>Mood Breakdown</p>
+              {Object.entries(moodCounts).length === 0 ? (
+                <p style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:13, color:'rgba(20,20,19,0.35)', margin:0 }}>No data yet — start logging!</p>
+              ) : (
+                Object.entries(moodCounts).sort((a,b) => b[1]-a[1]).map(([mood, cnt]) => {
+                  const pct = Math.round(cnt / totalLogged * 100);
+                  const color = MOOD_COLORS[mood] || '#ccc';
+                  return (
+                    <div key={mood} style={{ marginBottom:12 }}>
+                      <div style={{ display:'flex', justifyContent:'space-between', marginBottom:5 }}>
+                        <div style={{ display:'flex', alignItems:'center', gap:7 }}>
+                          <div style={{ width:8, height:8, borderRadius:4, background:color, flexShrink:0 }} />
+                          <p style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:13, fontWeight:500, color:'#141413', margin:0 }}>{mood}</p>
+                        </div>
+                        <p style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:12, color:'rgba(20,20,19,0.40)', margin:0 }}>{pct}%</p>
+                      </div>
+                      <div style={{ height:7, background:'rgba(20,20,19,0.07)', borderRadius:4, overflow:'hidden' }}>
+                        <div style={{ height:'100%', width:`${pct}%`, background:color, borderRadius:4 }} />
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Monthly goal */}
+            <div style={{ background:'white', borderRadius:22, padding:'18px 16px', boxShadow:'0 2px 16px rgba(0,0,0,0.05)', border:'1px solid rgba(20,20,19,0.06)' }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
+                <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:700, fontSize:16, color:'#141413', margin:0, letterSpacing:'-0.25px' }}>Monthly Goal</p>
+                <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:700, fontSize:14, color:'#8050c8', margin:0 }}>{count}/30</p>
+              </div>
+              <div style={{ height:10, background:'rgba(20,20,19,0.07)', borderRadius:5, overflow:'hidden', marginBottom:10 }}>
+                <div style={{ height:'100%', width:`${Math.min(100, count/30*100)}%`, background:'linear-gradient(90deg,#a06edc,#7040b8)', borderRadius:5 }} />
+              </div>
+              <p style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:12, color:'rgba(20,20,19,0.45)', margin:0 }}>
+                {30 - count > 0 ? `${30 - count} more logs to reach your goal this month 🎯` : 'Goal reached! Amazing work 🎉'}
+              </p>
+            </div>
+
+          </div>
+
+          {/* Bottom nav — Stats active */}
+          <div style={{ position:'absolute', background:'rgba(255,237,229,0.72)', backdropFilter:'blur(16px)', border:'1px solid rgba(20,20,19,0.06)', display:'flex', alignItems:'center', left:52, padding:6, borderRadius:999, boxShadow:'0 4px 24px rgba(0,0,0,0.04), 0 24px 48px rgba(0,0,0,0.08)', top:764, width:294, zIndex:10, boxSizing:'border-box', gap:4 }}>
+            {/* Home */}
+            <div onClick={() => onNav('home')} style={{ display:'flex', alignItems:'center', justifyContent:'center', height:51, borderRadius:999, flexShrink:0, width:46, cursor:'pointer' }}>
+              <svg width="19" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(20,20,19,0.35)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+            </div>
+            {/* Stats (active pill) */}
+            <div style={{ background:'white', display:'flex', flexDirection:'column', height:51, alignItems:'center', justifyContent:'center', paddingLeft:14, paddingRight:18, borderRadius:999, flex:1, boxShadow:'0 2px 8px rgba(0,0,0,0.06)', cursor:'pointer' }}>
+              <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#141413" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="12" width="4" height="9"/><rect x="10" y="7" width="4" height="14"/><rect x="17" y="3" width="4" height="18"/></svg>
+                <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:14, color:'#141413', margin:0, letterSpacing:'0.3px', textTransform:'uppercase', whiteSpace:'nowrap' }}>Stats</p>
+              </div>
+            </div>
+            {/* Peers */}
+            <div onClick={() => onNav('home')} style={{ display:'flex', alignItems:'center', justifyContent:'center', height:51, borderRadius:999, flexShrink:0, width:46, cursor:'pointer' }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(20,20,19,0.35)" strokeWidth="1.8" strokeLinecap="round"><circle cx="9" cy="7" r="3"/><path d="M3 21v-1a6 6 0 0112 0v1"/><circle cx="17" cy="9" r="2.5"/><path d="M20 21v-.8a5 5 0 00-4-4.9"/></svg>
+            </div>
+            {/* Profile */}
+            <div onClick={() => onNav('home')} style={{ display:'flex', alignItems:'center', justifyContent:'center', height:51, borderRadius:999, flexShrink:0, width:46, cursor:'pointer' }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(20,20,19,0.35)" strokeWidth="1.8" strokeLinecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+          </div>
+
+          <StatusBar />
+        </div>
+      );
+    }
+
     /* ── APP ── */
     function App() {
       const [page, setPage] = useState('home');
@@ -1265,7 +1482,7 @@
                     </div>
                   </div>
                   {/* Stats */}
-                  <div style={{ background:'white', display:'flex', alignItems:'flex-start', padding:11, borderRadius:23, flexShrink:0, width:46, height:46, cursor:'pointer', boxSizing:'border-box' }}>
+                  <div onClick={() => setPage('stats')} style={{ background:'white', display:'flex', alignItems:'flex-start', padding:11, borderRadius:23, flexShrink:0, width:46, height:46, cursor:'pointer', boxSizing:'border-box' }}>
                     <div style={{ position:'relative', flexShrink:0, width:24, height:24 }}>
                       <div style={{ position:'absolute', background:'rgba(0,0,0,0.5)', border:'2px solid #808080', bottom:'16.67%', left:'75%', right:'8.33%', borderRadius:1, top:'29.17%' }} />
                       <div style={{ position:'absolute', background:'rgba(0,0,0,0.5)', border:'2px solid #808080', top:'54.17%', right:'41.67%', bottom:'16.67%', left:'41.67%', borderRadius:1 }} />
@@ -1303,6 +1520,9 @@
 
             {/* Log Mood page */}
             {page === 'logMood' && <LogMoodPage onBack={() => setPage('home')} onSave={handleLogMoodSave} />}
+
+            {/* Stats page */}
+            {page === 'stats' && <StatsPage onBack={() => setPage('home')} onNav={setPage} todayMood={todayMood} count={count} />}
           </div>
         </>
       );
