@@ -1106,8 +1106,19 @@
         { text:'Stress',     r:19, color:'#c8a8e8', cx:84,  cy:75  },
       ];
 
-      // Face cell: coloured circle + character image
-      const faceColor = m => !m ? 'rgba(20,20,19,0.07)' : isPos(m) ? POS : NEG;
+      // Face cell: mood-specific pastel backgrounds
+      const FACE_BG = {
+        Good:'#d6f0d6', Happy:'#fef4b8', Grateful:'#fde0b0',
+        Sad:'#cce8ff', Angry:'#ffd6d6', Exhausted:'#ddd0f8',
+        Boring:'#ccf4f0', Anxious:'#e8d4f8',
+      };
+      const FACE_RING = {
+        Good:'#5cb85c', Happy:'#c8a000', Grateful:'#d87830',
+        Sad:'#3ab4dc', Angry:'#e04040', Exhausted:'#8050c8',
+        Boring:'#30b8b0', Anxious:'#9070cc',
+      };
+      const faceColor = m => !m ? 'rgba(20,20,19,0.07)' : (FACE_BG[m] || 'rgba(20,20,19,0.07)');
+      const faceRing  = m => m ? (FACE_RING[m] || '#141413') : '#141413';
       const faceImg   = m =>
         m === 'Good' || m === 'Happy' || m === 'Grateful' ? imgDayGoodBlob :
         m === 'Sad'  ? imgDaySadFace : imgDayAnxiousFace;
@@ -1162,18 +1173,21 @@
 
               {/* Pill bar chart (week) / dot grid (month) */}
               {tab === 'week' ? (
-                <div style={{ display:'flex', gap:7, alignItems:'flex-end', height: TRACK_H + 24, marginBottom:4 }}>
+                <div style={{ display:'flex', gap:7, alignItems:'flex-end', height: TRACK_H + 36, marginBottom:0 }}>
                   {weekRows.map((d, i) => {
                     const color = d.mood ? (isPos(d.mood) ? POS : NEG) : 'transparent';
                     const fh = FILL_H[i];
                     return (
-                      <div key={i} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:7 }}>
+                      <div key={i} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:5 }}>
                         {/* Track + fill */}
-                        <div style={{ width:'100%', maxWidth:34, height:TRACK_H, background:'rgba(20,20,19,0.07)', borderRadius:99, position:'relative', overflow:'hidden' }}>
+                        <div style={{ width:'100%', maxWidth:38, height:TRACK_H, background:'rgba(20,20,19,0.065)', borderRadius:99, position:'relative', overflow:'hidden' }}>
                           {d.mood && fh > 0 && (
-                            <div style={{ position:'absolute', bottom:0, left:0, right:0, height:fh, background:color, borderRadius:99 }} />
+                            <div style={{ position:'absolute', bottom:0, left:0, right:0, height:fh, background:color, borderRadius:99,
+                              boxShadow:`0 -2px 8px ${color}50` }} />
                           )}
                         </div>
+                        {/* Bottom dot */}
+                        <div style={{ width:7, height:7, borderRadius:4, background: d.mood && fh>0 ? color : 'rgba(20,20,19,0.10)', flexShrink:0 }} />
                         <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:11, color:'rgba(20,20,19,0.42)', margin:0, letterSpacing:'0.2px' }}>{d.s}</p>
                       </div>
                     );
@@ -1206,18 +1220,19 @@
                 {weekRows.map((d, i) => {
                   const isSelected = i === selDay;
                   const fc = faceColor(d.mood);
+                  const fr = faceRing(d.mood);
                   return (
                     <div key={i} onClick={() => setSelDay(i)} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:6, cursor:'pointer' }}>
                       <div style={{
-                        width:40, height:40, borderRadius:20, background:fc,
+                        width:44, height:44, borderRadius:22, background:fc,
                         display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
-                        outline: isSelected ? '2.5px solid #141413' : 'none',
+                        outline: isSelected ? `2.5px solid ${fr}` : 'none',
                         outlineOffset:2,
-                        boxShadow: isSelected ? '0 2px 10px rgba(20,20,19,0.15)' : 'none',
+                        boxShadow: isSelected ? `0 3px 12px ${fr}40` : 'none',
                         transition:'outline 0.15s, box-shadow 0.15s',
                       }}>
                         {d.mood ? (
-                          <img alt="" src={faceImg(d.mood)} style={{ width:30, height:30, objectFit:'contain' }} onError={e=>e.target.style.display='none'} />
+                          <img alt="" src={faceImg(d.mood)} style={{ width:34, height:34, objectFit:'contain' }} onError={e=>e.target.style.display='none'} />
                         ) : (
                           <p style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:12, color:'rgba(20,20,19,0.25)', margin:0 }}>–</p>
                         )}
