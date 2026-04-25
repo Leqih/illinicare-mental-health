@@ -541,8 +541,43 @@
       const dragRef  = useRef({ startX:0, dragging:false });
       const timerRef = useRef(null);
       const [showTellMore, setShowTellMore] = useState(false);
+      const [showHelp, setShowHelp]         = useState(false);
       const [reason, setReason] = useState('');
       const [note, setNote]     = useState('');
+
+      const helpContent = {
+        Sad:       { color:'#3ab4dc', items:[
+          { icon:'🌬️', title:'Breathing exercise',    desc:'Try 4-7-8 breathing to ease the heaviness' },
+          { icon:'📝', title:'Write it out',           desc:'Put your thoughts on paper, no filters needed' },
+        ]},
+        Angry:     { color:'#e04040', items:[
+          { icon:'🧊', title:'Ground yourself',        desc:'Name 5 things you can see around you right now' },
+          { icon:'🚶', title:'Take a short walk',      desc:'Even 5 minutes outside can reset your mind' },
+        ]},
+        Exhausted: { color:'#8050c8', items:[
+          { icon:'🎵', title:'Calm Mode',              desc:'10 mins of ambient sound to help you recharge' },
+          { icon:'🧘', title:'Gentle body scan',       desc:'Release the tension you\'ve been holding today' },
+        ]},
+        Boring:    { color:'#30b8b0', items:[
+          { icon:'🎯', title:'Do one tiny thing',      desc:'Pick something small you\'ve been putting off' },
+          { icon:'🌿', title:'Step outside',           desc:'Fresh air and a change of scenery can help' },
+        ]},
+        Good:      { color:'#5cb85c', items:[
+          { icon:'✨', title:'Capture this moment',    desc:'Write one thing that made today feel good' },
+          { icon:'💪', title:'Keep the momentum',      desc:'Set one small intention for tomorrow' },
+        ]},
+        Happy:     { color:'#c8a000', items:[
+          { icon:'🌟', title:'Spread the joy',         desc:'Tell someone you appreciate them today' },
+          { icon:'📖', title:'Journal this feeling',   desc:'Save this happy moment so you can revisit it' },
+        ]},
+        Grateful:  { color:'#d87830', items:[
+          { icon:'🙏', title:'Gratitude journal',      desc:'Write 3 things you\'re thankful for today' },
+          { icon:'💌', title:'Share your kindness',    desc:'A warm message can brighten someone\'s whole day' },
+        ]},
+      };
+      const currentHelp  = helpContent[selected] || helpContent['Good'];
+      const helpColor    = currentHelp.color;
+      const helpItems    = currentHelp.items;
 
       const switchMood = (mood) => {
         if (mood === selected) return;
@@ -917,6 +952,46 @@
           <div style={{ position:'absolute', inset:0, pointerEvents:'none', borderRadius:'inherit', boxShadow:'inset 0px 1px 0px 0px rgba(255,255,255,0.12)' }} />
 
           {/* ── Tell us more overlay ── */}
+          {/* ── Here's what might help overlay ── */}
+          {showHelp && (
+            <div style={{ position:'absolute', inset:0, zIndex:400, borderRadius:'inherit' }}>
+              {/* Character behind panel */}
+              <div style={{ position:'absolute', top:0, left:0, right:0, height:500, overflow:'hidden', pointerEvents:'none' }}>
+                {renderSlot(selected)}
+              </div>
+
+              {/* Help panel */}
+              <div style={{ position:'absolute', background:'rgb(250,247,245)', left:0, top:400, width:390, height:444, borderRadius:'50px 50px 0 0', padding:'28px 20px 24px', display:'flex', flexDirection:'column', gap:14, boxSizing:'border-box', overflow:'hidden' }}>
+                {/* Header */}
+                <div style={{ textAlign:'center' }}>
+                  <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:700, fontSize:24, color:'#141413', margin:0, letterSpacing:'-0.4px' }}>Here's what might help</p>
+                  <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:400, fontSize:13, color:'rgba(20,20,19,0.50)', margin:'4px 0 0', letterSpacing:'-0.1px' }}>Based on how you're feeling today</p>
+                </div>
+
+                {/* Suggestion cards */}
+                {helpItems.map((item, i) => (
+                  <div key={i} style={{ display:'flex', alignItems:'center', gap:14, background:'white', borderRadius:20, padding:'16px 18px', boxShadow:'0 2px 12px rgba(0,0,0,0.04)', cursor:'pointer', flexShrink:0 }}>
+                    <div style={{ fontSize:30, flexShrink:0, width:44, height:44, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(20,20,19,0.04)', borderRadius:14 }}>{item.icon}</div>
+                    <div style={{ flex:1 }}>
+                      <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:600, fontSize:15, color:'#141413', margin:0, letterSpacing:'-0.2px' }}>{item.title}</p>
+                      <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:400, fontSize:13, color:'rgba(20,20,19,0.52)', margin:'2px 0 0', letterSpacing:'-0.1px', lineHeight:'17px' }}>{item.desc}</p>
+                    </div>
+                    <div style={{ fontSize:16, color:'rgba(20,20,19,0.25)', flexShrink:0 }}>›</div>
+                  </div>
+                ))}
+
+                {/* Done button */}
+                <div
+                  onClick={() => onBack()}
+                  style={{ background:helpColor, height:48, borderRadius:22, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', marginTop:'auto', flexShrink:0 }}>
+                  <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:600, fontSize:16, color:'white', letterSpacing:'-0.2px', margin:0 }}>Got it, thanks! 👋</p>
+                </div>
+              </div>
+
+              <StatusBar />
+            </div>
+          )}
+
           {showTellMore && (
             <div style={{ position:'absolute', inset:0, zIndex:300, borderRadius:'inherit' }}>
 
@@ -950,7 +1025,7 @@
                 </div>
 
                 <div
-                  onClick={() => { onSave(selected, { reason, note }); onBack(); }}
+                  onClick={() => { onSave(selected, { reason, note }); setShowTellMore(false); setShowHelp(true); }}
                   style={{ background: isGrateful?'#d87830':isHappy?'#c8a000':isGood?'#5cb85c':isSad?'#3ab4dc':isAngry?'#e04040':isBoring?'#30b8b0':isExhausted?'#8050c8':'#9070cc', height:45, borderRadius:20, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
                   <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:16, color:'white', letterSpacing:'-0.2px', margin:0 }}>Save</p>
                 </div>
