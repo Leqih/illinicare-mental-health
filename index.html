@@ -1151,9 +1151,9 @@
                   {/* ── Left Y-axis: 3 mood-level icons (matches reference exactly) ── */}
                   <div style={{ width:Y_AXIS_W, position:'relative', height: CHART_H + 28, flexShrink:0 }}>
                     {[
-                      { y:46,  img: imgDayGoodBlob    },   // top    = positive
-                      { y:95,  img: imgDaySadFace      },  // middle = neutral/sad
-                      { y:145, img: imgDayAnxiousFace  },  // bottom = negative
+                      { y: MOOD_Y['Good'],    img: imgDayGoodBlob    },  // aligns with Good data points
+                      { y: MOOD_Y['Boring'],  img: imgDaySadFace      }, // aligns with neutral/boring
+                      { y: MOOD_Y['Sad'],     img: imgDayAnxiousFace  }, // aligns with Sad/low data points
                     ].map((lv, i) => (
                       <div key={i} style={{ position:'absolute', left:0, top: lv.y - 11, width:22, height:22 }}>
                         <img alt="" src={lv.img} style={{ width:22, height:22, objectFit:'contain' }} onError={e=>e.target.style.display='none'} />
@@ -1198,8 +1198,8 @@
                         </linearGradient>
                         <clipPath id="cc"><rect x="0" y="0" width={CW} height={CHART_H}/></clipPath>
                       </defs>
-                      {/* Subtle dashed guide lines */}
-                      {[46, 88, 138].map((y,i) => (
+                      {/* Guide lines aligned to Y-axis icon levels */}
+                      {[MOOD_Y['Good'], MOOD_Y['Boring'], MOOD_Y['Sad']].map((y,i) => (
                         <line key={i} x1={0} y1={y} x2={CW} y2={y} stroke="rgba(20,20,19,0.045)" strokeWidth="1" strokeDasharray="5 5"/>
                       ))}
                       {/* Aurora area fill */}
