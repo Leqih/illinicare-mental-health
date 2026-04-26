@@ -1600,17 +1600,6 @@
           {/* Scrollable body */}
           <div style={{ position:'absolute', top:100, left:0, right:0, bottom:90, overflowY:'auto', padding:'14px 18px 24px', display:'flex', flexDirection:'column', gap:14, boxSizing:'border-box' }}>
 
-            {/* Tab switcher */}
-            <div style={{ display:'flex', background:'rgba(20,20,19,0.07)', borderRadius:14, padding:4, gap:2, flexShrink:0 }}>
-              {['week','month'].map(t => (
-                <div key={t} onClick={() => setTab(t)} style={{ flex:1, textAlign:'center', padding:'8px 0', borderRadius:10, background:tab===t?'white':'transparent', cursor:'pointer', boxShadow:tab===t?'0 2px 8px rgba(0,0,0,0.08)':'none' }}>
-                  <p style={{ fontFamily:SF, fontWeight:tab===t?600:400, fontSize:14, color:tab===t?'#141413':'rgba(20,20,19,0.45)', margin:0 }}>
-                    {t==='week' ? 'This Week' : 'This Month'}
-                  </p>
-                </div>
-              ))}
-            </div>
-
             {/* ── CARD 1: Mood Calendar ── */}
             {(() => {
               const CAL_MOODS = {
