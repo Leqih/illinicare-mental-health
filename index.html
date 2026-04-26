@@ -609,6 +609,83 @@
       );
     }
 
+    /* ── HAPPY STICKER ZONE — same 3-char structure as GoodStickerZone ── */
+    /* Uses imgHappyChar (yellow star body) + face overlay positions from buildIconHTML */
+    function HappyStickerZone() {
+      return (
+        <div style={{ position:'relative', width:44, height:37, flexShrink:0 }}>
+          {/* Rectangle82 backing */}
+          <div style={{ position:'absolute', left:2, top:0, width:42, height:37 }}>
+            <img alt="" src={imgW82} onError={e=>e.target.style.display='none'}
+              style={{ position:'absolute', top:0, right:'-9.52%', bottom:'-21.62%', left:'-9.52%', display:'block', width:'119.04%', height:'121.62%' }} />
+          </div>
+
+          {/* Third char (back): left:8.7, top:5, 26×22 */}
+          <div style={{ position:'absolute', left:8.7, top:5, width:26, height:22 }}>
+            <img alt="" src={imgHappyChar} onError={e=>e.target.style.display='none'}
+              style={{ position:'absolute', inset:0, display:'block', width:'100%', height:'100%' }} />
+            <div style={{ position:'absolute', top:'38.47%', right:'30.69%', bottom:'42.33%', left:'38.17%' }}>
+              <div style={{ position:'absolute', top:0, right:0, bottom:'-11.63%', left:0 }}>
+                <img alt="" src={imgWG6} onError={e=>e.target.style.display='none'}
+                  style={{ display:'block', width:'100%', height:'100%' }} />
+              </div>
+            </div>
+          </div>
+
+          {/* Secondary char: left:15, top:3, rotate(8deg) */}
+          <div style={{ position:'absolute', left:15, top:3, width:28.81, height:25.406, display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <div style={{ transform:'rotate(8deg)', flexShrink:0 }}>
+              <div style={{ position:'relative', width:22, height:20 }}>
+                <img alt="" src={imgHappyChar} onError={e=>e.target.style.display='none'}
+                  style={{ position:'absolute', inset:0, display:'block', width:'100%', height:'100%' }} />
+                <div style={{ position:'absolute', top:'33.92%', right:'42.23%', bottom:'46.88%', left:'26.63%' }}>
+                  <div style={{ position:'absolute', top:0, right:0, bottom:'-11.63%', left:0 }}>
+                    <img alt="" src={imgWG6} onError={e=>e.target.style.display='none'}
+                      style={{ display:'block', width:'100%', height:'100%' }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Main char (front): left:0, top:7, 24×24, rotate(-13.21deg) — full face */}
+          <div style={{ position:'absolute', left:0, top:7, width:28.851, height:28.851, display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <div style={{ transform:'rotate(-13.21deg)', flexShrink:0 }}>
+              <div style={{ position:'relative', width:24, height:24, flexShrink:0 }}>
+                <img alt="" src={imgHappyChar} onError={e=>e.target.style.display='none'}
+                  style={{ position:'absolute', inset:0, display:'block', width:'100%', height:'100%' }} />
+                {/* Left eye */}
+                <div style={{ position:'absolute', top:'35.54%', right:'56.79%', bottom:'55.75%', left:'36.24%' }}>
+                  <div style={{ position:'absolute', top:'-30%', right:'-28.63%', bottom:'-30%', left:'-37.51%' }}>
+                    <img alt="" src={imgHappyFaceL} onError={e=>e.target.style.display='none'}
+                      style={{ display:'block', width:'100%', height:'100%' }} />
+                  </div>
+                </div>
+                {/* Right eye (mirrored) */}
+                <div style={{ position:'absolute', top:'35.54%', right:'36.24%', bottom:'55.75%', left:'56.79%' }}>
+                  <div style={{ position:'absolute', top:'-30%', right:'-28.63%', bottom:'-30%', left:'-37.51%', transform:'scaleX(-1)' }}>
+                    <img alt="" src={imgHappyFaceR} onError={e=>e.target.style.display='none'}
+                      style={{ display:'block', width:'100%', height:'100%' }} />
+                  </div>
+                </div>
+                {/* Mouth */}
+                <div style={{ position:'absolute', top:'46.34%', right:'43.9%', bottom:'45.47%', left:'44.25%' }}>
+                  <div style={{ position:'absolute', top:'-25.53%', right:'-13.01%', bottom:'-25.53%', left:'-13.01%' }}>
+                    <img alt="" src={imgHappyFaceM} onError={e=>e.target.style.display='none'}
+                      style={{ display:'block', width:'100%', height:'100%' }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Frosted badge */}
+          <div style={{ position:'absolute', left:2, top:21, width:42, height:16, backdropFilter:'blur(2px)', WebkitBackdropFilter:'blur(2px)', background:'rgba(255,255,255,0.4)', border:'1px solid rgba(0,0,0,0.05)', borderRadius:5 }} />
+          <p style={{ position:'absolute', left:23, top:24, transform:'translateX(-50%)', fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:8, color:'black', textAlign:'center', letterSpacing:'0.3px', textTransform:'uppercase', whiteSpace:'nowrap', lineHeight:'normal', margin:0 }}>Happy</p>
+        </div>
+      );
+    }
+
     /* ── EXHAUSTED STICKER ZONE (Figma 208:2811) ── */
     /* Coords normalized: subtract 15.5 from Figma y-values so folder bg starts at top:0 */
     function ExhaustedStickerZone() {
@@ -821,6 +898,7 @@
       const zones = {
         good:      { comp: <GoodStickerZone />,      w:32, h:27 },
         sad:       { comp: <SadStickerZone />,       w:30, h:27 },
+        happy:     { comp: <HappyStickerZone />,     w:32, h:27 },
         exhausted: { comp: <ExhaustedStickerZone />, w:30, h:27 },
         boring:    { comp: <BoringStickerZone />,    w:30, h:27 },
       };
