@@ -122,7 +122,7 @@
 <body>
   <div id="root"></div>
   <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
+    const { useState, useEffect, useRef, useCallback } = React;
 
     /* ── FIGMA ASSETS ── */
     const imgVideoBg      = 'https://www.figma.com/api/mcp/asset/17ac71f1-3168-4ea4-83ee-465e139cfe00';
@@ -606,136 +606,182 @@
     }
 
     /* ── TODAY PHYSICS CARD ── */
-    function TodayPhysicsCard({ dateStr }) {
-      const containerRef = useRef(null);
+    /* Maps mood label → character image src from Log Mood page */
+    const moodCharSrc = m => {
+      switch ((m || '').toLowerCase()) {
+        case 'good':      return imgGoodChar;
+        case 'happy':     return imgHappyChar;
+        case 'grateful':  return imgGratefulChar;
+        case 'angry':     return imgAngryChar;
+        case 'exhausted': return imgExhaustedChar;
+        case 'boring':    return imgBoringChar1;
+        case 'sad':
+        default:          return imgLogCloudChar;
+      }
+    };
 
-      /* Radius per icon (determines physics circle size) */
-      const RADII = [19, 18, 19, 18, 18];
+    const buildIconHTML = (moodLabel) => {
+      const s = (moodLabel || '').toLowerCase();
+      const base = (src) => `<img alt="" src="${src}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block">`;
+
+      if (s === 'sad') return base(imgLogCloudChar); // face baked in
+
+      if (s === 'good') return `
+        ${base(imgGoodChar)}
+        <div style="position:absolute;left:33.8%;top:45.6%;width:32.1%;height:19.5%;clip-path:inset(43% 0 0 0);overflow:visible">
+          <img alt="" src="${imgGoodFace}" style="display:block;width:100%;height:100%">
+        </div>
+        <div style="position:absolute;left:33.8%;top:45.6%;width:32.1%;height:19.5%;clip-path:inset(0 0 57% 0);overflow:visible">
+          <img alt="" src="${imgGoodFace}" style="display:block;width:100%;height:100%">
+        </div>`;
+
+      if (s === 'happy') return `
+        ${base(imgHappyChar)}
+        <div style="position:absolute;top:35.54%;right:56.79%;bottom:55.75%;left:36.24%;overflow:visible">
+          <div style="position:absolute;top:-30%;right:-28.63%;bottom:-30%;left:-37.51%">
+            <img alt="" src="${imgHappyFaceL}" style="display:block;width:100%;height:100%">
+          </div>
+        </div>
+        <div style="position:absolute;top:35.54%;right:36.24%;bottom:55.75%;left:56.79%;overflow:visible">
+          <div style="position:absolute;top:-30%;right:-28.63%;bottom:-30%;left:-37.51%;transform:scaleX(-1)">
+            <img alt="" src="${imgHappyFaceR}" style="display:block;width:100%;height:100%">
+          </div>
+        </div>
+        <div style="position:absolute;top:46.34%;right:43.9%;bottom:45.47%;left:44.25%;overflow:visible">
+          <div style="position:absolute;top:-25.53%;right:-13.01%;bottom:-25.53%;left:-13.01%">
+            <img alt="" src="${imgHappyFaceM}" style="display:block;width:100%;height:100%">
+          </div>
+        </div>`;
+
+      if (s === 'grateful') return `
+        ${base(imgGratefulChar)}
+        <div style="position:absolute;top:35.82%;right:52.25%;bottom:52.84%;left:36.68%">
+          <img alt="" src="${imgGratefulFaceB}" style="position:absolute;inset:0;display:block;width:100%;height:100%">
+        </div>
+        <div style="position:absolute;top:37.59%;right:39.1%;bottom:53.55%;left:53.98%;overflow:visible">
+          <div style="position:absolute;top:-30%;right:-28.63%;bottom:-30%;left:-37.51%;transform:scaleX(-1)">
+            <img alt="" src="${imgGratefulFaceC}" style="display:block;width:100%;height:100%">
+          </div>
+        </div>
+        <div style="position:absolute;top:48.58%;right:41.18%;bottom:42.2%;left:40.83%">
+          <img alt="" src="${imgGratefulFaceA}" style="position:absolute;inset:0;display:block;width:100%;height:100%;transform:rotate(180deg) scaleX(-1)">
+        </div>`;
+
+      if (s === 'angry') return `
+        ${base(imgAngryChar)}
+        <div style="position:absolute;top:32.18%;right:35.6%;bottom:52.35%;left:35.89%;overflow:visible">
+          <div style="position:absolute;top:-7.92%;right:-12.22%;bottom:0%;left:-12.22%">
+            <img alt="" src="${imgAngryFaceA}" style="display:block;width:100%;height:100%">
+          </div>
+        </div>
+        <div style="position:absolute;top:48.1%;right:45.6%;bottom:42.2%;left:46.0%">
+          <img alt="" src="${imgAngryFaceB}" style="position:absolute;inset:0;display:block;width:100%;height:100%">
+        </div>`;
+
+      if (s === 'exhausted') return `
+        ${base(imgExhaustedChar)}
+        <div style="position:absolute;top:34.5%;left:34.5%;right:55.1%;bottom:56.3%;overflow:visible">
+          <div style="position:absolute;inset:-29.85% -26.67%">
+            <img alt="" src="${imgExhaustedEyeA}" style="display:block;width:100%;height:100%">
+          </div>
+        </div>
+        <div style="position:absolute;top:34.5%;left:34.5%;right:55.1%;bottom:56.3%;overflow:visible">
+          <div style="position:absolute;inset:-29.85% -26.67%;transform:rotate(180deg) scaleY(-1)">
+            <img alt="" src="${imgExhaustedEyeB}" style="display:block;width:100%;height:100%">
+          </div>
+        </div>
+        <div style="position:absolute;top:34.5%;left:55.5%;right:34.1%;bottom:56.3%;overflow:visible">
+          <div style="position:absolute;inset:-29.85% -26.67%">
+            <img alt="" src="${imgExhaustedEyeA}" style="display:block;width:100%;height:100%">
+          </div>
+        </div>
+        <div style="position:absolute;top:34.5%;left:55.5%;right:34.1%;bottom:56.3%;overflow:visible">
+          <div style="position:absolute;inset:-29.85% -26.67%;transform:rotate(180deg) scaleY(-1)">
+            <img alt="" src="${imgExhaustedEyeB}" style="display:block;width:100%;height:100%">
+          </div>
+        </div>`;
+
+      if (s === 'boring') return `
+        <img alt="" src="${imgBoringChar1}" style="position:absolute;top:0;bottom:0;left:0;right:75%;width:25%;height:100%;display:block;object-fit:cover">
+        <img alt="" src="${imgBoringChar2}" style="position:absolute;top:0;bottom:0;left:24.99%;right:50%;width:25.01%;height:100%;display:block;object-fit:cover">
+        <img alt="" src="${imgBoringChar1}" style="position:absolute;top:0;bottom:0;left:50%;right:24.99%;width:25.01%;height:100%;display:block;object-fit:cover">
+        <img alt="" src="${imgBoringChar2}" style="position:absolute;top:0;bottom:0;left:75%;right:0;width:25%;height:100%;display:block;object-fit:cover">`;
+
+      return base(imgLogCloudChar); // fallback
+    };
+
+    function TodayPhysicsCard({ dateStr, moods }) {
+      const containerRef = useRef(null);
+      const phyRef = useRef({ engine:null, runner:null, bodies:[], elems:[], spawned:0, rafId:null });
       const W = 346, H = 94;
 
-      /* Full Figma face structure for each icon, scaled to r*2 container */
-      function IconFace({ idx }) {
-        const hide = e => e.target.style.display = 'none';
-        if (idx === 0 || idx === 2) {
-          /* good blob (imgTdV) + eyes overlay (imgTdG6 / imgTdG7) */
-          const eyeSrc = idx === 0 ? imgTdG6 : imgTdG7;
-          return <>
-            <img alt="" src={imgTdV} onError={hide}
-              style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'contain', display:'block' }} />
-            {/* Eyes: ml:13.38 mt:14.68 w:12.56 h:6.55 within 39.17×38.49 → % */}
-            <div style={{ position:'absolute', left:'34.17%', top:'38.15%', width:'32.07%', height:'17.03%' }}>
-              <div style={{ position:'absolute', top:0, right:0, bottom:'-15.62%', left:0 }}>
-                <img alt="" src={eyeSrc} onError={hide} style={{ display:'block', width:'100%', height:'100%' }} />
-              </div>
-            </div>
-          </>;
-        }
-        if (idx === 1) {
-          /* sad face (imgTdG14) + tear accessory (imgTdG12) */
-          return <>
-            <img alt="" src={imgTdG14} onError={hide}
-              style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'contain', display:'block' }} />
-            {/* Accessory: ml:24.96 mt:5.49 w:9.8 h:12.02 within 37.5×37.5 → % */}
-            <div style={{ position:'absolute', left:'66.56%', top:'14.64%', width:'26.13%', height:'32.06%' }}>
-              <img alt="" src={imgTdG12} onError={hide}
-                style={{ position:'absolute', inset:0, display:'block', width:'100%', height:'100%' }} />
-            </div>
-          </>;
-        }
-        /* idx 3 & 4: star blob (imgTdV1) + left eye + right eye (mirrored) + smile */
-        return <>
-          <img alt="" src={imgTdV1} onError={hide}
-            style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'contain', display:'block' }} />
-          {/* Left eye */}
-          <div style={{ position:'absolute', top:'35.54%', right:'56.79%', bottom:'55.75%', left:'36.24%' }}>
-            <div style={{ position:'absolute', top:'-30%', right:'-28.63%', bottom:'-30%', left:'-37.51%' }}>
-              <img alt="" src={imgTdV24} onError={hide} style={{ display:'block', width:'100%', height:'100%' }} />
-            </div>
-          </div>
-          {/* Right eye (mirrored) */}
-          <div style={{ position:'absolute', top:'35.54%', right:'36.24%', bottom:'55.75%', left:'56.79%', display:'flex', alignItems:'center', justifyContent:'center' }}>
-            <div style={{ transform:'scaleX(-1)', width:'100%', height:'100%', flexShrink:0 }}>
-              <div style={{ position:'relative', width:'100%', height:'100%' }}>
-                <div style={{ position:'absolute', top:'-30%', right:'-28.63%', bottom:'-30%', left:'-37.51%' }}>
-                  <img alt="" src={imgTdV25} onError={hide} style={{ display:'block', width:'100%', height:'100%' }} />
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* Smile */}
-          <div style={{ position:'absolute', top:'46.34%', right:'43.9%', bottom:'45.47%', left:'44.25%' }}>
-            <div style={{ position:'absolute', top:'-25.53%', right:'-13.01%', bottom:'-25.53%', left:'-13.01%' }}>
-              <img alt="" src={imgTdV34} onError={hide} style={{ display:'block', width:'100%', height:'100%' }} />
-            </div>
-          </div>
-        </>;
-      }
+      const spawnIcon = useCallback((moodLabel) => {
+        const phy = phyRef.current;
+        if (!phy.engine || !containerRef.current || !window.Matter) return;
+        const { Bodies, Composite, Body } = window.Matter;
+        const r = 19;
+        const x = 30 + Math.random() * (W - 60);
+        const body = Bodies.circle(x, -r - 5, r, {
+          restitution: 0.65, friction: 0.04, frictionAir: 0.012, density: 0.002
+        });
+        Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.2);
+        Composite.add(phy.engine.world, body);
+        const el = document.createElement('div');
+        el.style.cssText = `position:absolute;width:${r*2}px;height:${r*2}px;pointer-events:none;will-change:transform;`;
+        el.innerHTML = buildIconHTML(moodLabel);
+        containerRef.current.appendChild(el);
+        phy.bodies.push(body);
+        phy.elems.push(el);
+        phy.spawned++;
+      }, []);
 
-      /* Icon definitions: src + radius for physics circle */
-      const ICONS = RADII.map(r => ({ r }));
-
-
+      /* Setup engine once */
       useEffect(() => {
         const container = containerRef.current;
         if (!container || !window.Matter) return;
-        const { Engine, Bodies, Composite, Runner, Body } = window.Matter;
+        const { Engine, Bodies, Composite, Runner } = window.Matter;
 
-        /* Engine */
         const engine = Engine.create({ gravity: { x: 0, y: 1.2 } });
+        phyRef.current.engine = engine;
 
-        /* Walls (invisible, static) */
+        /* Walls */
         const wall = (x,y,w,h) => Bodies.rectangle(x,y,w,h,{ isStatic:true, restitution:0.5, friction:0.05 });
         Composite.add(engine.world, [
-          wall(W/2, H+26, W+100, 52),  // floor
-          wall(W/2, -26,  W+100, 52),  // ceiling
-          wall(-26, H/2,  52, H+100),  // left
-          wall(W+26, H/2, 52, H+100),  // right
+          wall(W/2, H+26, W+100, 52),
+          wall(W/2, -26,  W+100, 52),
+          wall(-26, H/2,  52, H+100),
+          wall(W+26, H/2, 52, H+100),
         ]);
 
-        /* Icon bodies */
-        const bodies = ICONS.map((icon, i) => {
-          const x = 35 + i * ((W-70)/4) + (Math.random()-0.5)*12;
-          const y = 10 + Math.random()*20;
-          const b = Bodies.circle(x, y, icon.r, {
-            restitution: 0.65, friction: 0.04, frictionAir: 0.012,
-            density: 0.002,
-          });
-          Body.setAngularVelocity(b, (Math.random()-0.5)*0.15);
-          return b;
-        });
-        Composite.add(engine.world, bodies);
-
-        /* Runner */
         const runner = Runner.create();
+        phyRef.current.runner = runner;
         Runner.run(runner, engine);
 
-        /* DOM sync via RAF */
-        let rafId;
-        const elems = Array.from(container.children);
+        /* RAF DOM sync — reads from phyRef so it always sees latest bodies */
         const tick = () => {
-          bodies.forEach((b, i) => {
-            const el = elems[i];
+          const phy = phyRef.current;
+          phy.bodies.forEach((b, i) => {
+            const el = phy.elems[i];
             if (!el) return;
-            const r = ICONS[i].r;
+            const r = parseInt(el.style.width) / 2;
             el.style.left      = (b.position.x - r) + 'px';
             el.style.top       = (b.position.y - r) + 'px';
             el.style.transform = 'rotate(' + b.angle + 'rad)';
           });
-          rafId = requestAnimationFrame(tick);
+          phy.rafId = requestAnimationFrame(tick);
         };
-        rafId = requestAnimationFrame(tick);
+        phyRef.current.rafId = requestAnimationFrame(tick);
 
         /* Device tilt → gravity */
         const onOrient = (e) => {
-          const g = (e.gamma ?? 0);
-          const b = (e.beta  ?? 45);
+          const g  = (e.gamma ?? 0);
+          const b2 = (e.beta  ?? 45);
           engine.gravity.x = (g / 45) * 1.8;
-          engine.gravity.y = Math.max(-0.5, Math.min(2, (b - 45) / 45 * 1.5 + 0.3));
+          engine.gravity.y = Math.max(-0.5, Math.min(2, (b2 - 45) / 45 * 1.5 + 0.3));
         };
         const setupOrient = () => window.addEventListener('deviceorientation', onOrient);
         if (typeof DeviceOrientationEvent !== 'undefined' &&
             typeof DeviceOrientationEvent.requestPermission === 'function') {
-          /* iOS 13+ — request on tap */
           const tapHandler = () => {
             DeviceOrientationEvent.requestPermission().then(s => {
               if (s === 'granted') setupOrient();
@@ -758,24 +804,26 @@
         window.addEventListener('mousemove', onMouse);
 
         return () => {
-          cancelAnimationFrame(rafId);
+          cancelAnimationFrame(phyRef.current.rafId);
           Runner.stop(runner);
           window.removeEventListener('deviceorientation', onOrient);
           window.removeEventListener('mousemove', onMouse);
         };
       }, []);
 
+      /* Spawn icons — handles both initial load and newly logged moods */
+      useEffect(() => {
+        const phy = phyRef.current;
+        if (!phy.engine) return;
+        const toSpawn = moods.slice(phy.spawned);
+        toSpawn.forEach((m, i) => setTimeout(() => spawnIcon(m), i * 150));
+      }, [moods.length]);
+
       return (
         <div style={{ background:'rgba(60,60,60,0.92)', border:'1px solid rgba(20,20,19,0.07)', height:H, borderRadius:20, boxShadow:'0 4px 24px rgba(0,0,0,0.04), 0 24px 48px rgba(0,0,0,0.08)', flexShrink:0, width:W, position:'relative', overflow:'hidden' }}>
           <p style={{ position:'absolute', fontFamily:'Sofia Sans,sans-serif', fontWeight:500, lineHeight:'17.5px', left:13, fontSize:14, color:'white', top:11, letterSpacing:'-0.28px', whiteSpace:'nowrap', zIndex:2 }}>Today – {dateStr}</p>
-          {/* Physics icon container */}
-          <div ref={containerRef} style={{ position:'absolute', inset:0, zIndex:1 }}>
-            {ICONS.map((icon, i) => (
-              <div key={i} style={{ position:'absolute', width: icon.r*2, height: icon.r*2, pointerEvents:'none', willChange:'transform' }}>
-                <IconFace idx={i} />
-              </div>
-            ))}
-          </div>
+          {/* Physics icon container — icons are imperatively appended here */}
+          <div ref={containerRef} style={{ position:'absolute', inset:0, zIndex:1 }} />
         </div>
       );
     }
@@ -1725,6 +1773,7 @@
       const [checkinOpen, setCheckin] = useState(false);
       const [todayMood, setTodayMood] = useState(null);
       const [count, setCount] = useState(7);
+      const [todayMoods, setTodayMoods] = useState(['good', 'sad']);
       const greeting = getGreeting();
 
       const handleSave = entry => {
@@ -1736,6 +1785,7 @@
       const handleLogMoodSave = (moodLabel) => {
         setTodayMood({ mood: { label: moodLabel, emoji: moodLabel==='Good'?'🙂':moodLabel==='Sad'?'😔':'😩' } });
         setCount(c => c + 1);
+        setTodayMoods(m => [...m, moodLabel.toLowerCase()]);
       };
 
       /* Week strip mood states */
@@ -1765,7 +1815,7 @@
                 <div style={{ display:'flex', flexDirection:'column', gap:10, alignItems:'center', padding:22 }}>
 
                   {/* Today dark summary card — physics */}
-                  <TodayPhysicsCard dateStr={new Date().toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'numeric'})} />
+                  <TodayPhysicsCard dateStr={new Date().toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'numeric'})} moods={todayMoods} />
 
                   {/* Mood Log + Urgent Support */}
                   <div style={{ height:165, position:'relative', flexShrink:0, width:346 }}>
