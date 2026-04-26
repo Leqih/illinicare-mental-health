@@ -928,7 +928,7 @@
     const LOG_MOOD_OPTIONS = ['Angry','Exhausted','Sad','Boring','Good','Happy','Grateful'];
 
     function LogMoodPage({ onBack, onSave }) {
-      const [selected, setSelected] = useState('Sad');
+      const [selected, setSelected] = useState('Good');
       const [prevMood, setPrevMood]  = useState(null);   // slides out
       const [slideDir, setSlideDir]  = useState(null);   // 'left' | 'right'
       const [dragX, setDragX]        = useState(0);      // real-time drag offset for wave
@@ -1004,15 +1004,28 @@
           : ms ? { color:'#47d9ff' } : { color:'#a090d0' };
         return (
           <>
-            {/* Bubble */}
-            <div style={{ position:'absolute', left:'50%', marginLeft:-85, top:100, width:170, height:78 }}>
-              <div style={{ position:'absolute', top:0, right:0, bottom:'12.86%', left:0 }}>
-                <img alt="" style={{ display:'block', maxWidth:'none', width:'100%', height:'100%' }} src={bi}
-                  onError={e=>{ e.target.style.display='none'; const p=e.target.parentNode; p.style.background='white'; p.style.borderRadius='18px'; p.style.boxShadow='0 2px 12px rgba(0,0,0,0.08)'; }} />
+            {/* Bubble — auto-sizes to any mood name */}
+            <div style={{ position:'absolute', left:'50%', transform:'translateX(-50%)', top:100, display:'flex', flexDirection:'column', alignItems:'center', zIndex:2 }}>
+              <div style={{
+                background:'rgba(255,255,255,0.84)',
+                backdropFilter:'blur(10px)', WebkitBackdropFilter:'blur(10px)',
+                borderRadius:22, padding:'12px 24px',
+                boxShadow:'0 2px 16px rgba(0,0,0,0.08)',
+                border:'1px solid rgba(255,255,255,0.65)',
+                whiteSpace:'nowrap',
+              }}>
+                <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:24, color:'black', letterSpacing:'0.3px', margin:0 }}>
+                  {'I feel '}<span style={bws}>{moodId}</span>{' !'}
+                </p>
               </div>
-              <p style={{ position:'absolute', left:'50%', transform:'translateX(-50%)', fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:24, color:'black', textAlign:'center', top:14, letterSpacing:'0.3px', whiteSpace:'nowrap', width:136 }}>
-                {'I feel '}<span style={bws}>{moodId}</span>{' !'}
-              </p>
+              {/* Tail triangle */}
+              <div style={{
+                width:0, height:0,
+                borderLeft:'10px solid transparent',
+                borderRight:'10px solid transparent',
+                borderTop:'13px solid rgba(255,255,255,0.84)',
+                marginTop:-1,
+              }} />
             </div>
             {/* Character */}
             <div style={{ position:'absolute', left:'50%', marginLeft:-143.5, top: mgr ? 220 : man ? 215 : mh ? 205 : 195, width:287, height:287 }}>
