@@ -55,8 +55,13 @@
       80%      { transform: rotate(3deg) scale(1.01); }
     }
     @keyframes cloudBoring {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      50%      { transform: translateY(-5px) rotate(-1deg); }
+      0%   { transform: translateY(0px) rotate(0deg) scaleX(1); }
+      18%  { transform: translateY(4px) rotate(-9deg) scaleX(0.97); }
+      32%  { transform: translateY(8px) rotate(-16deg) scaleX(0.95); }
+      37%  { transform: translateY(-12px) rotate(6deg) scaleX(1.05); }
+      44%  { transform: translateY(2px) rotate(-2deg) scaleX(1); }
+      50%  { transform: translateY(0px) rotate(0deg) scaleX(1); }
+      100% { transform: translateY(0px) rotate(0deg) scaleX(1); }
     }
     @keyframes cloudExhausted {
       0%, 100% { transform: translateY(0) rotate(0deg); }
@@ -1346,7 +1351,7 @@
         const ca = mh  ? 'cloudHappy 2s ease-in-out infinite' :
                    mgr ? 'cloudGrateful 3s ease-in-out infinite' :
                    man ? 'cloudAngry 1.5s ease-in-out infinite' :
-                   mbr ? 'cloudBoring 4s ease-in-out infinite' :
+                   mbr ? 'cloudBoring 7s ease-in-out infinite' :
                    mex ? 'cloudExhausted 5s ease-in-out infinite' :
                    max ? 'cloudAngry 2.5s ease-in-out infinite' :
                    ms  ? 'cloudSad 3s ease-in-out infinite' : 'cloudSad 3s ease-in-out infinite';
