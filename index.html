@@ -1811,6 +1811,101 @@
       );
     }
 
+    /* ── WEEKLY BUBBLES (physics) ── */
+    function WeeklyBubblesChart({ pts }) {
+      const containerRef = useRef(null);
+      // src: body-only image (no face baked in); filter: CSS hue shift for moods without a unique body image
+      const MOOD_CHARS = {
+        Good:      { src: imgGoodChar,      filter: '' },
+        Happy:     { src: imgHappyChar,     filter: '' },
+        Grateful:  { src: imgGratefulChar,  filter: '' },
+        Excited:   { src: imgHappyChar,     filter: 'hue-rotate(-15deg) saturate(1.1)' },
+        Angry:     { src: imgAngryChar,     filter: '' },
+        Exhausted: { src: imgExhaustedChar, filter: '' },
+        Boring:    { src: imgBoringChar1,   filter: '' },
+        Sad:       { src: imgGoodChar,      filter: 'hue-rotate(90deg) saturate(0.8) brightness(1.1)' },
+        Anxious:   { src: imgGoodChar,      filter: 'hue-rotate(160deg) saturate(1.0) brightness(0.9)' },
+      };
+      const MOOD_COLORS = {
+        Good:'#7bcf7b', Sad:'#5ab8f5', Happy:'#f0d040',
+        Grateful:'#f0a040', Excited:'#f5c430', Boring:'#20c8c0',
+        Anxious:'#a060e8', Exhausted:'#8060c8', Angry:'#ff6060',
+      };
+      useEffect(() => {
+        const container = containerRef.current;
+        if (!container || !pts || pts.length === 0) return;
+        const counts = {};
+        pts.forEach(p => { if (p.mood) counts[p.mood] = (counts[p.mood] || 0) + 1; });
+        const maxCount = Math.max(...Object.values(counts), 1);
+        const bubbleData = Object.entries(counts).map(([mood, cnt]) => {
+          const ch = MOOD_CHARS[mood] || { src: imgGoodChar, filter: '' };
+          return { label: mood, src: ch.src, filter: ch.filter, color: MOOD_COLORS[mood] || '#aaa', r: Math.round(28 + (cnt / maxCount) * 48), cnt };
+        });
+        const W = container.clientWidth || 346;
+        const H = container.clientHeight || 260;
+        const { Engine, Runner, Bodies, Body, World } = Matter;
+        const engine = Engine.create({ gravity: { x:0, y:1 } });
+        const wall = (x,y,w,h) => Bodies.rectangle(x,y,w,h,{ isStatic:true, restitution:0.3, friction:0.1 });
+        World.add(engine.world, [
+          wall(W/2,-25,W+100,50), wall(W/2,H+25,W+100,50),
+          wall(-25,H/2,50,H+100), wall(W+25,H/2,50,H+100),
+        ]);
+        const bodies = [], elems = [];
+        bubbleData.forEach(({ label, src, filter, r }) => {
+          const x = W/2 + (Math.random()-0.5)*W*0.5;
+          const y = H/2 + (Math.random()-0.5)*H*0.5;
+          const body = Bodies.circle(x, y, r, { restitution:0.4, friction:0.05, frictionAir:0.03 });
+          World.add(engine.world, body);
+          const el = document.createElement('div');
+          const d = r * 2;
+          const fs = r >= 52 ? 13 : r >= 38 ? 11 : 9;
+          el.style.cssText = `position:absolute;width:${d}px;height:${d}px;cursor:pointer;user-select:none;transition:transform .15s;`;
+          el.innerHTML = `
+            <div style="position:relative;width:100%;height:100%;">
+              <img src="${src}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;${filter ? 'filter:'+filter+';' : ''}" />
+              <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Sofia Sans',sans-serif;font-weight:700;color:#141413;text-align:center;font-size:${fs}px;line-height:1;padding:0 6px;pointer-events:none;">${label}</span>
+            </div>`;
+          el.onmouseenter = () => { el.style.transform='scale(1.08)'; };
+          el.onmouseleave = () => { el.style.transform=''; };
+          container.appendChild(el);
+          bodies.push(body); elems.push({ el, r });
+        });
+
+        // Device tilt → gravity direction
+        const onTilt = (e) => {
+          const gamma = e.gamma || 0; // left/right tilt (-90 to 90)
+          const beta  = e.beta  || 0; // front/back tilt (-180 to 180)
+          const scale = 1 / 90;
+          engine.gravity.x = Math.max(-1, Math.min(1, gamma * scale));
+          engine.gravity.y = Math.max(-1, Math.min(1, (beta - 45) * scale));
+        };
+        window.addEventListener('deviceorientation', onTilt);
+
+        const runner = Runner.create();
+        Runner.run(runner, engine);
+        let rafId;
+        const tick = () => {
+          bodies.forEach((b, i) => {
+            const { x, y } = b.position;
+            const { el, r } = elems[i];
+            el.style.left = `${x-r}px`;
+            el.style.top  = `${y-r}px`;
+          });
+          rafId = requestAnimationFrame(tick);
+        };
+        tick();
+        return () => {
+          cancelAnimationFrame(rafId);
+          window.removeEventListener('deviceorientation', onTilt);
+          Runner.stop(runner);
+          World.clear(engine.world);
+          Engine.clear(engine);
+          elems.forEach(({ el }) => el.parentNode && el.parentNode.removeChild(el));
+        };
+      }, []);
+      return React.createElement('div', { ref: containerRef, style:{ position:'relative', height:260, overflow:'hidden', margin:'0 -4px' } });
+    }
+
     /* ── STATS PAGE ── */
     function StatsPage({ onBack, onNav, todayMood, count, allEntries = [] }) {
       const [tab, setTab]       = useState('week');
@@ -1990,25 +2085,7 @@
                   </div>
                 </div>
               </div>
-              <div style={{ display:'flex', gap:3 }}>
-                {pts.map((p, i) => (
-                  <div key={i} onClick={() => setSelDay(i)} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:4, cursor:'pointer' }}>
-                    <p style={{ fontFamily:SF, fontSize:9, color:'rgba(20,20,19,0.40)', margin:0, letterSpacing:'0.3px' }}>{p.day.slice(0,3).toUpperCase()}</p>
-                    <div style={{
-                      width:40, height:40, borderRadius:20,
-                      background: FACE_BG[p.mood] || 'rgba(20,20,19,0.07)',
-                      display:'flex', alignItems:'center', justifyContent:'center',
-                      outline: i===selDay ? `2.5px solid ${FACE_RING[p.mood]||'#999'}` : 'none',
-                      outlineOffset:2,
-                      boxShadow: i===selDay ? `0 2px 10px ${FACE_RING[p.mood]||'#999'}40` : 'none',
-                      transition:'outline 0.15s',
-                    }}>
-                      <img alt="" src={faceImg(p.mood)} style={{ width:30, height:30, objectFit:'contain' }} onError={e=>e.target.style.display='none'} />
-                    </div>
-                    <p style={{ fontFamily:SF, fontSize:8, color:isPos(p.mood)?'#5aaa18':'#cc3820', fontWeight:700, margin:0, letterSpacing:'0.2px' }}>{p.mood.toUpperCase()}</p>
-                  </div>
-                ))}
-              </div>
+              <WeeklyBubblesChart pts={pts} />
             </div>
 
             {/* ── CARD 3: Activities vs Mood ── */}
@@ -2034,9 +2111,13 @@
                       return (
                         <div key={name} style={{ display:'flex', alignItems:'center', gap:10 }}>
                           <p style={{ fontFamily:SF, fontSize:12, color:'#141413', fontWeight:500, width:82, flexShrink:0, margin:0 }}>{name}</p>
-                          <div style={{ flex:1, height:9, borderRadius:5, background:'rgba(20,20,19,0.07)', position:'relative', overflow:'hidden' }}>
-                            <div style={{ position:'absolute', left:0, top:0, height:'100%', width:`${posW}%`, background:'#7ecb8f', borderRadius:5, transition:'width 0.4s' }} />
-                            <div style={{ position:'absolute', left:`${posW}%`, top:0, height:'100%', width:`${negW}%`, background:'#84b8e8', borderRadius:'0 5px 5px 0', transition:'width 0.4s' }} />
+                          <div style={{ flex:1, height:9, borderRadius:5, background:'rgba(20,20,19,0.07)', position:'relative' }}>
+                            {pos > 0 && (
+                              <div style={{ position:'absolute', left:0, top:0, height:'100%', width:`${posW}%`, background:'#aaf37a', borderRadius:5, transition:'width 0.4s' }} />
+                            )}
+                            {neg > 0 && (
+                              <div style={{ position:'absolute', left: pos > 0 ? `calc(${posW}% + 3px)` : 0, top:0, height:'100%', width:`${negW}%`, background:'#74d8f3', borderRadius:5, transition:'all 0.4s' }} />
+                            )}
                           </div>
                           <p style={{ fontFamily:SF, fontSize:11, color:'rgba(20,20,19,0.4)', fontWeight:500, width:18, textAlign:'right', flexShrink:0, margin:0 }}>{total}×</p>
                         </div>
@@ -2044,7 +2125,7 @@
                     })}
                   </div>
                   <div style={{ display:'flex', gap:14, marginTop:12 }}>
-                    {[['#7ecb8f','Good mood'],['#84b8e8','Low mood']].map(([c,l]) => (
+                    {[['#aaf37a','Good mood'],['#74d8f3','Low mood']].map(([c,l]) => (
                       <div key={l} style={{ display:'flex', alignItems:'center', gap:5 }}>
                         <div style={{ width:8, height:8, borderRadius:4, background:c, flexShrink:0 }} />
                         <p style={{ fontFamily:SF, fontSize:10, color:'rgba(20,20,19,0.45)', margin:0 }}>{l}</p>
@@ -2079,9 +2160,13 @@
                       return (
                         <div key={name} style={{ display:'flex', alignItems:'center', gap:8 }}>
                           <p style={{ fontFamily:SF, fontSize:11, color:'#141413', fontWeight:500, width:68, flexShrink:0, margin:0, lineHeight:1.2 }}>{name}</p>
-                          <div style={{ flex:1, height:8, borderRadius:4, background:'rgba(20,20,19,0.07)', overflow:'hidden', position:'relative' }}>
-                            <div style={{ position:'absolute', left:0, top:0, height:'100%', width:`${(pos/max)*100}%`, background:'#7ecb8f', borderRadius:4 }} />
-                            <div style={{ position:'absolute', left:`${(pos/max)*100}%`, top:0, height:'100%', width:`${(neg/max)*100}%`, background:'#84b8e8', borderRadius:'0 4px 4px 0' }} />
+                          <div style={{ flex:1, height:8, borderRadius:4, background:'rgba(20,20,19,0.07)', position:'relative' }}>
+                            {pos > 0 && (
+                              <div style={{ position:'absolute', left:0, top:0, height:'100%', width:`${(pos/max)*100}%`, background:'#aaf37a', borderRadius:4, transition:'width 0.4s' }} />
+                            )}
+                            {neg > 0 && (
+                              <div style={{ position:'absolute', left: pos > 0 ? `calc(${(pos/max)*100}% + 3px)` : 0, top:0, height:'100%', width:`${(neg/max)*100}%`, background:'#74d8f3', borderRadius:4, transition:'all 0.4s' }} />
+                            )}
                           </div>
                           <p style={{ fontFamily:SF, fontSize:10, color:'rgba(20,20,19,0.4)', margin:0, flexShrink:0 }}>{total}×</p>
                         </div>
@@ -2373,24 +2458,112 @@
       );
     }
 
+    /* ── PROFILE PAGE ── */
+    function ProfilePage({ onBack, userName, setUserName }) {
+      const [editing, setEditing] = useState(false);
+      const [draft, setDraft] = useState(userName);
+      const SF = 'Sofia Sans,sans-serif';
+      return (
+        <div style={{ position:'absolute', inset:0, zIndex:200, background:'#faf7f5', display:'flex', flexDirection:'column', overflowY:'auto' }}>
+          <StatusBar />
+          <div style={{ display:'flex', alignItems:'center', gap:12, padding:'64px 22px 20px' }}>
+            <button onClick={onBack} style={{ background:'rgba(20,20,19,0.07)', border:'none', borderRadius:20, width:40, height:40, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+              <svg width="10" height="16" viewBox="0 0 10 16" fill="none"><path d="M9 1L1 8l8 7" stroke="#141413" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </button>
+            <p style={{ fontFamily:SF, fontWeight:700, fontSize:20, color:'#141413', margin:0, letterSpacing:'-0.3px' }}>Profile</p>
+          </div>
+          <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:14, padding:'10px 22px 28px' }}>
+            <div style={{ width:88, height:88, borderRadius:44, background:'rgba(20,20,19,0.08)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:44 }}>🧑</div>
+            {editing ? (
+              <div style={{ display:'flex', gap:10, alignItems:'center' }}>
+                <input value={draft} onChange={e => setDraft(e.target.value)}
+                  style={{ fontFamily:SF, fontSize:22, fontWeight:600, color:'#141413', border:'none', borderBottom:'2px solid #141413', background:'transparent', outline:'none', textAlign:'center', width:160 }}
+                  autoFocus onKeyDown={e => { if(e.key==='Enter') { setUserName(draft); setEditing(false); } }} />
+                <button onClick={() => { setUserName(draft); setEditing(false); }}
+                  style={{ background:'#141413', color:'white', border:'none', borderRadius:12, padding:'6px 14px', fontFamily:SF, fontSize:13, cursor:'pointer' }}>Save</button>
+              </div>
+            ) : (
+              <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                <p style={{ fontFamily:SF, fontWeight:700, fontSize:24, color:'#141413', margin:0 }}>{userName}</p>
+                <button onClick={() => { setDraft(userName); setEditing(true); }}
+                  style={{ background:'rgba(20,20,19,0.07)', border:'none', borderRadius:10, padding:'5px 10px', fontFamily:SF, fontSize:12, color:'rgba(20,20,19,0.55)', cursor:'pointer' }}>Edit</button>
+              </div>
+            )}
+            <p style={{ fontFamily:SF, fontSize:13, color:'rgba(20,20,19,0.45)', margin:0 }}>Mental wellness journey</p>
+          </div>
+          <div style={{ display:'flex', gap:12, padding:'0 22px 24px' }}>
+            {[['7','Mood Logs'],['3','Day Streak'],['78%','Positive']].map(([v,l]) => (
+              <div key={l} style={{ flex:1, background:'white', borderRadius:16, padding:'16px 12px', display:'flex', flexDirection:'column', gap:4, alignItems:'center', boxShadow:'0 2px 12px rgba(0,0,0,0.05)' }}>
+                <p style={{ fontFamily:SF, fontWeight:800, fontSize:22, color:'#141413', margin:0 }}>{v}</p>
+                <p style={{ fontFamily:SF, fontSize:11, color:'rgba(20,20,19,0.45)', margin:0, textAlign:'center' }}>{l}</p>
+              </div>
+            ))}
+          </div>
+          <div style={{ padding:'0 22px', display:'flex', flexDirection:'column', gap:10 }}>
+            {[
+              { icon:'🔔', label:'Reminders', sub:'Daily check-in at 9:00 AM' },
+              { icon:'🎨', label:'Appearance', sub:'Light mode' },
+              { icon:'🔒', label:'Privacy', sub:'Data stored locally on device' },
+              { icon:'💬', label:'Feedback', sub:'Help us improve MindCare' },
+            ].map(({ icon, label, sub }) => (
+              <div key={label} style={{ background:'white', borderRadius:16, padding:'14px 16px', display:'flex', alignItems:'center', gap:14, cursor:'pointer', boxShadow:'0 2px 8px rgba(0,0,0,0.04)' }}>
+                <span style={{ fontSize:20 }}>{icon}</span>
+                <div style={{ flex:1 }}>
+                  <p style={{ fontFamily:SF, fontWeight:600, fontSize:14, color:'#141413', margin:0 }}>{label}</p>
+                  <p style={{ fontFamily:SF, fontSize:12, color:'rgba(20,20,19,0.45)', margin:'2px 0 0' }}>{sub}</p>
+                </div>
+                <p style={{ fontFamily:SF, fontSize:16, color:'rgba(20,20,19,0.3)', margin:0 }}>›</p>
+              </div>
+            ))}
+          </div>
+          <div style={{ padding:'20px 22px 40px' }}>
+            <button onClick={() => { if(window.confirm('Reset all mood data?')) { localStorage.clear(); window.location.reload(); } }}
+              style={{ width:'100%', background:'transparent', border:'1px solid rgba(220,50,30,0.25)', borderRadius:16, padding:'14px', fontFamily:SF, fontSize:14, color:'rgba(220,50,30,0.7)', cursor:'pointer', fontWeight:500 }}>
+              Reset All Data
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     /* ── APP ── */
     function App() {
-      const [page, setPage] = useState('home');
-      const [checkinOpen, setCheckin] = useState(false);
-      const [todayMood, setTodayMood] = useState(null);
-      const [count, setCount] = useState(7);
-      const [todayMoods, setTodayMoods] = useState(['good', 'sad']);
-      const [viewEntry, setViewEntry] = useState(null);
-      const [showTodaySheet, setShowTodaySheet] = useState(false);
-      const [todayEntries, setTodayEntries] = useState([
+      const todayKey = new Date().toDateString();
+      const load = (k, fb) => { try { const v = localStorage.getItem(k); return v !== null ? JSON.parse(v) : fb; } catch { return fb; } };
+      const DEFAULT_TODAY_ENTRIES = [
         { mood: 'Good', dayLabel: 'Today', time: '8:30 AM', activities: ['Fitness', 'Eating'], companions: ['By Myself'], location: ['Home'], bodyParts: [], note: 'Great morning run!' },
         { mood: 'Sad', dayLabel: 'Today', time: '2:15 PM', activities: ['Resting'], companions: ['By Myself'], location: ['Work'], bodyParts: ['Head'], note: 'Felt drained after back-to-back meetings.' },
-      ]);
-      const [moodEntries, setMoodEntries] = useState({
+      ];
+      const DEFAULT_MOOD_ENTRIES = {
         MON: { mood: 'Good', dayLabel: 'Monday', time: '9:15 AM', activities: ['Fitness', 'Eating'], companions: ['By Myself'], location: ['Home'], bodyParts: [], note: 'Felt energized after my morning run!' },
-        TUE: { mood: 'Sad', dayLabel: 'Tuesday', time: '11:42 PM', activities: ['Resting'], companions: ['By Myself'], location: ['Home'], bodyParts: ['Chest', 'Head'], note: 'Long stressful day. Hard to focus.' },
+        TUE: { mood: 'Sad', dayLabel: 'Tuesday', time: '11:42 PM', activities: ['Resting', 'Fitness'], companions: ['By Myself'], location: ['Home'], bodyParts: ['Chest', 'Head'], note: 'Long stressful day. Hard to focus.' },
+      };
+      const isNewDay = load('appDate', null) !== todayKey;
+
+      const [page, setPage] = useState('home');
+      const [checkinOpen, setCheckin] = useState(false);
+      const [userName, setUserName] = useState(() => load('userName', 'Alex'));
+      const [todayMood, setTodayMood] = useState(() => isNewDay ? null : load('todayMood', null));
+      const [count, setCount] = useState(() => load('count', 7));
+      const [todayMoods, setTodayMoods] = useState(() => isNewDay ? [] : load('todayMoods', ['good', 'sad']));
+      const [viewEntry, setViewEntry] = useState(null);
+      const [showTodaySheet, setShowTodaySheet] = useState(false);
+      const [todayEntries, setTodayEntries] = useState(() => isNewDay ? [] : load('todayEntries', DEFAULT_TODAY_ENTRIES));
+      const [moodEntries, setMoodEntries] = useState(() => {
+        const saved = load('moodEntries', null);
+        if (!saved) return DEFAULT_MOOD_ENTRIES;
+        if (isNewDay) { const m = {...saved}; delete m.TODAY; return m; }
+        return saved;
       });
       const greeting = getGreeting();
+
+      useEffect(() => { localStorage.setItem('appDate', JSON.stringify(todayKey)); }, []);
+      useEffect(() => { localStorage.setItem('userName', JSON.stringify(userName)); }, [userName]);
+      useEffect(() => { localStorage.setItem('todayMood', JSON.stringify(todayMood)); }, [todayMood]);
+      useEffect(() => { localStorage.setItem('count', JSON.stringify(count)); }, [count]);
+      useEffect(() => { localStorage.setItem('todayMoods', JSON.stringify(todayMoods)); }, [todayMoods]);
+      useEffect(() => { localStorage.setItem('todayEntries', JSON.stringify(todayEntries)); }, [todayEntries]);
+      useEffect(() => { localStorage.setItem('moodEntries', JSON.stringify(moodEntries)); }, [moodEntries]);
 
       const handleSave = entry => {
         setTodayMood(entry);
@@ -2468,7 +2641,7 @@
                         <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, lineHeight:'normal', flexShrink:0, color:'#696969', fontSize:10, letterSpacing:'0.4px', textTransform:'uppercase', whiteSpace:'nowrap' }}>{greeting}</p>
                       </div>
                       <div style={{ display:'flex', height:24, alignItems:'flex-start', width:'100%' }}>
-                        <p style={{ fontFamily:'Sofia Sans,sans-serif', flex:'1 0 0', fontWeight:600, lineHeight:'24px', minWidth:1, color:'#141413', fontSize:20, letterSpacing:'-0.4px' }}>Alex</p>
+                        <p style={{ fontFamily:'Sofia Sans,sans-serif', flex:'1 0 0', fontWeight:600, lineHeight:'24px', minWidth:1, color:'#141413', fontSize:20, letterSpacing:'-0.4px' }}>{userName}</p>
                       </div>
                     </div>
                   </div>
@@ -2495,13 +2668,13 @@
               </div>
 
               {/* ── DAILY CHECK-IN: top:193 ── */}
-              <div style={{ position:'absolute', display:'flex', flexDirection:'column', gap:10, alignItems:'flex-start', left:22, top:193, width:347, pointerEvents:'none' }}>
+              <div onClick={() => setPage('logMood')} style={{ position:'absolute', display:'flex', flexDirection:'column', gap:10, alignItems:'flex-start', left:22, top:193, width:347, cursor:'pointer' }}>
                 <div style={{ height:12, position:'relative', flexShrink:0, width:95 }}>
                   <div style={{ position:'absolute', background:'#fcec6a', left:0, borderRadius:3.5, width:7, height:7, top:2.5 }} />
                   <p style={{ position:'absolute', fontFamily:'Sofia Sans,sans-serif', fontWeight:700, lineHeight:'normal', left:14, color:'#141413', fontSize:10, top:0, letterSpacing:'0.7px', textTransform:'uppercase', whiteSpace:'nowrap' }}>Daily check-in</p>
                 </div>
                 <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, lineHeight:'35.64px', minWidth:'100%', flexShrink:0, color:'#141413', fontSize:33, letterSpacing:'-0.66px', width:'min-content' }}>
-                  {`${greeting}, Alex. How do you feel today?`}
+                  {`${greeting}, ${userName}. How do you feel today?`}
                 </p>
               </div>
 
@@ -2536,7 +2709,7 @@
                     </div>
                   </div>
                   {/* Profile */}
-                  <div style={{ background:'white', display:'flex', alignItems:'flex-start', paddingBottom:9, paddingLeft:10, paddingRight:11, paddingTop:12, borderRadius:23, flexShrink:0, width:46, height:46, cursor:'pointer', boxSizing:'border-box' }}>
+                  <div onClick={() => setPage('profile')} style={{ background:'white', display:'flex', alignItems:'flex-start', paddingBottom:9, paddingLeft:10, paddingRight:11, paddingTop:12, borderRadius:23, flexShrink:0, width:46, height:46, cursor:'pointer', boxSizing:'border-box' }}>
                     <div style={{ flexShrink:0, width:25, height:25, position:'relative' }}>
                       <img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgShield}
                         onError={e=>{e.target.style.display='none';e.target.parentNode.innerHTML='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#808080" strokeWidth="1.8" strokeLinecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';}}
@@ -2567,6 +2740,9 @@
 
             {/* Stats page */}
             {page === 'stats' && <StatsPage onBack={() => setPage('home')} onNav={setPage} todayMood={todayMood} count={count} allEntries={[...Object.values(moodEntries), ...todayEntries].filter(Boolean)} />}
+
+            {/* Profile page */}
+            {page === 'profile' && <ProfilePage onBack={() => setPage('home')} userName={userName} setUserName={setUserName} />}
           </div>
         </>
       );
