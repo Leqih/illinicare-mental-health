@@ -163,6 +163,9 @@
     const imgAngryChar    = 'https://www.figma.com/api/mcp/asset/48f69b47-9ec4-4f53-9a6f-35970b921441';
     const imgAngryFaceA   = 'https://www.figma.com/api/mcp/asset/75e3bcad-fb16-4421-afd6-a9c4d04ceadc'; // eyebrows
     const imgAngryFaceB   = 'https://www.figma.com/api/mcp/asset/a2dc167c-f0f8-4d0f-aee1-4ebf72785560'; // nose/mouth
+    /* Anxious mood (node 60-210) */
+    const imgAnxiousChar  = 'https://www.figma.com/api/mcp/asset/44ed0103-c1a4-4d46-b58a-c7814455f97b'; // pink spiky blob body
+    const imgAnxiousFace  = 'https://www.figma.com/api/mcp/asset/f1c3f497-facd-4273-97d7-6cf8d8c6da62'; // face overlay (eyes+mouth+sweat drop)
     /* Exhausted mood (node 56-36) – fresh URLs */
     const imgExhaustedChar= 'https://www.figma.com/api/mcp/asset/058ded47-5cb4-4f14-969e-b3e2b7e94695';
     const imgExhaustedEyeA= 'https://www.figma.com/api/mcp/asset/d66f2245-27b3-4ce4-afd8-48c83b7bed04'; // X-eye stroke 1
@@ -962,6 +965,7 @@
         case 'angry':     return imgAngryChar;
         case 'exhausted': return imgExhaustedChar;
         case 'boring':    return imgBoringChar1;
+        case 'anxious':   return imgAnxiousChar;
         case 'sad':
         default:          return imgLogCloudChar;
       }
@@ -1053,6 +1057,12 @@
         <img alt="" src="${imgBoringChar2}" style="position:absolute;top:0;bottom:0;left:24.99%;right:50%;width:25.01%;height:100%;display:block;object-fit:cover">
         <img alt="" src="${imgBoringChar1}" style="position:absolute;top:0;bottom:0;left:50%;right:24.99%;width:25.01%;height:100%;display:block;object-fit:cover">
         <img alt="" src="${imgBoringChar2}" style="position:absolute;top:0;bottom:0;left:75%;right:0;width:25%;height:100%;display:block;object-fit:cover">`;
+
+      if (s === 'anxious') return `
+        ${base(imgAnxiousChar)}
+        <div style="position:absolute;left:0;top:0;width:26.1%;height:32.1%;">
+          <img alt="" src="${imgAnxiousFace}" style="display:block;width:100%;height:100%">
+        </div>`;
 
       return base(imgLogCloudChar); // fallback
     };
@@ -1315,29 +1325,33 @@
         id==='Sad'       ? 'hue-rotate(0deg)'   :
         id==='Angry'     ? 'hue-rotate(140deg) saturate(1.4) brightness(1.05)' :
         id==='Boring'    ? 'hue-rotate(-50deg) saturate(1.2) brightness(1.12)' :
+        id==='Anxious'   ? 'hue-rotate(320deg) saturate(0.9) brightness(1.08)' :
         'hue-rotate(30deg) saturate(0.55) brightness(1.05)';
 
       /* Solid fallback color — always opaque even if images fail to load */
       const moodBgColor = (id) =>
         id==='Grateful'  ? '#fde4c0' : id==='Happy'    ? '#fef5a0' :
         id==='Good'      ? '#aadf6a' : id==='Sad'      ? '#c2e4f5' :
-        id==='Angry'     ? '#ffd0d0' : id==='Boring'   ? '#c0ecea' : '#d8c8f5';
+        id==='Angry'     ? '#ffd0d0' : id==='Boring'   ? '#c0ecea' :
+        id==='Anxious'   ? '#ffd0e8' : '#d8c8f5';
 
       const renderSlot = (moodId) => {
         const mg = moodId==='Good', ms = moodId==='Sad',
               mh = moodId==='Happy', mgr = moodId==='Grateful',
-              man = moodId==='Angry', mex = moodId==='Exhausted', mbr = moodId==='Boring';
+              man = moodId==='Angry', mex = moodId==='Exhausted', mbr = moodId==='Boring',
+              max = moodId==='Anxious';
         const ci = mh ? imgHappyChar : mgr ? imgGratefulChar : mg ? imgGoodChar :
-                   man ? imgAngryChar : mex ? imgExhaustedChar : mbr ? '' : imgLogCloudChar;
-        const cf = mg || mh || mgr || man || mex || mbr ? 'none' : !ms ? 'saturate(0.2) brightness(0.85) hue-rotate(250deg)' : 'none';
+                   man ? imgAngryChar : mex ? imgExhaustedChar : mbr ? '' : max ? imgAnxiousChar : imgLogCloudChar;
+        const cf = mg || mh || mgr || man || mex || mbr || max ? 'none' : !ms ? 'saturate(0.2) brightness(0.85) hue-rotate(250deg)' : 'none';
         const ca = mh  ? 'cloudHappy 2s ease-in-out infinite' :
                    mgr ? 'cloudGrateful 3s ease-in-out infinite' :
                    man ? 'cloudAngry 1.5s ease-in-out infinite' :
                    mbr ? 'cloudBoring 4s ease-in-out infinite' :
                    mex ? 'cloudExhausted 5s ease-in-out infinite' :
+                   max ? 'cloudAngry 2.5s ease-in-out infinite' :
                    ms  ? 'cloudSad 3s ease-in-out infinite' : 'cloudSad 3s ease-in-out infinite';
-        const ec = mg ? '#141413' : ms ? '#58c2ff' : (!mh && !mgr && !man && !mex && !mbr) ? '#9090b0' : null;
-        const esy = !ms && !mg && !mh && !mgr && !man && !mex && !mbr ? 0.45 : 1;
+        const ec = mg ? '#141413' : ms ? '#58c2ff' : (!mh && !mgr && !man && !mex && !mbr && !max) ? '#9090b0' : null;
+        const esy = !ms && !mg && !mh && !mgr && !man && !mex && !mbr && !max ? 0.45 : 1;
         const bi = mg ? imgGoodBubble : imgLogBubble;
         const bws = mgr
           ? { background:'linear-gradient(-1.89deg,rgb(240,180,100) 30%,rgb(220,120,40) 110%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }
@@ -1351,6 +1365,8 @@
           ? { background:'linear-gradient(-1.89deg,rgb(180,120,255) 30%,rgb(120,50,210) 110%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }
           : mbr
           ? { background:'linear-gradient(-1.89deg,rgb(30,185,175) 30%,rgb(10,145,135) 110%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }
+          : max
+          ? { background:'linear-gradient(-1.89deg,rgb(255,130,170) 30%,rgb(210,60,110) 110%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }
           : ms ? { color:'#47d9ff' } : { color:'#a090d0' };
         return (
           <>
@@ -1511,6 +1527,12 @@
                   <div style={{ position:'absolute', width:5, height:9, borderRadius:'50% 50% 50% 50% / 40% 40% 60% 60%', background:'#58c2ff', left:89,  top:148, animation:'tearFall 2s ease-in 1s   infinite' }} />
                   <div style={{ position:'absolute', width:5, height:9, borderRadius:'50% 50% 50% 50% / 40% 40% 60% 60%', background:'#58c2ff', left:192, top:148, animation:'tearFall 2s ease-in 0.5s infinite' }} />
                   <div style={{ position:'absolute', width:5, height:9, borderRadius:'50% 50% 50% 50% / 40% 40% 60% 60%', background:'#58c2ff', left:192, top:148, animation:'tearFall 2s ease-in 1.5s infinite' }} />
+                </>}
+                {max && <>
+                  {/* Face overlay (eyes + mouth + sweat drop) from Figma node 52:397 */}
+                  <div style={{ position:'absolute', left:0, top:0, width:'26.1%', height:'32.1%' }}>
+                    <img alt="" style={{ display:'block', width:'100%', height:'100%' }} src={imgAnxiousFace} onError={e=>e.target.style.display='none'} />
+                  </div>
                 </>}
               </div>
             </div>
