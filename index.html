@@ -126,6 +126,16 @@
       from { transform: translateX(0); }
       to   { transform: translateX(100%); }
     }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .marquee-track { display: flex; gap: 8px; width: max-content; animation: marquee 14s linear infinite; }
+    .marquee-track:hover { animation-play-state: paused; }
+    @keyframes fluid1 { 0%,100%{border-radius:60% 40% 55% 45%/50% 60% 40% 50%;transform:translate(0,0) scale(1)} 33%{border-radius:40% 60% 45% 55%/60% 40% 55% 45%;transform:translate(12px,-8px) scale(1.05)} 66%{border-radius:55% 45% 60% 40%/45% 55% 45% 55%;transform:translate(-8px,10px) scale(0.97)} }
+    @keyframes fluid2 { 0%,100%{border-radius:45% 55% 40% 60%/55% 45% 60% 40%;transform:translate(0,0) scale(1)} 33%{border-radius:60% 40% 55% 45%/40% 60% 45% 55%;transform:translate(-10px,8px) scale(0.95)} 66%{border-radius:40% 60% 60% 40%/60% 40% 40% 60%;transform:translate(14px,-6px) scale(1.08)} }
+    @keyframes fluid3 { 0%,100%{border-radius:55% 45% 45% 55%/40% 55% 45% 60%;transform:translate(0,0) scale(1)} 33%{border-radius:45% 55% 60% 40%/55% 40% 60% 45%;transform:translate(8px,12px) scale(1.06)} 66%{border-radius:60% 40% 40% 60%/45% 60% 55% 40%;transform:translate(-12px,-10px) scale(0.94)} }
+    .fluid-blob1 { animation: fluid1 9s ease-in-out infinite; }
+    .fluid-blob2 { animation: fluid2 11s ease-in-out infinite; }
+    .fluid-blob3 { animation: fluid3 13s ease-in-out infinite; }
   </style>
 </head>
 <body>
@@ -249,9 +259,9 @@
     const imgTdV24  = 'https://www.figma.com/api/mcp/asset/6e53d92f-eb5f-4ff2-8a6e-51447c59110b'; /* left eye */
     const imgTdV25  = 'https://www.figma.com/api/mcp/asset/1fcdccd6-15b4-4eee-a2fa-ce74e922a799'; /* right eye */
     const imgTdV34  = 'https://www.figma.com/api/mcp/asset/519c5187-5daa-4997-8d78-734b44a7efaf'; /* smile */
-    const imgVector3      = 'https://www.figma.com/api/mcp/asset/951b8a11-03af-4db7-b0e2-77d99c3e0a9a';
-    const imgHandCoin     = 'https://www.figma.com/api/mcp/asset/9a14edad-7210-4c45-aafa-8874e40ec466';
-    const imgShield       = 'https://www.figma.com/api/mcp/asset/4f53258e-9bed-4a60-a303-aa79f3e8250c';
+    const imgVector3      = 'https://www.figma.com/api/mcp/asset/de02692d-a60c-4518-8bca-1a48f9ba8d7b';
+    const imgHandCoin     = 'https://www.figma.com/api/mcp/asset/efe99641-c062-43b3-8728-2fccd0ffd001';
+    const imgShield       = 'https://www.figma.com/api/mcp/asset/0a3f8eef-c0d9-48ba-be17-57db77acec5c';
 
     /* ── WAVEFORM HEIGHTS ── */
     const WAVES = [21,45,29,45,36,18,23,29,33,36,45,55,49,45,38,38,38,38,38];
@@ -341,9 +351,15 @@
 
       return (
         <div style={{ position:'absolute', background:'rgba(252,251,250,0.92)', border:'1px solid rgba(20,20,19,0.07)', height:165, left:0, overflow:'hidden', borderRadius:20, boxShadow:'0 4px 24px rgba(0,0,0,0.04), 0 24px 48px rgba(0,0,0,0.08)', top:0, width:168 }}>
-          {/* Gradient halo */}
+          {/* Original gradient halo */}
           <div style={{ position:'absolute', height:298.667, left:-1, top:-122, width:168 }}>
             <img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgGradientHalo} onError={e => e.target.style.display='none'} />
+          </div>
+          {/* Fluid blob overlay — same palette as halo, morphing shapes */}
+          <div style={{ position:'absolute', inset:0, overflow:'hidden', borderRadius:20, pointerEvents:'none', filter:'blur(18px)' }}>
+            <div className="fluid-blob1" style={{ position:'absolute', width:110, height:110, background:'rgba(190,235,170,0.45)', top:-20, left:-10 }} />
+            <div className="fluid-blob2" style={{ position:'absolute', width:100, height:100, background:'rgba(255,220,160,0.4)', top:50, left:70 }} />
+            <div className="fluid-blob3" style={{ position:'absolute', width:90,  height:90,  background:'rgba(200,230,255,0.38)', top:90, left:20 }} />
           </div>
           {/* Header */}
           <div style={{ position:'absolute', height:28, left:13, top:14, width:140 }}>
@@ -395,14 +411,15 @@
 
     /* ── URGENT SUPPORT CARD ── */
     function UrgentCard() {
-      const tag = (text, style={}) => (
-        <div style={{ position:'absolute', background:'#f1f7ff', border:'1px solid rgba(20,20,19,0.07)', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden', padding:'3px 7px', borderRadius:20, ...style }}>
-          <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:400, lineHeight:'14px', flexShrink:0, fontSize:10, color:'black', whiteSpace:'nowrap' }}>{text}</p>
+      const tags = ['Crisis Line','Talk Now','988 Hotline','CAPS Counseling','Peer Support','Breathing','Journaling Prompt'];
+      const Tag = ({ text }) => (
+        <div style={{ background:'rgba(255,255,255,0.72)', border:'1px solid rgba(20,20,19,0.08)', display:'inline-flex', alignItems:'center', padding:'5px 10px', borderRadius:20, flexShrink:0 }}>
+          <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:11, color:'#141413', whiteSpace:'nowrap', margin:0 }}>{text}</p>
         </div>
       );
       return (
         <div style={{ position:'absolute', height:165, left:178, overflow:'hidden', borderRadius:20, top:0, width:168 }}>
-          {/* Gradient mesh — full card, node 28-1644 */}
+          {/* Gradient mesh — restored original */}
           <div style={{ position:'absolute', height:311.111, left:-7, overflow:'hidden', top:-69, width:175, backgroundImage:'linear-gradient(127.12deg, rgb(254,255,210) 32.456%, rgb(136,216,205) 52.164%, rgb(154,217,208) 70.728%, rgb(165,213,161) 91.019%, rgb(224,200,109) 101.92%)' }}>
             <div style={{ position:'absolute', height:375.934, left:-51, top:-26, width:258.85 }}>
               <div style={{ position:'absolute', top:'-1.81%', right:'-2.63%', bottom:'-4.79%', left:'-2.63%' }}>
@@ -411,21 +428,26 @@
             </div>
           </div>
           {/* Title */}
-          <p style={{ position:'absolute', fontFamily:'Sofia Sans,sans-serif', fontWeight:500, lineHeight:'17.5px', left:16, fontSize:14, color:'#141413', top:22, letterSpacing:'-0.28px', width:134 }}>Urgent Support</p>
+          <p style={{ position:'absolute', fontFamily:'Sofia Sans,sans-serif', fontWeight:600, fontSize:14, color:'#141413', top:18, left:16, margin:0, letterSpacing:'-0.28px' }}>Urgent Support</p>
           {/* Arrow */}
-          <div style={{ position:'absolute', left:123, width:29, height:29, top:18 }}>
-            <img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgGroup3} onError={e=>{e.target.style.display='none';const p=e.target.parentNode;p.style.background='rgba(255,255,255,0.8)';p.style.borderRadius='50%';p.style.display='flex';p.style.alignItems='center';p.style.justifyContent='center';p.innerHTML='↗';}} />
+          <div style={{ position:'absolute', right:12, top:14, width:28, height:28, background:'rgba(255,255,255,0.7)', borderRadius:14, display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <span style={{ fontSize:13, color:'#141413' }}>↗</span>
           </div>
-          {/* Tags */}
-          {tag('Mental class', { left:16, top:68 })}
-          {tag('Mental kit',   { left:91, top:68 })}
-          <div style={{ position:'absolute', background:'#f1f7ff', display:'flex', alignItems:'center', justifyContent:'center', left:161, overflow:'hidden', padding:'3px 7px', borderRadius:20, top:68 }}>
-            <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:400, lineHeight:'14px', flexShrink:0, fontSize:10, color:'black', whiteSpace:'nowrap' }}>Mental kit</p>
+          {/* Marquee rows */}
+          <div style={{ position:'absolute', top:52, left:0, right:0, bottom:0, display:'flex', flexDirection:'column', gap:8, justifyContent:'center', overflow:'hidden' }}>
+            {/* Row 1 */}
+            <div style={{ overflow:'hidden' }}>
+              <div className="marquee-track">
+                {[...tags, ...tags].map((t,i) => <Tag key={i} text={t} />)}
+              </div>
+            </div>
+            {/* Row 2 — opposite direction */}
+            <div style={{ overflow:'hidden' }}>
+              <div className="marquee-track" style={{ animationDirection:'reverse', animationDuration:'18s' }}>
+                {[...tags.slice(3), ...tags.slice(0,3), ...tags.slice(3), ...tags.slice(0,3)].map((t,i) => <Tag key={i} text={t} />)}
+              </div>
+            </div>
           </div>
-          {tag('Mental kit',   { left:5,   top:93, width:75 })}
-          {tag('Mental kit',   { left:87,  top:93 })}
-          {tag('Mental kit',   { left:153, top:93 })}
-          {tag('Mental kit',   { left:39,  top:118.01, width:88 })}
         </div>
       );
     }
@@ -986,13 +1008,17 @@
 
     /* ── WEEK DAY CARD — pixel-perfect from Figma 191-2586 ── */
     function DayCard({ label, mood, onClick }) {
-      const isGood = mood === 'good';
-      const isSad  = mood === 'sad';
+      const isGood  = mood === 'good';
+      const isSad   = mood === 'sad';
+      const isToday = label === 'TODAY';
 
       return (
         <div onClick={onClick} style={{
-          background:'rgba(255,255,255,0.88)', border:'1px solid rgba(20,20,19,0.08)',
-          boxShadow:'0px 4px 12px rgba(0,0,0,0.04)',
+          background: isToday ? 'rgba(255,255,255,0.96)' : 'rgba(255,255,255,0.88)',
+          border: isToday ? '1.5px solid rgba(90,170,24,0.45)' : '1px solid rgba(20,20,19,0.08)',
+          boxShadow: isToday
+            ? '0px 4px 16px rgba(90,170,24,0.18), 0 0 0 4px rgba(90,170,24,0.08)'
+            : '0px 4px 12px rgba(0,0,0,0.04)',
           height:92, borderRadius:20, flexShrink:0, width:64,
           cursor: onClick ? 'pointer' : 'default', position:'relative'
         }}>
@@ -1344,20 +1370,20 @@
     };
     const LOG_MOOD_OPTIONS = ['Angry','Exhausted','Sad','Anxious','Boring','Good','Happy','Grateful'];
 
-    function LogMoodPage({ onBack, onSave }) {
-      const [selected, setSelected] = useState('Good');
+    function LogMoodPage({ onBack, onSave, initialData }) {
+      const [selected, setSelected] = useState(initialData ? (initialData.mood.charAt(0).toUpperCase() + initialData.mood.slice(1)) : 'Good');
       const [prevMood, setPrevMood]  = useState(null);   // slides out
       const [slideDir, setSlideDir]  = useState(null);   // 'left' | 'right'
       const [dragX, setDragX]        = useState(0);      // real-time drag offset for wave
       const dragRef  = useRef({ startX:0, dragging:false });
       const timerRef = useRef(null);
-      const [showTellMore, setShowTellMore] = useState(false);
+      const [showTellMore, setShowTellMore] = useState(!!initialData);
       const [reason, setReason] = useState('');
-      const [note, setNote]     = useState('');
-      const [activities, setActivities]   = useState([]);
-      const [companions, setCompanions]   = useState([]);
-      const [location, setLocation]       = useState([]);
-      const [bodyParts, setBodyParts]     = useState([]);
+      const [note, setNote]     = useState(initialData?.note || '');
+      const [activities, setActivities]   = useState(initialData?.activities || []);
+      const [companions, setCompanions]   = useState(initialData?.companions || []);
+      const [location, setLocation]       = useState(initialData?.location || []);
+      const [bodyParts, setBodyParts]     = useState(initialData?.bodyParts || []);
 
       const toggleTag = (arr, setArr, val) =>
         arr.includes(val) ? setArr(arr.filter(v => v !== val)) : setArr([...arr, val]);
@@ -1795,8 +1821,8 @@
                     style={{ position:'absolute', left:20, top:56, zIndex:10, background:'rgba(255,255,255,0.72)', backdropFilter:'blur(10px)', WebkitBackdropFilter:'blur(10px)', borderRadius:20, padding:'7px 14px', cursor:'pointer', border:'1px solid rgba(255,255,255,0.55)', boxShadow:'0 2px 8px rgba(0,0,0,0.07)' }}>
                     <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:13, color:'#141413', letterSpacing:'-0.1px', margin:0 }}>← Back</p>
                   </div>
-                  {/* Character + title row */}
-                  <div style={{ display:'flex', alignItems:'center', gap:14, paddingLeft:24, paddingRight:24, marginTop:60 }}>
+                  {/* Character + title row — marginTop clears StatusBar (36px) + Back button (34px) + gap */}
+                  <div style={{ display:'flex', alignItems:'center', gap:14, paddingLeft:24, paddingRight:24, marginTop:100 }}>
                     <div style={{ width:72, height:72, position:'relative', flexShrink:0 }}
                       dangerouslySetInnerHTML={{ __html: buildIconHTML(selected) }} />
                     <div style={{ flex:1 }}>
@@ -1809,8 +1835,8 @@
                 </div>
 
                 {/* Scrollable form content */}
-                <div style={{ flex:1, overflowY:'scroll', WebkitOverflowScrolling:'touch' }}>
-                  <div style={{ padding:'4px 22px 48px', display:'flex', flexDirection:'column', gap:24, boxSizing:'border-box' }}>
+                <div style={{ flex:1, overflowY:'scroll', WebkitOverflowScrolling:'touch', minHeight:0 }}>
+                  <div style={{ padding:'20px 22px 24px', display:'flex', flexDirection:'column', gap:24, boxSizing:'border-box' }}>
 
                     {/* What are you doing */}
                     <div>
@@ -1873,14 +1899,16 @@
                       />
                     </div>
 
-                    {/* Save button */}
-                    <div
-                      onClick={() => { onSave(selected, { activities, companions, location, bodyParts, note }); onBack(); }}
-                      style={{ background:accentColor, height:52, borderRadius:26, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:`0 4px 20px ${accentLight}`, flexShrink:0 }}>
-                      <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:600, fontSize:16, color:'white', letterSpacing:'-0.2px', margin:0 }}>Complete check-in ✓</p>
                     </div>
+                </div>
 
-                    </div>
+                {/* Sticky footer save button */}
+                <div style={{ flexShrink:0, padding:'12px 20px 20px', background:'rgba(250,247,245,0.97)', borderTop:'1px solid rgba(20,20,19,0.06)', backdropFilter:'blur(8px)', WebkitBackdropFilter:'blur(8px)' }}>
+                  <div
+                    onClick={() => { onSave(selected, { activities, companions, location, bodyParts, note }); onBack(); }}
+                    style={{ background:accentColor, height:52, borderRadius:26, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:`0 4px 20px ${accentLight}` }}>
+                    <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:600, fontSize:16, color:'white', letterSpacing:'-0.2px', margin:0 }}>Complete check-in ✓</p>
+                  </div>
                 </div>
 
               </div>
@@ -1897,7 +1925,8 @@
       // Expose setter on a container-keyed map so imperative DOM handlers can reach it
       const instanceId = useRef('wbc_' + Math.random().toString(36).slice(2));
       window.__wbcSetSel = window.__wbcSetSel || {};
-      window.__wbcSetSel[instanceId.current] = setSelected;
+      window.__wbcCurSel = window.__wbcCurSel || {};
+      window.__wbcSetSel[instanceId.current] = (v) => { window.__wbcCurSel[instanceId.current] = v; setSelected(v); };
 
       /* Accent colors per mood for the info pill */
       const MOOD_COLOR = {
@@ -1984,7 +2013,9 @@
               </div>`;
             el.onclick = (e) => {
               e.stopPropagation();
-              setSel({ mood: label, cnt, pct: Math.round(cnt / totalCnt * 100) });
+              const cur = window.__wbcSetSel[id] && window.__wbcCurSel && window.__wbcCurSel[id];
+              if (cur && cur.mood === label) { setSel(null); }
+              else { setSel({ mood: label, cnt, pct: Math.round(cnt / totalCnt * 100) }); }
             };
             container.appendChild(el);
             bodies.push(body);
@@ -2056,7 +2087,7 @@
       const accent = selected ? (MOOD_COLOR[(selected.mood||'').toLowerCase()] || '#e0e0e0') : '#e0e0e0';
 
       return (
-        <div style={{ position:'relative', height:240, overflow:'hidden', margin:'0 -4px' }}>
+        <div style={{ position:'relative', height:190, overflow:'hidden', margin:'0 -4px' }}>
           {/* Physics bubble canvas */}
           <div ref={containerRef} style={{ position:'absolute', inset:0 }} />
 
@@ -2174,7 +2205,7 @@
           </div>
 
           {/* Scrollable body */}
-          <div style={{ position:'absolute', top:100, left:0, right:0, bottom:90, overflowY:'auto', padding:'14px 18px 24px', display:'flex', flexDirection:'column', gap:14, boxSizing:'border-box' }}>
+          <div style={{ position:'absolute', top:100, left:0, right:0, bottom:0, overflowY:'auto', padding:'14px 18px 100px', display:'flex', flexDirection:'column', gap:14, boxSizing:'border-box' }}>
 
             {/* ── CARD 1: Mood Calendar ── */}
             {(() => {
@@ -2373,83 +2404,33 @@
               );
             })()}
 
-            {/* ── CARD 5: Body Sensations ── */}
-            {(() => {
-              const bodyCount = {}, feelCount = {};
-              allEntries.forEach(e => {
-                (e.bodyParts||[]).forEach(b => { bodyCount[b] = (bodyCount[b]||0)+1; });
-              });
-              const bodies = Object.entries(bodyCount).sort((a,b)=>b[1]-a[1]);
-              if (bodies.length === 0) return null;
-              const maxB = Math.max(...bodies.map(([,v])=>v), 1);
-              const bodyColors = { Head:'#f4a4b0', Chest:'#f4a4b0', Stomach:'#f4a4b0', Shoulders:'#c4b0f0', Arms:'#c4b0f0', Legs:'#84b8e8' };
-              return (
-                <div style={CARD}>
-                  <p style={{ fontFamily:SF, fontWeight:700, fontSize:15, color:'#141413', margin:'0 0 6px', letterSpacing:'-0.2px' }}>Body Sensations</p>
-                  <p style={{ fontFamily:SF, fontSize:11, color:'rgba(20,20,19,0.42)', margin:'0 0 14px' }}>Where you tend to feel emotions</p>
-                  <div style={{ display:'flex', flexWrap:'wrap', gap:8 }}>
-                    {bodies.map(([part, count]) => {
-                      const pct = count / maxB;
-                      const size = 28 + pct * 20;
-                      const color = bodyColors[part] || '#c8c8d8';
-                      return (
-                        <div key={part} style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:4 }}>
-                          <div style={{ width:size, height:size, borderRadius:size/2, background:color, display:'flex', alignItems:'center', justifyContent:'center', opacity: 0.5 + pct*0.5 }}>
-                            <p style={{ fontFamily:SF, fontSize:size > 38 ? 10 : 8, color:'white', fontWeight:700, margin:0, textAlign:'center', lineHeight:1.1 }}>{count}×</p>
-                          </div>
-                          <p style={{ fontFamily:SF, fontSize:10, color:'rgba(20,20,19,0.55)', margin:0, fontWeight:500 }}>{part}</p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })()}
 
-            {/* ── CARD 6: Pattern Insights ── */}
-            <div style={CARD}>
-              <p style={{ fontFamily:SF, fontWeight:700, fontSize:15, color:'#141413', margin:'0 0 12px', letterSpacing:'-0.2px' }}>Pattern Insights</p>
-              <div style={{ display:'flex', gap:8 }}>
-                {patternInsights.map((ins, i) => (
-                  <div key={i} style={{ flex:1, background:ins.bg, borderRadius:16, padding:'13px 11px 18px', display:'flex', flexDirection:'column', gap:8, cursor:'pointer', position:'relative', minHeight:128 }}>
-                    {/* Icon + Title on same row — matches reference */}
-                    <div style={{ display:'flex', alignItems:'center', gap:7 }}>
-                      <div style={{ width:32, height:32, borderRadius:16, background:'white', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, boxShadow:'0 1px 6px rgba(0,0,0,0.08)' }}>
-                        <span style={{ fontSize:16 }}>{ins.icon}</span>
-                      </div>
-                      <p style={{ fontFamily:SF, fontWeight:700, fontSize:11, color:'#141413', margin:0, lineHeight:1.3 }}>{ins.title}</p>
-                    </div>
-                    <p style={{ fontFamily:SF, fontSize:11, color:'rgba(20,20,19,0.52)', margin:0, lineHeight:1.45 }}>{ins.desc}</p>
-                    <div style={{ position:'absolute', bottom:10, right:11, width:22, height:22, borderRadius:11, background:'white', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 1px 5px rgba(0,0,0,0.08)' }}>
-                      <p style={{ fontSize:11, color:'rgba(20,20,19,0.40)', margin:0 }}>↗</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* ── CARD 4: Stats Summary ── */}
+{/* ── CARD 4: Stats Summary ── */}
             <div style={CARD}>
               <p style={{ fontFamily:SF, fontWeight:700, fontSize:15, color:'#141413', margin:'0 0 14px', letterSpacing:'-0.2px' }}>Stats Summary</p>
-              <div style={{ display:'flex', gap:8 }}>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
                 {[
-                  { img: imgDayGoodBlob,    imgBg:'#d6f0d6', label:'Good Days',     value:7,     sub:'▲ 3 from last week',  subC:'#5aaa18', bg:'#f0fce8' },
-                  { img: imgDaySadFace,     imgBg:'#cce8ff', label:'Low Days',      value:2,     sub:'▼ 1 from last week',  subC:'#cc3820', bg:'#fff0ee' },
-                  { emoji:'🔥',                              label:'Day Streak',    value:3,     sub:'Keep it going!',       subC:'#e08020', bg:'#fff8ee' },
-                  { img: imgDayAnxiousFace, imgBg:'#e8d4f8', label:'Positive Days', value:'78%', sub:'▲ 12% last week',     subC:'#5aaa18', bg:'#eef2ff' },
+                  { mood:'good',  label:'Good Days',     value:7,     sub:'▲ 3 from last week',  subC:'#5aaa18', bg:'#f0fce8' },
+                  { mood:'sad',   label:'Low Days',      value:2,     sub:'▼ 1 from last week',  subC:'#cc3820', bg:'#fff0ee' },
+                  { emoji:'🔥',  label:'Day Streak',    value:3,     sub:'Keep it going!',       subC:'#e08020', bg:'#fff8ee' },
+                  { mood:'happy', label:'Positive Days', value:'78%', sub:'▲ 12% last week',     subC:'#5aaa18', bg:'#eef2ff' },
                 ].map((s, i) => (
-                  <div key={i} style={{ flex:1, background:s.bg, borderRadius:16, padding:'12px 9px', display:'flex', flexDirection:'column', gap:4 }}>
-                    {/* Character image or emoji */}
-                    {s.img ? (
-                      <div style={{ width:34, height:34, borderRadius:17, background:s.imgBg, display:'flex', alignItems:'center', justifyContent:'center' }}>
-                        <img alt="" src={s.img} style={{ width:26, height:26, objectFit:'contain' }} onError={e=>e.target.style.display='none'} />
+                  <div key={i} style={{ background:s.bg, borderRadius:18, padding:'14px 14px 12px', display:'flex', flexDirection:'column', minHeight:140 }}>
+                    {/* icon row */}
+                    <div style={{ display:'flex', justifyContent:'flex-end', marginBottom:8 }}>
+                      <div style={{ width:54, height:54, position:'relative', overflow:'hidden', flexShrink:0 }}>
+                        {s.mood
+                          ? <div style={{ position:'relative', width:'100%', height:'100%' }} dangerouslySetInnerHTML={{ __html: buildIconHTML(s.mood) }} />
+                          : <div style={{ display:'flex', alignItems:'center', justifyContent:'center', width:'100%', height:'100%' }}><span style={{ fontSize:30, lineHeight:1 }}>{s.emoji}</span></div>
+                        }
                       </div>
-                    ) : (
-                      <span style={{ fontSize:22 }}>{s.emoji}</span>
-                    )}
-                    <p style={{ fontFamily:SF, fontWeight:800, fontSize:24, color:'#141413', margin:0, lineHeight:1 }}>{s.value}</p>
-                    <p style={{ fontFamily:SF, fontSize:10, color:'rgba(20,20,19,0.50)', margin:0, lineHeight:1.3 }}>{s.label}</p>
-                    <p style={{ fontFamily:SF, fontSize:9, color:s.subC, fontWeight:600, margin:0, lineHeight:1.3 }}>{s.sub}</p>
+                    </div>
+                    {/* value + label pushed to bottom */}
+                    <div style={{ marginTop:'auto' }}>
+                      <p style={{ fontFamily:SF, fontWeight:800, fontSize:32, color:'#141413', margin:'0 0 4px', lineHeight:1 }}>{s.value}</p>
+                      <p style={{ fontFamily:SF, fontSize:12, color:'rgba(20,20,19,0.55)', margin:'0 0 3px', lineHeight:1.3 }}>{s.label}</p>
+                      <p style={{ fontFamily:SF, fontSize:10, color:s.subC, fontWeight:600, margin:0, lineHeight:1.3 }}>{s.sub}</p>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -2461,7 +2442,7 @@
                 <p style={{ fontFamily:SF, fontWeight:700, fontSize:15, color:'#141413', margin:0, letterSpacing:'-0.2px' }}>Recommended for You</p>
                 <p style={{ fontFamily:SF, fontSize:12, color:'rgba(20,20,19,0.45)', margin:0, cursor:'pointer' }}>See All ›</p>
               </div>
-              <div style={{ display:'flex', gap:9, overflowX:'auto', paddingBottom:2 }}>
+              <div className="hide-scrollbar" style={{ display:'flex', gap:9, overflowX:'auto', paddingBottom:2, msOverflowStyle:'none', scrollbarWidth:'none' }}>
                 {[
                   { icon:'▶️', label:'10-min Calm Session', color:'#ede8ff' },
                   { icon:'🌿', label:'Breathing Exercise',  color:'#e0f5e8' },
@@ -2478,38 +2459,22 @@
 
           </div>
 
-          {/* Bottom nav — Stats active */}
-          <div style={{ position:'absolute', background:'rgba(255,237,229,0.72)', backdropFilter:'blur(16px)', border:'1px solid rgba(20,20,19,0.06)', display:'flex', alignItems:'center', left:52, padding:6, borderRadius:999, boxShadow:'0 4px 24px rgba(0,0,0,0.04)', top:764, width:294, zIndex:10, boxSizing:'border-box', gap:4 }}>
-            <div onClick={() => onNav('home')} style={{ display:'flex', alignItems:'center', justifyContent:'center', height:51, borderRadius:999, flexShrink:0, width:46, cursor:'pointer' }}>
-              <svg width="19" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(20,20,19,0.35)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
-            </div>
-            <div style={{ background:'white', display:'flex', height:51, alignItems:'center', justifyContent:'center', paddingLeft:14, paddingRight:18, borderRadius:999, flex:1, boxShadow:'0 2px 8px rgba(0,0,0,0.06)' }}>
-              <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#141413" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="12" width="4" height="9"/><rect x="10" y="7" width="4" height="14"/><rect x="17" y="3" width="4" height="18"/></svg>
-                <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:14, color:'#141413', margin:0, letterSpacing:'0.3px', textTransform:'uppercase', whiteSpace:'nowrap' }}>Stats</p>
-              </div>
-            </div>
-            <div onClick={() => onNav('home')} style={{ display:'flex', alignItems:'center', justifyContent:'center', height:51, borderRadius:999, flexShrink:0, width:46, cursor:'pointer' }}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(20,20,19,0.35)" strokeWidth="1.8" strokeLinecap="round"><circle cx="9" cy="7" r="3"/><path d="M3 21v-1a6 6 0 0112 0v1"/><circle cx="17" cy="9" r="2.5"/><path d="M20 21v-.8a5 5 0 00-4-4.9"/></svg>
-            </div>
-            <div onClick={() => onNav('home')} style={{ display:'flex', alignItems:'center', justifyContent:'center', height:51, borderRadius:999, flexShrink:0, width:46, cursor:'pointer' }}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(20,20,19,0.35)" strokeWidth="1.8" strokeLinecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            </div>
-          </div>
-
           <StatusBar />
         </div>
       );
     }
 
     /* ── TODAY MOODS SHEET (lists all today entries) ── */
-    function TodayMoodsSheet({ entries, onClose, onViewEntry }) {
-      const moodColor = {
-        good: '#a8d8a8', sad: '#a8c4e0', happy: '#f9e4a0',
-        grateful: '#f7c6d0', angry: '#f4a0a0', boring: '#c8c8d8', exhausted: '#c0b8d0',
-      };
-      const moodEmoji = {
-        good: '😊', sad: '😔', happy: '😄', grateful: '🙏', angry: '😠', boring: '😑', exhausted: '😩',
+    function TodayMoodsSheet({ entries, onClose, onViewEntry, onLogMood }) {
+      const moodGrad = {
+        good:      ['#b8f070','#60d888','#a0f0c8'],
+        sad:       ['#90c8f8','#6098f0','#a0d0ff'],
+        happy:     ['#ffe060','#ffb830','#ffe8a0'],
+        grateful:  ['#ffb860','#f08030','#ffd0a0'],
+        angry:     ['#ff8870','#f04060','#ff90b8'],
+        boring:    ['#60e0d0','#30c8b8','#80e8f8'],
+        exhausted: ['#c090f8','#9060e0','#d0a8ff'],
+        anxious:   ['#ff90b8','#f04878','#ffb0d0'],
       };
       return (
         <div style={{ position:'absolute', inset:0, zIndex:50, display:'flex', flexDirection:'column', justifyContent:'flex-end' }}
@@ -2518,29 +2483,55 @@
             style={{ background:'#faf7f5', borderRadius:'20px 20px 0 0', padding:'0 0 40px',
               boxShadow:'0 -8px 32px rgba(0,0,0,0.12)',
               animation:'slideUp 0.3s cubic-bezier(0.32,0.72,0,1)' }}>
+            {/* drag pill */}
             <div style={{ display:'flex', justifyContent:'center', padding:'12px 0 8px' }}>
               <div style={{ width:36, height:4, borderRadius:2, background:'rgba(20,20,19,0.2)' }} />
             </div>
-            <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:700, fontSize:17, color:'#141413', margin:'4px 22px 16px', letterSpacing:'-0.3px' }}>
+            <style>{`
+              @keyframes blob1 { 0%,100%{transform:translate(0%,0%) scale(1)} 33%{transform:translate(30%,-20%) scale(1.15)} 66%{transform:translate(-10%,25%) scale(0.9)} }
+              @keyframes blob2 { 0%,100%{transform:translate(0%,0%) scale(1)} 33%{transform:translate(-25%,15%) scale(0.88)} 66%{transform:translate(20%,-18%) scale(1.12)} }
+              @keyframes blob3 { 0%,100%{transform:translate(0%,0%) scale(1)} 33%{transform:translate(15%,22%) scale(1.1)} 66%{transform:translate(-20%,-10%) scale(0.92)} }
+            `}</style>
+            <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:700, fontSize:17, color:'#141413', margin:'4px 22px 14px', letterSpacing:'-0.3px' }}>
               Today's Moods
             </p>
+            {/* Entry cards — same fluid blob style as MoodDetailSheet */}
             <div style={{ display:'flex', flexDirection:'column', gap:10, padding:'0 22px' }}>
-              {entries.map((entry, i) => (
-                <div key={i} onClick={() => onViewEntry(entry)}
-                  style={{ display:'flex', alignItems:'center', gap:12, background: moodColor[entry.mood.toLowerCase()] || '#eee',
-                    borderRadius:14, padding:'12px 16px', cursor:'pointer' }}>
-                  <span style={{ fontSize:24 }}>{moodEmoji[entry.mood.toLowerCase()] || '🙂'}</span>
-                  <div style={{ flex:1 }}>
-                    <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:700, fontSize:15, color:'#141413', margin:0 }}>{entry.mood}</p>
-                    <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:400, fontSize:12, color:'#696969', margin:'2px 0 0' }}>{entry.time}</p>
+              {entries.map((entry, i) => {
+                const m = entry.mood.toLowerCase();
+                const [c1, c2, c3] = moodGrad[m] || ['#d0c8c0','#b8b0a8','#c8c0b8'];
+                return (
+                  <div key={i} onClick={() => onViewEntry(entry)}
+                    style={{ borderRadius:18, height:80, position:'relative', overflow:'hidden', background:'#f0f0ee', cursor:'pointer' }}>
+                    {/* fluid blobs */}
+                    <div style={{ position:'absolute', inset:0, filter:'blur(20px) saturate(1.1)', pointerEvents:'none' }}>
+                      <div style={{ position:'absolute', width:100, height:100, borderRadius:'50%', background:c1, top:'-30%', left:'-5%', animation:'blob1 7s ease-in-out infinite' }} />
+                      <div style={{ position:'absolute', width:90,  height:90,  borderRadius:'50%', background:c2, top:'10%',  left:'35%', animation:'blob2 9s ease-in-out infinite' }} />
+                      <div style={{ position:'absolute', width:110, height:110, borderRadius:'50%', background:c3, top:'-40%', left:'62%', animation:'blob3 8s ease-in-out infinite' }} />
+                    </div>
+                    {/* frosted glass */}
+                    <div style={{ position:'absolute', inset:0, backdropFilter:'blur(10px) saturate(1.4)', WebkitBackdropFilter:'blur(10px) saturate(1.4)', background:'rgba(255,255,255,0.28)', borderRadius:18, border:'1px solid rgba(255,255,255,0.55)', boxShadow:'inset 0 1px 0 rgba(255,255,255,0.6)', pointerEvents:'none' }} />
+                    {/* content */}
+                    <div style={{ position:'relative', display:'flex', alignItems:'center', gap:14, padding:'12px 16px', height:'100%', boxSizing:'border-box' }}>
+                      <div style={{ width:52, height:52, flexShrink:0, borderRadius:'50%', background:'rgba(255,255,255,0.72)', boxShadow:'0 0 0 2px rgba(255,255,255,0.9), 0 2px 10px rgba(0,0,0,0.08)', padding:3, boxSizing:'border-box', position:'relative' }}>
+                        <div style={{ position:'relative', width:'100%', height:'100%' }} dangerouslySetInnerHTML={{ __html: buildIconHTML(entry.mood) }} />
+                      </div>
+                      <div style={{ flex:1 }}>
+                        <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:800, fontSize:18, color:'#141413', margin:0, lineHeight:1, letterSpacing:'-0.3px' }}>{entry.mood}</p>
+                        <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:12, color:'rgba(20,20,19,0.5)', margin:'4px 0 0' }}>{entry.time}</p>
+                      </div>
+                      {(entry.activities?.length > 0 || entry.note) && (
+                        <p style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:16, color:'rgba(20,20,19,0.35)', margin:0, flexShrink:0 }}>›</p>
+                      )}
+                    </div>
                   </div>
-                  {(entry.activities?.length > 0 || entry.note) && (
-                    <p style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:12, color:'rgba(20,20,19,0.4)', margin:0 }}>›</p>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
-            <div style={{ padding:'18px 22px 0' }}>
+            <div style={{ padding:'16px 22px 0', display:'flex', flexDirection:'column', gap:10 }}>
+              <button onClick={onLogMood} style={{ width:'100%', fontFamily:'Sofia Sans,sans-serif', fontWeight:600, fontSize:15, color:'white', background:'#141413', border:'none', borderRadius:999, padding:'13px 0', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:6 }}>
+                <span style={{ fontSize:17, lineHeight:1 }}>＋</span> Log Mood
+              </button>
               <button onClick={onClose} style={{ width:'100%', fontFamily:'Sofia Sans,sans-serif', fontWeight:600, fontSize:15, color:'#141413', background:'white', border:'1px solid rgba(20,20,19,0.12)', borderRadius:999, padding:'13px 0', cursor:'pointer' }}>
                 Close
               </button>
@@ -2551,13 +2542,23 @@
     }
 
     /* ── MOOD DETAIL SHEET ── */
-    function MoodDetailSheet({ entry, onClose }) {
-      const moodColor = {
-        good: '#a8d8a8', sad: '#a8c4e0', happy: '#f9e4a0',
-        grateful: '#f7c6d0', angry: '#f4a0a0', boring: '#c8c8d8',
-        exhausted: '#c0b8d0',
+    function MoodDetailSheet({ entry, onClose, onAddDetails }) {
+      const [showSummary, setShowSummary] = React.useState(false);
+      // Vivid analogous blob colors
+      const moodGrad = {
+        good:      ['#b8f070','#60d888','#a0f0c8'],
+        sad:       ['#90c8f8','#6098f0','#a0d0ff'],
+        happy:     ['#ffe060','#ffb830','#ffe8a0'],
+        grateful:  ['#ffb860','#f08030','#ffd0a0'],
+        angry:     ['#ff8870','#f04060','#ff90b8'],
+        boring:    ['#60e0d0','#30c8b8','#80e8f8'],
+        exhausted: ['#c090f8','#9060e0','#d0a8ff'],
+        anxious:   ['#ff90b8','#f04878','#ffb0d0'],
       };
-      const bg = moodColor[entry.mood.toLowerCase()] || '#ddd7ce';
+      const m = entry.mood.toLowerCase();
+      const [c1, c2, c3] = moodGrad[m] || ['#d0c8c0','#b8b0a8','#c8c0b8'];
+      const hasDetails = (entry.activities?.length > 0) || (entry.companions?.length > 0) ||
+                         (entry.location?.length > 0) || (entry.bodyParts?.length > 0) || entry.note;
 
       return (
         <div style={{ position:'absolute', inset:0, zIndex:50, display:'flex', flexDirection:'column', justifyContent:'flex-end' }}
@@ -2565,22 +2566,64 @@
           <div onClick={e => e.stopPropagation()}
             style={{ background:'#faf7f5', borderRadius:'20px 20px 0 0', padding:'0 0 40px',
               boxShadow:'0 -8px 32px rgba(0,0,0,0.12)',
-              animation:'slideUp 0.3s cubic-bezier(0.32,0.72,0,1)' }}>
+              animation:'slideUp 0.3s cubic-bezier(0.32,0.72,0,1)',
+              position:'relative' }}>
 
             {/* Header pill */}
             <div style={{ display:'flex', justifyContent:'center', padding:'12px 0 8px' }}>
               <div style={{ width:36, height:4, borderRadius:2, background:'rgba(20,20,19,0.2)' }} />
             </div>
 
-            {/* Mood badge */}
-            <div style={{ margin:'8px 22px 16px', background:bg, borderRadius:16, padding:'14px 18px', display:'flex', alignItems:'center', gap:12 }}>
-              <div style={{ position:'relative', width:48, height:48, flexShrink:0 }}
-                dangerouslySetInnerHTML={{ __html: buildIconHTML(entry.mood) }} />
-              <div>
-                <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:700, fontSize:18, color:'#141413', margin:0, letterSpacing:'-0.3px' }}>{entry.mood}</p>
-                <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:400, fontSize:13, color:'#696969', margin:'2px 0 0', letterSpacing:'-0.1px' }}>
-                  {entry.dayLabel} · {entry.time}
-                </p>
+            {/* Mood badge — fluid blob animation */}
+            <style>{`
+              @keyframes blob1 { 0%,100%{transform:translate(0%,0%) scale(1)} 33%{transform:translate(30%,-20%) scale(1.15)} 66%{transform:translate(-10%,25%) scale(0.9)} }
+              @keyframes blob2 { 0%,100%{transform:translate(0%,0%) scale(1)} 33%{transform:translate(-25%,15%) scale(0.88)} 66%{transform:translate(20%,-18%) scale(1.12)} }
+              @keyframes blob3 { 0%,100%{transform:translate(0%,0%) scale(1)} 33%{transform:translate(15%,22%) scale(1.1)} 66%{transform:translate(-20%,-10%) scale(0.92)} }
+              @keyframes blob4 { 0%,100%{transform:translate(0%,0%) scale(1)} 33%{transform:translate(-18%,-22%) scale(1.08)} 66%{transform:translate(22%,12%) scale(0.95)} }
+            `}</style>
+            {/* Outer shell: fluid blobs visible behind glass */}
+            <div onClick={() => setShowSummary(true)} style={{
+                margin:'8px 22px 16px', borderRadius:22, height:108,
+                position:'relative', overflow:'hidden',
+                background: '#f0f0ee', cursor:'pointer',
+              }}>
+              {/* Fluid blobs */}
+              <div style={{ position:'absolute', inset:0, filter:'blur(24px) saturate(1.1) brightness(1.05)', pointerEvents:'none' }}>
+                <div style={{ position:'absolute', width:130, height:130, borderRadius:'50%', background:c1, top:'-25%', left:'-8%', animation:'blob1 7s ease-in-out infinite' }} />
+                <div style={{ position:'absolute', width:110, height:110, borderRadius:'50%', background:c2, top:'5%', left:'32%', animation:'blob2 9s ease-in-out infinite' }} />
+                <div style={{ position:'absolute', width:140, height:140, borderRadius:'50%', background:c3, top:'-35%', left:'58%', animation:'blob3 8s ease-in-out infinite' }} />
+                <div style={{ position:'absolute', width:100, height:100, borderRadius:'50%', background:c1, top:'15%', left:'78%', animation:'blob4 6s ease-in-out infinite' }} />
+              </div>
+              {/* Frosted glass overlay */}
+              <div style={{
+                position:'absolute', inset:0,
+                backdropFilter:'blur(12px) saturate(1.4)',
+                WebkitBackdropFilter:'blur(12px) saturate(1.4)',
+                background:'rgba(255,255,255,0.28)',
+                borderRadius:22,
+                border:'1px solid rgba(255,255,255,0.55)',
+                boxShadow:'inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(255,255,255,0.15)',
+                pointerEvents:'none',
+              }} />
+              {/* Content */}
+              <div style={{ position:'relative', display:'flex', alignItems:'center', gap:16, padding:'16px 20px', height:'100%', boxSizing:'border-box' }}>
+                {/* Icon with white ring */}
+                <div style={{
+                  position:'relative', width:68, height:68, flexShrink:0,
+                  borderRadius:'50%',
+                  background:'rgba(255,255,255,0.72)',
+                  boxShadow:'0 0 0 3px rgba(255,255,255,0.90), 0 2px 12px rgba(0,0,0,0.10)',
+                  padding:4, boxSizing:'border-box',
+                }}>
+                  <div style={{ position:'relative', width:'100%', height:'100%' }}
+                    dangerouslySetInnerHTML={{ __html: buildIconHTML(entry.mood) }} />
+                </div>
+                <div>
+                  <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:800, fontSize:26, color:'#141413', margin:0, letterSpacing:'-0.5px', lineHeight:1 }}>{entry.mood}</p>
+                  <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:13, color:'rgba(20,20,19,0.5)', margin:'6px 0 0', letterSpacing:'-0.1px' }}>
+                    {entry.dayLabel} · {entry.time}
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -2633,6 +2676,93 @@
                 </div>
               )}
             </div>
+
+            {/* Add details CTA — shown when no details were logged */}
+            {!hasDetails && onAddDetails && (
+              <div style={{ padding:'0 22px' }}>
+                <div onClick={() => { onClose(); onAddDetails(entry); }}
+                  style={{ display:'flex', alignItems:'center', justifyContent:'space-between', background:'rgba(20,20,19,0.04)', border:'1px dashed rgba(20,20,19,0.15)', borderRadius:14, padding:'13px 16px', cursor:'pointer' }}>
+                  <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:600, fontSize:14, color:'rgba(20,20,19,0.55)', margin:0 }}>Log Mood</p>
+                  <p style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:16, color:'rgba(20,20,19,0.35)', margin:0 }}>＋</p>
+                </div>
+              </div>
+            )}
+
+            {/* Mood log summary modal — slides up when card is tapped */}
+            {showSummary && (
+              <div onClick={() => setShowSummary(false)}
+                style={{ position:'absolute', inset:0, zIndex:10, background:'rgba(0,0,0,0.18)', display:'flex', flexDirection:'column', justifyContent:'flex-end', borderRadius:'20px 20px 0 0' }}>
+                <div onClick={e => e.stopPropagation()}
+                  style={{ background:'#faf7f5', borderRadius:'20px 20px 0 0', padding:'0 0 28px', animation:'slideUp 0.28s cubic-bezier(0.32,0.72,0,1)', maxHeight:'80%', overflowY:'auto' }}>
+                  <div style={{ display:'flex', justifyContent:'center', padding:'12px 0 6px' }}>
+                    <div style={{ width:36, height:4, borderRadius:2, background:'rgba(20,20,19,0.18)' }} />
+                  </div>
+                  <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:700, fontSize:13, color:'rgba(20,20,19,0.4)', letterSpacing:'0.5px', textTransform:'uppercase', textAlign:'center', margin:'0 0 16px' }}>Mood Summary</p>
+                  {/* mood row */}
+                  <div style={{ display:'flex', alignItems:'center', gap:12, padding:'0 20px 16px', borderBottom:'1px solid rgba(20,20,19,0.06)' }}>
+                    <div style={{ width:44, height:44, borderRadius:'50%', background:'rgba(255,255,255,0.8)', boxShadow:'0 0 0 2px rgba(255,255,255,0.9), 0 2px 8px rgba(0,0,0,0.08)', padding:3, boxSizing:'border-box', flexShrink:0, position:'relative', overflow:'hidden' }}>
+                      <div style={{ position:'relative', width:'100%', height:'100%' }} dangerouslySetInnerHTML={{ __html: buildIconHTML(entry.mood) }} />
+                    </div>
+                    <div>
+                      <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:700, fontSize:18, color:'#141413', margin:0, letterSpacing:'-0.3px' }}>{entry.mood}</p>
+                      <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:12, color:'rgba(20,20,19,0.45)', margin:'2px 0 0' }}>{entry.dayLabel} · {entry.time}</p>
+                    </div>
+                  </div>
+                  {/* details */}
+                  <div style={{ padding:'14px 20px 0', display:'flex', flexDirection:'column', gap:12 }}>
+                    {entry.activities?.length > 0 && (
+                      <div>
+                        <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:600, fontSize:10, color:'#aaa', letterSpacing:'0.6px', textTransform:'uppercase', margin:'0 0 6px' }}>What I was doing</p>
+                        <div style={{ display:'flex', flexWrap:'wrap', gap:5 }}>
+                          {entry.activities.map(a => <span key={a} style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:13, color:'#141413', background:'white', border:'1px solid rgba(20,20,19,0.1)', borderRadius:999, padding:'4px 11px' }}>{a}</span>)}
+                        </div>
+                      </div>
+                    )}
+                    {entry.companions?.length > 0 && (
+                      <div>
+                        <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:600, fontSize:10, color:'#aaa', letterSpacing:'0.6px', textTransform:'uppercase', margin:'0 0 6px' }}>Who I was with</p>
+                        <div style={{ display:'flex', flexWrap:'wrap', gap:5 }}>
+                          {entry.companions.map(c => <span key={c} style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:13, color:'#141413', background:'white', border:'1px solid rgba(20,20,19,0.1)', borderRadius:999, padding:'4px 11px' }}>{c}</span>)}
+                        </div>
+                      </div>
+                    )}
+                    {entry.location?.length > 0 && (
+                      <div>
+                        <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:600, fontSize:10, color:'#aaa', letterSpacing:'0.6px', textTransform:'uppercase', margin:'0 0 6px' }}>Where I was</p>
+                        <div style={{ display:'flex', flexWrap:'wrap', gap:5 }}>
+                          {entry.location.map(l => <span key={l} style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:13, color:'#141413', background:'white', border:'1px solid rgba(20,20,19,0.1)', borderRadius:999, padding:'4px 11px' }}>{l}</span>)}
+                        </div>
+                      </div>
+                    )}
+                    {entry.bodyParts?.length > 0 && (
+                      <div>
+                        <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:600, fontSize:10, color:'#aaa', letterSpacing:'0.6px', textTransform:'uppercase', margin:'0 0 6px' }}>Where I felt it</p>
+                        <div style={{ display:'flex', flexWrap:'wrap', gap:5 }}>
+                          {entry.bodyParts.map(b => <span key={b} style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:13, color:'#141413', background:'white', border:'1px solid rgba(20,20,19,0.1)', borderRadius:999, padding:'4px 11px' }}>{b}</span>)}
+                        </div>
+                      </div>
+                    )}
+                    {entry.note ? (
+                      <div>
+                        <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:600, fontSize:10, color:'#aaa', letterSpacing:'0.6px', textTransform:'uppercase', margin:'0 0 6px' }}>Note</p>
+                        <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:400, fontSize:14, color:'#141413', margin:0, lineHeight:1.5, background:'white', border:'1px solid rgba(20,20,19,0.08)', borderRadius:12, padding:'10px 14px' }}>{entry.note}</p>
+                      </div>
+                    ) : !entry.activities?.length && !entry.companions?.length && !entry.location?.length && !entry.bodyParts?.length && (
+                      <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:14, color:'rgba(20,20,19,0.35)', textAlign:'center', margin:'8px 0 0' }}>No details logged yet.</p>
+                    )}
+                  </div>
+                  {onAddDetails && (
+                    <div style={{ padding:'18px 20px 0' }}>
+                      <div onClick={() => { setShowSummary(false); onClose(); onAddDetails(entry); }}
+                        style={{ display:'flex', alignItems:'center', justifyContent:'space-between', background:'rgba(20,20,19,0.04)', border:'1px dashed rgba(20,20,19,0.15)', borderRadius:14, padding:'12px 16px', cursor:'pointer' }}>
+                        <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:600, fontSize:14, color:'rgba(20,20,19,0.55)', margin:0 }}>Edit details</p>
+                        <p style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:16, color:'rgba(20,20,19,0.35)', margin:0 }}>✏️</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Close button */}
             <div style={{ padding:'22px 22px 0' }}>
@@ -2713,6 +2843,59 @@
       );
     }
 
+    /* ── SHARED BOTTOM NAV ── */
+    function BottomNav({ activePage, onNav }) {
+      const StatIcon = ({ active }) => (
+        <div style={{ position:'relative', width:24, height:24, flexShrink:0 }}>
+          <div style={{ position:'absolute', background: active ? '#141413' : 'rgba(20,20,19,0.35)', bottom:'16.67%', left:'75%', right:'8.33%', borderRadius:1, top:'29.17%' }} />
+          <div style={{ position:'absolute', background: active ? '#141413' : 'rgba(20,20,19,0.35)', top:'54.17%', right:'41.67%', bottom:'16.67%', left:'41.67%', borderRadius:1 }} />
+          <div style={{ position:'absolute', background: active ? '#141413' : 'rgba(20,20,19,0.35)', bottom:'16.67%', left:'8.33%', right:'75%', borderRadius:1, top:'37.5%' }} />
+        </div>
+      );
+      const items = [
+        { id:'home',    label:'Home', icon: (a) => <div style={{ width:19, height:20, position:'relative', flexShrink:0 }}><img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgVector3} onError={e=>{e.target.style.display='none';e.target.parentNode.innerHTML='<svg width="19" height="20" viewBox="0 0 24 24" fill="none" stroke="'+(a?'#141413':'rgba(20,20,19,0.4)')+'" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>';}} /></div> },
+        { id:'stats',   label:'Stat', icon: (a) => <StatIcon active={a} /> },
+        { id:'peers',   label:null,   icon: (a) => <div style={{ width:24, height:24, position:'relative' }}><img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgHandCoin} onError={e=>{e.target.style.display='none';e.target.parentNode.innerHTML='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(20,20,19,0.4)" strokeWidth="1.8" strokeLinecap="round"><circle cx="9" cy="7" r="3"/><path d="M3 21v-1a6 6 0 0112 0v1"/><circle cx="17" cy="9" r="2.5"/><path d="M20 21v-.8a5 5 0 00-4-4.9"/></svg>';}} /></div> },
+        { id:'profile', label:null,   icon: (a) => <div style={{ width:25, height:25, position:'relative' }}><img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgShield} onError={e=>{e.target.style.display='none';e.target.parentNode.innerHTML='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(20,20,19,0.4)" strokeWidth="1.8" strokeLinecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';}} /></div> },
+      ];
+      return (
+        <div style={{ position:'absolute', background:'rgba(255,237,229,0.72)', backdropFilter:'blur(16px)', border:'1px solid rgba(20,20,19,0.06)', display:'flex', alignItems:'center', justifyContent:'space-between', left:52, padding:6, borderRadius:999, boxShadow:'0 4px 24px rgba(0,0,0,0.04)', top:764, width:294, zIndex:300, boxSizing:'border-box' }}>
+          {items.map(item => {
+            const isActive = activePage === item.id;
+            const hasLabel = !!item.label;
+            const w = isActive && hasLabel ? 115 : (hasLabel ? 45 : 46);
+            return (
+              <div key={item.id} onClick={() => onNav(item.id)}
+                style={{
+                  background:'white', display:'flex', alignItems:'center', justifyContent:'center',
+                  height:46, borderRadius: hasLabel ? 999 : 23,
+                  width:w, flexShrink:0, cursor:'pointer', overflow:'hidden',
+                  boxShadow: isActive ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
+                  transition:'width 0.38s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s ease',
+                  boxSizing:'border-box',
+                  paddingLeft: isActive && hasLabel ? 11 : 0,
+                  paddingRight: isActive && hasLabel ? 18 : 0,
+                }}>
+                <div style={{ display:'flex', gap: isActive && hasLabel ? 10 : 0, alignItems:'center', flexShrink:0 }}>
+                  {item.icon(isActive)}
+                  {hasLabel && (
+                    <p style={{
+                      fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:14,
+                      color:'#141413', margin:0, letterSpacing:'0.3px', textTransform:'uppercase',
+                      whiteSpace:'nowrap', flexShrink:0,
+                      maxWidth: isActive ? 60 : 0, opacity: isActive ? 1 : 0,
+                      overflow:'hidden',
+                      transition:'max-width 0.38s cubic-bezier(0.4,0,0.2,1), opacity 0.2s ease',
+                    }}>{item.label}</p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
     /* ── APP ── */
     function App() {
       const todayKey = new Date().toDateString();
@@ -2734,6 +2917,7 @@
       const [count, setCount] = useState(() => load('count', 7));
       const [todayMoods, setTodayMoods] = useState(() => isNewDay ? [] : load('todayMoods', ['good', 'sad']));
       const [viewEntry, setViewEntry] = useState(null);
+      const [editEntry, setEditEntry] = useState(null);
       const [showTodaySheet, setShowTodaySheet] = useState(false);
       const [todayEntries, setTodayEntries] = useState(() => isNewDay ? [] : load('todayEntries', DEFAULT_TODAY_ENTRIES));
       const [moodEntries, setMoodEntries] = useState(() => {
@@ -2853,7 +3037,7 @@
               <div style={{ position:'absolute', display:'flex', alignItems:'center', justifyContent:'space-between', left:0, paddingLeft:22, paddingRight:22, paddingTop:12, paddingBottom:12, top:297, width:390 }}>
                 <DayCard label="MON"   mood="good" onClick={() => setViewEntry(moodEntries['MON'])} />
                 <DayCard label="TUE"   mood="sad"  onClick={() => setViewEntry(moodEntries['TUE'])} />
-                <DayCard label="TODAY" mood={moodEntries['TODAY'] ? moodEntries['TODAY'].mood.toLowerCase() : null} onClick={moodEntries['TODAY'] ? () => setViewEntry(moodEntries['TODAY']) : () => setPage('logMood')} />
+                <DayCard label="TODAY" mood={todayEntries.length > 0 ? todayEntries[todayEntries.length-1].mood.toLowerCase() : (moodEntries['TODAY'] ? moodEntries['TODAY'].mood.toLowerCase() : null)} onClick={() => todayEntries.length > 0 ? setShowTodaySheet(true) : setPage('logMood')} />
                 <DayCard label="WED"   mood={null}  />
                 <DayCard label="THUR"  mood={null}  />
               </div>
@@ -2869,47 +3053,6 @@
                 </p>
               </div>
 
-              {/* ── BOTTOM NAV: top:764 ── */}
-              <div style={{ position:'absolute', background:'rgba(255,237,229,0.5)', border:'1px solid rgba(20,20,19,0.06)', display:'flex', flexDirection:'column', height:62, alignItems:'center', left:43, padding:6, borderRadius:999, boxShadow:'0 4px 24px rgba(0,0,0,0.04), 0 24px 48px rgba(0,0,0,0.08)', top:764, width:294, zIndex:10 }}>
-                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', flexShrink:0, width:'100%' }}>
-                  {/* Home (active) */}
-                  <div style={{ background:'white', display:'flex', flexDirection:'column', height:51, alignItems:'center', justifyContent:'center', paddingLeft:11, paddingRight:18, paddingTop:10, paddingBottom:10, borderRadius:999, flexShrink:0, width:115, cursor:'pointer' }}>
-                    <div style={{ display:'flex', gap:10, alignItems:'center', flexShrink:0 }}>
-                      <div style={{ height:19.93, flexShrink:0, width:18.96, position:'relative' }}>
-                        <img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgVector3}
-                          onError={e=>{e.target.style.display='none';e.target.parentNode.innerHTML='<svg width="19" height="20" viewBox="0 0 24 24" fill="none" stroke="#141413" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>';}}
-                        />
-                      </div>
-                      <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, lineHeight:'normal', flexShrink:0, color:'#141413', fontSize:14, textAlign:'center', letterSpacing:'0.3px', textTransform:'uppercase', whiteSpace:'nowrap' }}>Home</p>
-                    </div>
-                  </div>
-                  {/* Stats */}
-                  <div onClick={() => setPage('stats')} style={{ background:'white', display:'flex', alignItems:'flex-start', padding:11, borderRadius:23, flexShrink:0, width:46, height:46, cursor:'pointer', boxSizing:'border-box' }}>
-                    <div style={{ position:'relative', flexShrink:0, width:24, height:24 }}>
-                      <div style={{ position:'absolute', background:'rgba(0,0,0,0.5)', border:'2px solid #808080', bottom:'16.67%', left:'75%', right:'8.33%', borderRadius:1, top:'29.17%' }} />
-                      <div style={{ position:'absolute', background:'rgba(0,0,0,0.5)', border:'2px solid #808080', top:'54.17%', right:'41.67%', bottom:'16.67%', left:'41.67%', borderRadius:1 }} />
-                      <div style={{ position:'absolute', background:'rgba(0,0,0,0.5)', border:'2px solid #808080', bottom:'16.67%', left:'8.33%', right:'75%', borderRadius:1, top:'37.5%' }} />
-                    </div>
-                  </div>
-                  {/* Peers */}
-                  <div style={{ background:'white', display:'flex', alignItems:'flex-start', paddingBottom:10, paddingTop:12, paddingLeft:11, paddingRight:11, borderRadius:23, flexShrink:0, width:46, height:46, cursor:'pointer', boxSizing:'border-box' }}>
-                    <div style={{ flexShrink:0, width:24, height:24, position:'relative' }}>
-                      <img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgHandCoin}
-                        onError={e=>{e.target.style.display='none';e.target.parentNode.innerHTML='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#808080" strokeWidth="1.8" strokeLinecap="round"><circle cx="9" cy="7" r="3"/><path d="M3 21v-1a6 6 0 0112 0v1"/><circle cx="17" cy="9" r="2.5"/><path d="M20 21v-.8a5 5 0 00-4-4.9"/></svg>';}}
-                      />
-                    </div>
-                  </div>
-                  {/* Profile */}
-                  <div onClick={() => setPage('profile')} style={{ background:'white', display:'flex', alignItems:'flex-start', paddingBottom:9, paddingLeft:10, paddingRight:11, paddingTop:12, borderRadius:23, flexShrink:0, width:46, height:46, cursor:'pointer', boxSizing:'border-box' }}>
-                    <div style={{ flexShrink:0, width:25, height:25, position:'relative' }}>
-                      <img alt="" style={{ position:'absolute', display:'block', inset:0, maxWidth:'none', width:'100%', height:'100%' }} src={imgShield}
-                        onError={e=>{e.target.style.display='none';e.target.parentNode.innerHTML='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#808080" strokeWidth="1.8" strokeLinecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';}}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               {/* Status bar on top */}
               <StatusBar />
             </div>
@@ -2918,22 +3061,25 @@
             <div style={{ position:'absolute', inset:0, pointerEvents:'none', borderRadius:'inherit', boxShadow:'inset 0px 1px 0px 0px rgba(255,255,255,0.12)' }} />
 
             {/* Today moods list sheet */}
-            {showTodaySheet && <TodayMoodsSheet entries={todayEntries} onClose={() => setShowTodaySheet(false)} onViewEntry={e => { setShowTodaySheet(false); setViewEntry(e); }} />}
+            {showTodaySheet && <TodayMoodsSheet entries={todayEntries} onClose={() => setShowTodaySheet(false)} onViewEntry={e => { setShowTodaySheet(false); setViewEntry(e); }} onLogMood={() => { setShowTodaySheet(false); setPage('logMood'); }} />}
 
             {/* Mood detail sheet */}
-            {viewEntry && <MoodDetailSheet entry={viewEntry} onClose={() => setViewEntry(null)} />}
+            {viewEntry && <MoodDetailSheet entry={viewEntry} onClose={() => setViewEntry(null)} onAddDetails={(e) => { setViewEntry(null); setEditEntry(e); setPage('logMood'); }} />}
 
             {/* Check-in modal */}
             {checkinOpen && <CheckinSheet onClose={() => setCheckin(false)} onSave={handleSave} />}
 
             {/* Log Mood page */}
-            {page === 'logMood' && <LogMoodPage onBack={() => setPage('home')} onSave={handleLogMoodSave} />}
+            {page === 'logMood' && <LogMoodPage onBack={() => { setEditEntry(null); setPage('home'); }} onSave={handleLogMoodSave} initialData={editEntry} />}
 
             {/* Stats page */}
             {page === 'stats' && <StatsPage onBack={() => setPage('home')} onNav={setPage} todayMood={todayMood} count={count} allEntries={[...Object.values(moodEntries), ...todayEntries].filter(Boolean)} />}
 
             {/* Profile page */}
             {page === 'profile' && <ProfilePage onBack={() => setPage('home')} userName={userName} setUserName={setUserName} />}
+
+            {/* Persistent bottom nav — rendered last so it sits above all page content */}
+            {page !== 'logMood' && <BottomNav activePage={page} onNav={setPage} />}
           </div>
         </>
       );
