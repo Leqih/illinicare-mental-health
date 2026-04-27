@@ -1900,7 +1900,7 @@
         pts.forEach(p => { if (p.mood) counts[p.mood] = (counts[p.mood] || 0) + 1; });
         const maxCount = Math.max(...Object.values(counts), 1);
         const bubbleData = Object.entries(counts).map(([mood, cnt]) => ({
-          label: mood, r: Math.round(28 + (cnt / maxCount) * 48), cnt
+          label: mood, r: Math.round(20 + (cnt / maxCount) * 32), cnt
         }));
         const W = container.clientWidth || 346;
         const H = container.clientHeight || 260;
@@ -1945,11 +1945,11 @@
         bubbleData.forEach(({ label, r }) => {
           const x = W/2 + (Math.random()-0.5)*W*0.5;
           const y = H/2 + (Math.random()-0.5)*H*0.5;
-          const body = Bodies.circle(x, y, r, { restitution:0.4, friction:0.05, frictionAir:0.03 });
+          const body = Bodies.circle(x, y, r, { restitution:0.55, friction:0.02, frictionAir:0.04 });
           World.add(engine.world, body);
           const el = document.createElement('div');
           const d = r * 2;
-          const fs = r >= 52 ? 13 : r >= 38 ? 11 : 9;
+          const fs = r >= 40 ? 13 : r >= 28 ? 11 : 9;
           el.style.cssText = `position:absolute;width:${d}px;height:${d}px;cursor:pointer;user-select:none;transition:transform .15s;`;
           el.innerHTML = `
             <div style="position:relative;width:100%;height:100%;">
@@ -1994,7 +1994,7 @@
           elems.forEach(({ el }) => el.parentNode && el.parentNode.removeChild(el));
         };
       }, []);
-      return React.createElement('div', { ref: containerRef, style:{ position:'relative', height:260, overflow:'hidden', margin:'0 -4px' } });
+      return React.createElement('div', { ref: containerRef, style:{ position:'relative', height:240, overflow:'hidden', margin:'0 -4px' } });
     }
 
     /* ── STATS PAGE ── */
