@@ -784,6 +784,45 @@
       );
     }
 
+    /* ── ANXIOUS STICKER ZONE ── */
+    function AnxiousStickerZone() {
+      return (
+        <div style={{ position:'relative', width:42, height:37, flexShrink:0 }}>
+          {/* Rectangle82 folder backing */}
+          <div style={{ position:'absolute', left:0, top:0, width:42, height:37 }}>
+            <img alt="" src={imgW82} onError={e=>e.target.style.display='none'}
+              style={{ position:'absolute', top:0, right:'-9.52%', bottom:'-21.62%', left:'-9.52%', display:'block', width:'119.04%', height:'121.62%' }} />
+          </div>
+
+          {/* Anxious blob: centered-left, slight tilt */}
+          <div style={{ position:'absolute', left:4, top:4, width:30, height:30, display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <div style={{ transform:'rotate(-8deg)', position:'relative', width:26, height:26 }}>
+              {/* Body (face baked in) */}
+              <img alt="" src={imgAnxiousChar} onError={e=>e.target.style.display='none'}
+                style={{ position:'absolute', inset:0, display:'block', width:'100%', height:'100%', objectFit:'contain' }} />
+              {/* Face overlay for extra detail */}
+              <div style={{ position:'absolute', left:0, top:0, width:'26.1%', height:'32.1%', pointerEvents:'none' }}>
+                <img alt="" src={imgAnxiousFace} onError={e=>e.target.style.display='none'}
+                  style={{ display:'block', width:'100%', height:'100%' }} />
+              </div>
+            </div>
+          </div>
+
+          {/* Second smaller blob: upper right, slight opposite tilt */}
+          <div style={{ position:'absolute', left:22, top:3, width:20, height:20, display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <div style={{ transform:'rotate(10deg)', position:'relative', width:17, height:17 }}>
+              <img alt="" src={imgAnxiousChar} onError={e=>e.target.style.display='none'}
+                style={{ position:'absolute', inset:0, display:'block', width:'100%', height:'100%', objectFit:'contain' }} />
+            </div>
+          </div>
+
+          {/* Frosted badge */}
+          <div style={{ position:'absolute', left:0, top:21, width:42, height:16, backdropFilter:'blur(2px)', WebkitBackdropFilter:'blur(2px)', background:'rgba(255,255,255,0.4)', border:'1px solid rgba(0,0,0,0.05)', borderRadius:5 }} />
+          <p style={{ position:'absolute', left:21, top:25.5, transform:'translateX(-50%)', fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:8, color:'black', textAlign:'center', letterSpacing:'0.3px', textTransform:'uppercase', whiteSpace:'nowrap', lineHeight:'normal', margin:0 }}>Anxious</p>
+        </div>
+      );
+    }
+
     /* ── BORING STICKER ZONE (Figma 208:2784) ── */
     /* Coords normalized: subtract 15.5 from Figma y-values */
     function BoringStickerZone() {
@@ -913,6 +952,7 @@
         happy:     { comp: <HappyStickerZone />,     w:32, h:27 },
         exhausted: { comp: <ExhaustedStickerZone />, w:30, h:27 },
         boring:    { comp: <BoringStickerZone />,    w:30, h:27 },
+        anxious:   { comp: <AnxiousStickerZone />,   w:30, h:27 },
       };
       const zone = zones[m];
       if (zone) {
