@@ -1889,9 +1889,8 @@
           const s = mood.toLowerCase();
           const grad = BUBBLE_GRAD[s] || 'linear-gradient(135deg,#e0e0e0,#c0c0c0)';
           if (s === 'boring') {
-            // 4 pill columns to match the boring tiled body
-            const col = `<div style="flex:1;background:${grad};border-radius:999px 999px 40% 40%/50% 50% 30% 30%"></div>`;
-            return `<div style="position:absolute;inset:0;display:flex;align-items:stretch;gap:3%;padding:0 2%;pointer-events:none">${col}${col}${col}${col}</div>`;
+            // Rounded rect blob — 4-segment boring body approximation
+            return `<div style="position:absolute;inset:8% 4%;background:${grad};border-radius:40% 40% 36% 36% / 30% 30% 26% 26%;pointer-events:none"></div>`;
           }
           const src = s==='good' ? imgGoodChar : s==='happy'||s==='excited' ? imgHappyChar :
                       s==='grateful' ? imgGratefulChar : s==='angry' ? imgAngryChar :
