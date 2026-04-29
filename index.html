@@ -3130,41 +3130,54 @@
 
     /* ── TYPE CHAT PAGE ── */
     const UIUC_RESOURCES = {
-      caps:     { icon:'🏛️', title:'CAPS Counseling',    sub:'Free counseling for UIUC students', detail:'610 E. John St · M–F 8am–5pm', phone:'(217) 333-3704', color:'#3b82f6', bg:'rgba(219,234,254,0.9)' },
-      letsTalk: { icon:'💬', title:"Let's Talk",          sub:'Free 15-min drop-in consultation',  detail:'Multiple campus locations',      phone:'(217) 333-3704', color:'#7c3aed', bg:'rgba(237,233,254,0.9)' },
-      mckinley: { icon:'🏥', title:'McKinley Health',     sub:'Mental health & counseling services',detail:'1109 S. Lincoln Ave',             phone:'(217) 333-2700', color:'#059669', bg:'rgba(209,250,229,0.9)' },
-      crisis:   { icon:'🆘', title:'24/7 Crisis Line',    sub:'Immediate support, any time',       detail:'Call or text — always available', phone:'988',            color:'#dc2626', bg:'rgba(254,226,226,0.9)' },
-      text741:  { icon:'📱', title:'Crisis Text Line',    sub:'Text HOME to 741741',              detail:'24/7 free, confidential texting',  phone:'741741',         color:'#2563eb', bg:'rgba(219,234,254,0.9)' },
-      resilience:{ icon:'🤝', title:'Resilience @ UIUC', sub:'Peer wellness coaching program',    detail:'Free, student-led sessions',       phone:'(217) 333-3704', color:'#d97706', bg:'rgba(254,243,199,0.9)' },
-      breathing: { icon:'🌬️', title:'Breathing Exercise', sub:'4-7-8 technique — takes 2 min',   detail:'Inhale 4s · Hold 7s · Exhale 8s',  phone:null,            color:'#0891b2', bg:'rgba(224,242,254,0.9)' },
-      odos:     { icon:'🎓', title:'Dean of Students',    sub:'Academic & personal support',      detail:'Turner Student Services Bldg',     phone:'(217) 333-0050', color:'#be185d', bg:'rgba(252,231,243,0.9)' },
+      caps:      { level:2, icon:'🏛️', title:'CAPS Counseling',     sub:'Free counseling for UIUC students',   desc:"Free, confidential therapy for all UIUC students — no insurance needed. Counselors specialize in anxiety, depression, stress, and life transitions. You can call to schedule or walk in for a same-day consult.",                                              detail:'610 E. John St · M–F 8am–5pm',    phone:'(217) 333-3704', color:'#3b82f6' },
+      letsTalk:  { level:2, icon:'💬', title:"Let's Talk",           sub:'Free 15-min drop-in, no appointment', desc:"Not sure if you need therapy? Just drop in for a free 15-minute chat with a counselor — no commitment, no paperwork. A low-pressure way to see if talking helps before booking anything.",                                                              detail:'Multiple campus locations',        phone:'(217) 333-3704', color:'#7c3aed' },
+      mckinley:  { level:3, icon:'🏥', title:'McKinley Health',      sub:'Mental health & physical care',       desc:"UIUC's student health center handles both mental and physical health in one place. Good if you think anxiety or stress might be showing up physically, or if you want mental health support alongside a GP.",                                               detail:'1109 S. Lincoln Ave',              phone:'(217) 333-2700', color:'#059669' },
+      crisis:    { level:1, icon:'🆘', title:'988 Crisis Line',      sub:'Immediate support, 24/7',             desc:"Real people, available around the clock. You don't need to be in immediate danger to call — if you're struggling and need to talk to someone right now, this line is for you. Free and completely confidential.",                                          detail:'Call or text anytime — always free',phone:'988',           color:'#dc2626' },
+      text741:   { level:1, icon:'📱', title:'Crisis Text Line',     sub:'Text HOME to 741741',                 desc:"Prefer typing over talking? Text a trained crisis counselor any time — day or night, free and confidential. Takes about 2 minutes to connect with a real person.",                                                                                         detail:'24/7 · free · confidential',       phone:'741741',         color:'#2563eb' },
+      resilience:{ level:3, icon:'🤝', title:'Resilience @ UIUC',   sub:'Peer wellness coaching',              desc:"Connect with a trained student peer who has been through similar experiences. More casual than therapy, and sometimes that's exactly what helps. Completely free, student-led, and focused on building coping skills together.",                            detail:'Free, student-led sessions',       phone:'(217) 333-3704', color:'#d97706' },
+      breathing: { level:4, icon:'🌬️', title:'Breathing Exercise',  sub:'4-7-8 technique · takes 2 min',      desc:"Inhale for 4 seconds, hold for 7, exhale slowly for 8. Repeat 3 times. This activates your parasympathetic nervous system — the body's built-in calm response. You can do it right now, anywhere.",                                                     detail:'Inhale 4s · Hold 7s · Exhale 8s',  phone:null,             color:'#0891b2' },
+      odos:      { level:3, icon:'🎓', title:'Dean of Students',     sub:'Academic & personal advocacy',       desc:"If stress or a difficult situation is affecting your classes, the Dean of Students office can arrange extensions, incomplete grades, or formal accommodations — and advocate on your behalf with professors.",                                               detail:'Turner Student Services Bldg',     phone:'(217) 333-0050', color:'#be185d' },
     };
 
     function ResourceCard({ res, SF }) {
+      const BADGE = { 1:['URGENT','#dc2626','rgba(254,226,226,0.95)'], 2:['START HERE','#7c3aed','rgba(237,233,254,0.95)'], 3:['RECOMMENDED','#059669','rgba(209,250,229,0.95)'], 4:['HELPFUL','#0891b2','rgba(224,242,254,0.95)'] };
+      const [bLabel, bText, bBg] = BADGE[res.level] || BADGE[3];
       return (
-        <div style={{ marginLeft:36, maxWidth:'84%', background:'rgba(255,255,255,0.94)', borderRadius:14, overflow:'hidden', boxShadow:'0 1px 8px rgba(20,20,19,0.07)', border:'1px solid rgba(20,20,19,0.055)', display:'flex' }}>
+        <div style={{ marginLeft:36, maxWidth:'86%', background:'rgba(255,255,255,0.96)', borderRadius:16, overflow:'hidden', boxShadow:'0 2px 14px rgba(20,20,19,0.09)', border:'1px solid rgba(20,20,19,0.06)', display:'flex' }}>
           {/* Left accent bar */}
           <div style={{ width:3, background:res.color, flexShrink:0 }} />
-          <div style={{ flex:1, padding:'10px 12px' }}>
-            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:8 }}>
-              <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                {/* Icon circle */}
-                <div style={{ width:32, height:32, borderRadius:10, background:`${res.color}18`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                  <span style={{ fontSize:16, lineHeight:1 }}>{res.icon}</span>
+          <div style={{ flex:1, padding:'11px 13px' }}>
+            {/* Header: icon + title + badge */}
+            <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:8 }}>
+              <div style={{ display:'flex', alignItems:'center', gap:9 }}>
+                <div style={{ width:34, height:34, borderRadius:10, background:`${res.color}18`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                  <span style={{ fontSize:17, lineHeight:1 }}>{res.icon}</span>
                 </div>
                 <div>
-                  <p style={{ margin:0, fontSize:12.5, fontWeight:700, color:'#141413', fontFamily:SF, letterSpacing:'-0.15px', lineHeight:1.3 }}>{res.title}</p>
-                  <p style={{ margin:0, fontSize:11, color:'rgba(20,20,19,0.5)', fontFamily:SF, lineHeight:1.3 }}>{res.sub}</p>
+                  <p style={{ margin:0, fontSize:13, fontWeight:700, color:'#141413', fontFamily:SF, letterSpacing:'-0.2px', lineHeight:1.3 }}>{res.title}</p>
+                  <p style={{ margin:0, fontSize:11, color:'rgba(20,20,19,0.48)', fontFamily:SF, lineHeight:1.3 }}>{res.sub}</p>
                 </div>
               </div>
+              {/* Priority badge */}
+              <div style={{ flexShrink:0, background:bBg, borderRadius:99, padding:'3px 8px', marginTop:1 }}>
+                <span style={{ fontSize:9, fontWeight:800, color:bText, fontFamily:SF, letterSpacing:'0.5px' }}>{bLabel}</span>
+              </div>
+            </div>
+            {/* Description */}
+            {res.desc && (
+              <p style={{ margin:'9px 0 0', fontSize:11.5, color:'rgba(20,20,19,0.58)', fontFamily:SF, lineHeight:1.55 }}>{res.desc}</p>
+            )}
+            {/* Footer: detail + call button */}
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginTop:10, gap:8 }}>
+              <p style={{ margin:0, fontSize:10, color:'rgba(20,20,19,0.36)', fontFamily:SF, letterSpacing:'0.1px', lineHeight:1.4 }}>{res.detail}</p>
               {res.phone && (
-                <div style={{ flexShrink:0, display:'flex', alignItems:'center', gap:4, background:res.color, borderRadius:99, padding:'5px 10px', cursor:'pointer' }}>
+                <div style={{ flexShrink:0, display:'flex', alignItems:'center', gap:4, background:res.color, borderRadius:99, padding:'5px 11px', cursor:'pointer', boxShadow:`0 2px 8px ${res.color}44` }}>
                   <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.81a19.79 19.79 0 01-3.07-8.63A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.18 6.18l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
                   <span style={{ fontSize:11, fontWeight:700, color:'white', fontFamily:SF, whiteSpace:'nowrap' }}>{res.phone}</span>
                 </div>
               )}
             </div>
-            <p style={{ margin:'6px 0 0', fontSize:10.5, color:'rgba(20,20,19,0.42)', fontFamily:SF, letterSpacing:'0.1px' }}>{res.detail}</p>
           </div>
         </div>
       );
@@ -3268,8 +3281,9 @@
         { from:'ai', text:`Hey ${userName} 💙 No pressure, no judgment — I'm just here to listen. What's going on for you today?` },
       ]);
       const [typing, setTyping] = useState(false);
-      const [chips, setChips] = useState(["I've been anxious","Feeling really overwhelmed","I feel so alone","I need to vent"]);
+      const [chips, setChips] = useState(["I've been anxious","I'm overwhelmed","I can't sleep","Something happened","I feel alone","I just need to vent"]);
       const [turn, setTurn] = useState(0);
+      const [lastIntent, setLastIntent] = useState(null);
       const [widgetAnswers, setWidgetAnswers] = useState({});
       const widgetCount = useRef(0);
       const messagesRef = useRef(null);
@@ -3296,7 +3310,21 @@
         default:     { text: "I hear you. Thank you for trusting me with that. How intense does this feeling get for you day to day?", widget:{ type:'scale' }, chips: ["It affects my sleep","It's hard to focus","I isolate myself","I just feel really numb"] },
       };
 
-      /* Phase 2 — gentle resource suggestion, woven naturally */
+      /* Phase 2 — dig deeper, one specific follow-up before resources */
+      const DEEPEN = {
+        crisis:      { text: "I hear you — and I'm not going anywhere. You don't have to have the perfect words. Right now, in this moment — are you somewhere safe?", chips: ["Yes, I'm safe right now","I'm home but struggling","I'm not sure how I feel","I need help right now"] },
+        anxiety:     { text: "I'm curious — when the anxiety shows up, does it tend to live more in your head (thoughts spiraling, imagining worst-case), or does it get physical too, like tension in your chest or that restless, can't-sit-still feeling?", widget:{ type:'tags', label:'Where does it show up?', options:["Racing, looping thoughts","Tight chest or shallow breath","Restless — can't sit still","Hard to focus on anything","Sudden dread for no reason","All of the above, honestly"] }, chips: ["Mostly in my head — thoughts spiral","Physical — chest, stomach, restless","Both at the same time","It's hard to put into words"] },
+        overwhelmed: { text: "That makes sense. When everything piles up like this — do you tend to shut down and go quiet, or does it come out more as anxious energy, where you can't stop thinking but also can't start anything?", chips: ["I shut down and go numb","I get anxious and can't settle","Both, depending on the day","I honestly don't know anymore"] },
+        lonely:      { text: "I hear you. Is there someone specific you wish you felt closer to — a friend, family, anyone — or does it feel more like a general ache, like something important is just missing?", chips: ["There is someone specific","More of a general feeling","I've kind of stopped trying","I'm not sure what I even need"] },
+        sleep:       { text: "When you're lying there and can't sleep — what tends to take over? Is it a specific worry circling your mind, or more like your brain just refuses to power down?", chips: ["A specific worry I can't shake","Replaying things from the day","Nothing specific — mind just won't stop","More physical — body just can't relax"] },
+        academic:    { text: "That pressure is so real. When you imagine things not working out — what's the part that scares you most?", chips: ["Failing a class or exam","Disappointing my family","Losing a scholarship or opportunity","I just can't see a way forward"] },
+        resources:   { text: "Of course — before I share, is there something specific going on for you, or are you more just exploring what's out there?", chips: ["Something specific is going on","I just want to know my options","It's for a friend actually","I think I might need therapy"] },
+        caps:        { text: "That's a good step to be thinking about. What's drawing you toward CAPS right now — has something been happening, or is it more of a 'just in case' kind of feeling?", chips: ["Something has been going on","I've been struggling for a while","More of a 'just in case'","I'd rather start with Let's Talk"] },
+        better:      { text: "That's really good to hear 💜 Do you feel like you have enough support around you to keep feeling that way — or is it still a bit fragile?", chips: ["I think I do have support","It feels a bit fragile","Not sure — it could shift","I just needed to get it out"] },
+        default:     { text: "I want to make sure I really understand what you're going through. When you're in the middle of it — does it feel more like a heavy weight (numb, sad, withdrawn), or more like anxious restlessness you can't shake?", widget:{ type:'tags', label:'How does it tend to feel?', options:["Heavy, numb, withdrawn","Anxious and restless","Sad, like something is missing","Angry or frustrated","Empty — like nothing matters","It shifts all the time"] }, chips: ["Heavy and numb","Anxious and on edge","Sad and withdrawn","It shifts constantly"] },
+      };
+
+      /* Phase 3 — gentle resource suggestion, woven naturally */
       const SUPPORT = {
         crisis:      { text: "Thank you for telling me that. Please know that right now, this very second, there are real people ready to talk — no wait, no judgment, completely confidential. You deserve that support.", resources:[R.crisis, R.text741, R.caps], chips:["How do I call 988?","Tell me about CAPS","I'm not sure I'm ready"] },
         anxiety:     { text: "What you're describing is real, and you deserve actual support — not just tips. CAPS at UIUC is free and confidential, and Let's Talk is a drop-in if you want to ease in without committing to full therapy. There's also a quick breathing technique that can help right now.", resources:[R.caps, R.letsTalk, R.breathing], chips:["How do I book CAPS?","What is Let's Talk exactly?","Try the breathing exercise with me"] },
@@ -3340,8 +3368,14 @@
         const intent = detectIntent(text);
         const isCrisis = intent === 'crisis';
         const wantsResources = /resource|caps|counseling|help.{0,10}now|urgent|let.?s talk/.test(text.toLowerCase());
-        const useSupport = isCrisis || wantsResources || newTurn >= 2;
-        const resp = useSupport ? SUPPORT[intent] : LISTEN[intent];
+        const useSupport = isCrisis || wantsResources || newTurn >= 3;
+        const useDeepen  = !useSupport && newTurn === 2;
+        // For deepen/support, stay on the original thread from turn 1
+        const threadIntent = (useDeepen || useSupport) ? (lastIntent || intent) : intent;
+        setLastIntent(intent);
+        const resp = useSupport ? (SUPPORT[threadIntent] || SUPPORT.default)
+                   : useDeepen  ? (DEEPEN[threadIntent]  || DEEPEN.default)
+                   : (LISTEN[intent] || LISTEN.default);
         const delay = text.length < 20 ? 900 : 1500;
         setTimeout(() => {
           setTyping(false);
