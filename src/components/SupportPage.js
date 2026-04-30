@@ -37,12 +37,12 @@
 
       /* ── resources ── */
       const RESOURCES = [
-        { icon:'📞', title:'988 Lifeline',      sub:'Call or text 988 anytime',         bg:'#fff1f1', accent:'#e05555' },
-        { icon:'💬', title:'Crisis Text Line',  sub:'Text HOME to 741741',              bg:'#f1f6ff', accent:'#4a7ce8' },
-        { icon:'🏥', title:'CAPS Counseling',   sub:'Campus counseling services',       bg:'#f1fff4', accent:'#3cb872' },
-        { icon:'🌬️', title:'Breathing Exercise',sub:'4-7-8 guided breath session',     bg:'#f5f1ff', accent:'#8b5cf6' },
-        { icon:'📓', title:'Journaling Prompts',sub:'Reflective prompts to process',    bg:'#fffbf1', accent:'#d97706' },
-        { icon:'🤝', title:'Support Groups',    sub:'Find community near you',          bg:'#fff1fa', accent:'#c026d3' },
+        { icon:'📞', title:'988 Lifeline',      sub:'Call or text 988 anytime',         accent:'#e05555' },
+        { icon:'💬', title:'Crisis Text Line',  sub:'Text HOME to 741741',              accent:'#4a7ce8' },
+        { icon:'🏥', title:'CAPS Counseling',   sub:'Campus counseling services',       accent:'#3cb872' },
+        { icon:'🌬️', title:'Breathing Exercise',sub:'4-7-8 guided breath session',     accent:'#8b5cf6' },
+        { icon:'📓', title:'Journaling Prompts',sub:'Reflective prompts to process',    accent:'#d97706' },
+        { icon:'🤝', title:'Support Groups',    sub:'Find community near you',          accent:'#c026d3' },
       ];
 
       return (
@@ -57,7 +57,7 @@
           {voiceMode && <VoiceModeOverlay onClose={() => setVoiceMode(false)} />}
           {/* Type chat overlay */}
           {typeChat && <TypeChatPage onBack={() => { setTypeChat(false); setChatTopic(null); }} userName={userName} initialTopic={chatTopic} />}
-          {/* Shared warp filter — one instance, referenced by all GrainientBg canvases */}
+          {/* Shared warp filter */}
           <svg style={{ position:'absolute', width:0, height:0, overflow:'hidden' }}>
             <defs>
               <filter id="gw" x="-15%" y="-15%" width="130%" height="130%" colorInterpolationFilters="sRGB">
@@ -66,6 +66,7 @@
               </filter>
             </defs>
           </svg>
+
           {/* Sliding container */}
           <div style={{
             position:'absolute', top:0, left:0, width:390, height:844*3,
@@ -73,114 +74,186 @@
             transition:'transform 0.48s cubic-bezier(0.4,0,0.2,1)',
           }}>
 
-            {/* ══ SECTION 0 — AI CHAT ══ */}
+            {/* ══ SECTION 0 — AI CHAT (Figma 269:1749 pixel-accurate) ══ */}
             <div style={{ position:'relative', width:390, height:844, overflow:'hidden' }}>
-              <GrainientBg c1='#EDE5FF' c2='#C0AFF5' c3='#F2EEFF' speed={0.28} sat={0.38} />
-              {/* Subtle bottom fade — light not dark */}
-              <div style={{ position:'absolute', inset:0, background:'linear-gradient(to bottom, transparent 55%, rgba(240,235,255,0.45) 100%)', pointerEvents:'none', zIndex:1 }} />
+              {/* White canvas background */}
+              <div style={{ position:'absolute', inset:0, background:'#ffffff' }} />
+              {/* Warm bloom top-center */}
+              <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 70% 55% at 50% 8%, rgba(255,235,220,0.60) 0%, transparent 65%)' }} />
+              {/* Cool bloom bottom-right */}
+              <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 55% 45% at 85% 85%, rgba(220,210,255,0.28) 0%, transparent 65%)' }} />
 
-              {/* Top bar — home-style clean */}
+              {/* Edge fades — left 56px, right 56px */}
+              <div style={{ position:'absolute', top:0, left:0, width:56, height:'100%', background:'linear-gradient(to right, rgba(255,255,255,0.20), transparent)', zIndex:4, pointerEvents:'none' }} />
+              <div style={{ position:'absolute', top:0, right:0, width:56, height:'100%', background:'linear-gradient(to left, rgba(255,255,255,0.20), transparent)', zIndex:4, pointerEvents:'none' }} />
+
+              {/* ── Header (top:52 per Figma) ── */}
               <div style={{ position:'absolute', top:52, left:0, right:0, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 20px', zIndex:5 }}>
-                <div style={{ width:36 }} />
-                <div style={{ background:'rgba(255,255,255,0.88)', backdropFilter:'blur(16px)', padding:'7px 20px', borderRadius:22, border:'1px solid rgba(20,20,19,0.07)', boxShadow:'0 2px 8px rgba(20,20,19,0.05)' }}>
-                  <span style={{ color:'#141413', fontSize:13, fontWeight:700, fontFamily:'Sofia Sans,sans-serif' }}>AI Chat</span>
-                </div>
-                <div style={{ background:'rgba(255,255,255,0.88)', backdropFilter:'blur(16px)', width:36, height:36, borderRadius:18, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', border:'1px solid rgba(20,20,19,0.07)', boxShadow:'0 2px 8px rgba(20,20,19,0.05)' }}>
-                  <span style={{ color:'#141413', fontSize:13, letterSpacing:'1px' }}>···</span>
-                </div>
-              </div>
-
-              {/* Orb */}
-              <div style={{ position:'absolute', top:102, left:0, right:0, display:'flex', justifyContent:'center', zIndex:2 }}>
-                <div style={{ position:'relative', width:155, height:155 }}>
-                  {[0, 1.3, 2.6].map((delay, i) => (
-                    <div key={i} style={{ position:'absolute', inset:0, borderRadius:'50%', border:'1px solid rgba(160,130,230,0.18)', animation:`orbRipple 3.9s ease-out ${delay}s infinite`, pointerEvents:'none' }} />
-                  ))}
-                  <div style={{ position:'absolute', inset:-28, borderRadius:'50%', background:'radial-gradient(circle, rgba(160,130,240,0.16) 0%, transparent 68%)', animation:'orbBreath 5s ease-in-out infinite', pointerEvents:'none' }} />
-                  <div style={{ width:155, height:155, borderRadius:'50%', background:'rgba(255,255,255,0.72)', backdropFilter:'blur(22px) saturate(1.2)', WebkitBackdropFilter:'blur(22px) saturate(1.2)', border:'1px solid rgba(255,255,255,0.9)', boxShadow:'0 8px 40px rgba(120,90,220,0.12), 0 2px 0 rgba(255,255,255,0.9) inset', overflow:'hidden', position:'relative', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                    <div style={{ position:'absolute', inset:0, background:'rgba(255,255,255,0.28)', pointerEvents:'none' }} />
-                    <OrbCanvas />
-                    <div style={{ position:'absolute', top:'6%', left:'8%', width:'46%', height:'38%', borderRadius:'50%', background:'radial-gradient(circle, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.6) 45%, transparent 100%)', filter:'blur(5px)', pointerEvents:'none' }} />
-                    <div style={{ position:'absolute', bottom:'6%', right:'12%', width:'22%', height:'12%', borderRadius:'50%', background:'radial-gradient(circle, rgba(255,255,255,0.6) 0%, transparent 100%)', filter:'blur(3px)', pointerEvents:'none' }} />
-                    <div style={{ position:'absolute', inset:0, borderRadius:'inherit', background:'linear-gradient(145deg, rgba(255,255,255,0.22) 0%, transparent 45%)', pointerEvents:'none' }} />
-                  </div>
-                </div>
-              </div>
-
-              {/* Greeting */}
-              <div style={{ position:'absolute', top:265, left:28, right:28, zIndex:2 }}>
-                <p style={{ color:'rgba(20,20,19,0.42)', fontSize:13, fontWeight:600, margin:'0 0 4px', fontFamily:'Sofia Sans,sans-serif', letterSpacing:'0.2px' }}>Hey, {userName} 👋</p>
-                <p style={{ color:'#141413', fontSize:26, fontWeight:800, lineHeight:1.22, fontFamily:'Sofia Sans,sans-serif', letterSpacing:'-0.5px', margin:'0 0 14px' }}>Where should<br/>we start today?</p>
-                {/* Topic cards — horizontal swipe row */}
-                <div style={{ position:'relative' }}>
-                <div style={{ display:'flex', gap:10, overflowX:'auto', marginLeft:-28, marginRight:-28, paddingLeft:28, paddingRight:28, scrollbarWidth:'none', WebkitOverflowScrolling:'touch' }}>
-                  <style>{`.topic-scroll::-webkit-scrollbar{display:none}`}</style>
-                  {[
-                    { emoji:'😮‍💨', label:"I'm anxious",    tease:"What's keeping you on edge?",           color:'#9b72f5', bg:'rgba(155,114,245,0.09)', border:'rgba(155,114,245,0.22)', intent:"I've been feeling really anxious lately" },
-                    { emoji:'🫂',  label:"I feel lonely",   tease:"Tell me what connection feels missing",  color:'#60a5fa', bg:'rgba(96,165,250,0.09)',  border:'rgba(96,165,250,0.22)',  intent:"I feel really lonely" },
-                    { emoji:'🌀',  label:"I'm overwhelmed", tease:"Too much on your plate?",                color:'#f472b6', bg:'rgba(244,114,182,0.09)', border:'rgba(244,114,182,0.22)', intent:"I'm feeling overwhelmed by everything" },
-                    { emoji:'💬',  label:"Need to vent",    tease:"No filters, no judgment — just talk",    color:'#34d399', bg:'rgba(52,211,153,0.09)',  border:'rgba(52,211,153,0.22)',  intent:"I just need to vent about something" },
-                  ].map(t => (
-                    <div key={t.label}
-                      onClick={() => { setChatTopic(t.intent); setTypeChat(true); }}
-                      style={{ flexShrink:0, width:150, background:t.bg, border:`1.5px solid ${t.border}`, borderRadius:18, padding:'14px 13px 15px', cursor:'pointer', backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)', boxShadow:'0 2px 14px rgba(20,20,19,0.06)', display:'flex', flexDirection:'column', gap:6 }}>
-                      <span style={{ fontSize:24 }}>{t.emoji}</span>
-                      <p style={{ margin:0, fontSize:14, fontWeight:800, color:'#141413', fontFamily:'Sofia Sans,sans-serif', lineHeight:1.2, letterSpacing:'-0.2px' }}>{t.label}</p>
-                      <p style={{ margin:0, fontSize:11.5, color:'rgba(20,20,19,0.48)', fontFamily:'Sofia Sans,sans-serif', lineHeight:1.4 }}>{t.tease}</p>
-                      <div style={{ marginTop:2, height:2.5, width:22, borderRadius:99, background:t.color, opacity:0.7 }} />
+                {/* Back: white pill, p-10, 14×14 chevron */}
+                <div onClick={onBack} style={{ background:'white', borderRadius:99, padding:10, display:'inline-flex', alignItems:'center', justifyContent:'center', cursor:'pointer', boxShadow:'0 0 0 1px rgba(3,7,18,0.04), 0 2px 4px rgba(3,7,18,0.04)', flexShrink:0 }}>
+                  <div style={{ width:14, height:14, position:'relative', overflow:'hidden' }}>
+                    <div style={{ position:'absolute', top:'20.83%', bottom:'20.83%', left:'33.33%', right:'33.33%' }}>
+                      <img alt="" src={imgAiSolid} style={{ position:'absolute', inset:0, display:'block', width:'100%', height:'100%', maxWidth:'none' }} />
                     </div>
-                  ))}
-                  {/* trailing spacer so last card doesn't get clipped */}
-                  <div style={{ flexShrink:0, width:4 }} />
-                </div>
-                {/* left fade to white */}
-                <div style={{ position:'absolute', top:0, left:-28, bottom:0, width:56, background:'linear-gradient(to left, transparent, rgba(245,242,255,0.96))', pointerEvents:'none', zIndex:1 }} />
-                {/* right fade to white */}
-                <div style={{ position:'absolute', top:0, right:-28, bottom:0, width:56, background:'linear-gradient(to right, transparent, rgba(245,242,255,0.96))', pointerEvents:'none', zIndex:1 }} />
-                </div>
-              </div>
-
-              {/* Last session card — home card style */}
-              <div style={{ position:'absolute', bottom:190, left:28, right:28, zIndex:2 }}>
-                <div style={{ background:'rgba(255,255,255,0.90)', border:'1px solid rgba(20,20,19,0.07)', borderRadius:20, padding:'12px 16px', display:'flex', alignItems:'center', gap:12, boxShadow:'0 4px 24px rgba(20,20,19,0.06), 0 24px 48px rgba(20,20,19,0.04)' }}>
-                  <div style={{ width:32, height:32, borderRadius:16, background:'linear-gradient(135deg,#c8b4f8,#a890e8)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
                   </div>
-                  <div style={{ flex:1 }}>
-                    <p style={{ margin:0, fontSize:11, fontWeight:700, color:'rgba(20,20,19,0.4)', fontFamily:'Sofia Sans,sans-serif', letterSpacing:'0.5px', textTransform:'uppercase' }}>Continue last session</p>
-                    <p style={{ margin:'2px 0 0', fontSize:13, fontWeight:600, color:'#141413', fontFamily:'Sofia Sans,sans-serif' }}>Managing stress at work</p>
-                  </div>
-                  <div style={{ width:28, height:28, borderRadius:14, background:'rgba(20,20,19,0.05)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(20,20,19,0.4)" strokeWidth="2.5" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
+                </div>
+                {/* Title pill: w-83 h-35, rgba(255,255,255,0.88), r-22 */}
+                <div style={{ background:'rgba(255,255,255,0.88)', border:'1px solid rgba(20,20,19,0.07)', width:83, height:35, borderRadius:22, position:'relative', boxShadow:'0 2px 4px rgba(3,7,18,0.04)', flexShrink:0 }}>
+                  <span style={{ position:'absolute', left:20, top:9, color:'#141413', fontSize:13, fontWeight:700, fontFamily:'Sofia Sans,sans-serif', whiteSpace:'nowrap' }}>AI Chat</span>
+                </div>
+                {/* Dots menu: size-36, r-99, 18×18 icon */}
+                <div style={{ background:'white', width:36, height:36, borderRadius:99, display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 0 0 1px rgba(3,7,18,0.04), 0 2px 4px rgba(3,7,18,0.04)', overflow:'hidden', cursor:'pointer', flexShrink:0 }}>
+                  <div style={{ width:18, height:18, position:'relative', overflow:'hidden' }}>
+                    <div style={{ position:'absolute', top:'16.67%', bottom:'16.67%', left:'45.83%', right:'45.83%' }}>
+                      <div style={{ position:'absolute', top:'-6.25%', bottom:'-6.25%', left:'-50%', right:'-50%' }}>
+                        <img alt="" src={imgAiIcon} style={{ display:'block', width:'100%', height:'100%', maxWidth:'none' }} />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Type / Talk — home card style */}
-              <div style={{ position:'absolute', bottom:106, left:28, right:28, zIndex:2 }}>
-                <div style={{ display:'flex', borderRadius:28, overflow:'hidden', background:'rgba(255,255,255,0.90)', border:'1px solid rgba(20,20,19,0.07)', boxShadow:'0 4px 24px rgba(20,20,19,0.07), 0 24px 48px rgba(20,20,19,0.05)' }}>
-                  {/* Type */}
-                  <div onClick={() => setTypeChat(true)} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:6, padding:'18px 0', cursor:'pointer', borderRight:'1px solid rgba(20,20,19,0.06)' }}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(20,20,19,0.4)" strokeWidth="1.8" strokeLinecap="round">
-                      <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                      <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                    </svg>
-                    <span style={{ color:'rgba(20,20,19,0.4)', fontSize:12, fontFamily:'Sofia Sans,sans-serif', fontWeight:600, letterSpacing:'0.3px' }}>Type</span>
-                  </div>
-                  {/* Talk — accent */}
-                  <div onClick={() => setVoiceMode(true)} style={{ flex:1.4, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:6, padding:'18px 0', cursor:'pointer', background:'linear-gradient(135deg, rgba(180,155,248,0.14) 0%, rgba(150,120,240,0.08) 100%)' }}>
-                    <svg width="26" height="18" viewBox="0 0 26 18" fill="none">
-                      <rect x="0"  y="7" width="3" height="4"  rx="1.5" fill="rgba(110,80,200,0.4)"/>
-                      <rect x="5"  y="4" width="3" height="10" rx="1.5" fill="rgba(110,80,200,0.6)"/>
-                      <rect x="10" y="1" width="3" height="16" rx="1.5" fill="rgba(110,80,200,0.85)"/>
-                      <rect x="15" y="4" width="3" height="10" rx="1.5" fill="rgba(110,80,200,0.6)"/>
-                      <rect x="20" y="7" width="3" height="4"  rx="1.5" fill="rgba(110,80,200,0.4)"/>
-                      <rect x="23" y="6" width="3" height="6"  rx="1.5" fill="rgba(110,80,200,0.28)"/>
-                    </svg>
-                    <span style={{ color:'rgba(100,70,200,0.9)', fontSize:12, fontFamily:'Sofia Sans,sans-serif', fontWeight:700, letterSpacing:'0.3px' }}>Talk</span>
+              {/* ── Orb area (top:102) ── */}
+              <div style={{ position:'absolute', top:102, left:0, right:0, height:155, zIndex:2 }}>
+                {/* Pattern: 342.922×335, centered */}
+                <div style={{ position:'absolute', top:'calc(50% - 0.5px)', left:'calc(50% + 0.46px)', transform:'translate(-50%,-50%)', width:342.922, height:335, pointerEvents:'none' }}>
+                  <img alt="" src={imgAiPattern} style={{ width:'100%', height:'100%', display:'block' }} />
+                </div>
+                {/* Orb 155px wrapper: left:117.5 = (390-155)/2 */}
+                <div style={{ position:'absolute', left:117.5, top:0, width:155, height:155 }}>
+                  {/* Inner orb: 117.5px at offset 18.5px */}
+                  <div style={{ position:'absolute', top:18.5, left:18.5, width:117.5, height:117.5, borderRadius:58.75, background:'rgba(255,255,255,0.72)', border:'2px solid rgba(255,255,255,0.5)', boxShadow:'0 64px 250px 0 #ef8c5a, 0 24px 54px 0 rgba(255,255,255,0.10), 0 3px 120px 0 #ccebff', overflow:'hidden' }}>
+                    <div style={{ position:'absolute', top:-1.24, left:-1.24, width:115.984, height:115.984, background:'rgba(255,255,255,0.28)' }} />
+                    {/* MaskGroup: 102.242×75.127 at left:8 top:22 */}
+                    <div style={{ position:'absolute', top:22, left:8, width:102.242, height:75.127, overflow:'visible' }}>
+                      <img alt="" src={imgAiMaskGroup} style={{ position:'absolute', top:'-29.16%', left:'-21.43%', width:'142.86%', height:'158.32%', display:'block', maxWidth:'none' }} />
+                    </div>
+                    {/* Top-left highlight */}
+                    <div style={{ position:'absolute', top:5.76, left:8.17, width:53.065, height:43.968, filter:'blur(3.79px)', background:'radial-gradient(circle at center, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.6) 45%, transparent 100%)' }} />
+                    {/* Bottom-right highlight */}
+                    <div style={{ position:'absolute', top:94.01, left:75.18, width:25.774, height:13.645, filter:'blur(2.274px)', background:'radial-gradient(circle at center, rgba(255,255,255,0.6) 0%, transparent 100%)' }} />
+                    {/* Glass rim */}
+                    <div style={{ position:'absolute', top:-1.24, left:-1.24, width:115.984, height:115.984, borderRadius:57.992, background:'linear-gradient(145deg, rgba(255,255,255,0.22) 6.17%, rgba(255,255,255,0) 45.62%)' }} />
                   </div>
                 </div>
               </div>
+
+              {/* ── Greeting + cards (top:265, left:28, gap:9px) ── */}
+              <div style={{ position:'absolute', top:265, left:28, right:0, zIndex:3, display:'flex', flexDirection:'column', gap:9 }}>
+                {/* "Hey, Alex 👋" */}
+                <div style={{ height:21, position:'relative' }}>
+                  <p style={{ position:'absolute', top:4, left:0, margin:0, color:'rgba(20,20,19,0.42)', fontSize:13, fontWeight:600, fontFamily:'Sofia Sans,sans-serif', letterSpacing:'0.2px', whiteSpace:'nowrap' }}>Hey, {userName} 👋</p>
+                </div>
+                {/* "Where should we start today?" */}
+                <div style={{ height:62, position:'relative' }}>
+                  <div style={{ position:'absolute', top:-1, left:0, right:0 }}>
+                    <p style={{ margin:0, color:'#141413', fontSize:26, fontWeight:800, lineHeight:'31.72px', fontFamily:'Sofia Sans,sans-serif', letterSpacing:'-0.5px' }}>Where should</p>
+                    <p style={{ margin:0, color:'#141413', fontSize:26, fontWeight:800, lineHeight:'31.72px', fontFamily:'Sofia Sans,sans-serif', letterSpacing:'-0.5px' }}>we start today?</p>
+                  </div>
+                </div>
+
+                {/* Card carousel: gap-20, overflow-x scroll */}
+                <div style={{ display:'flex', gap:20, overflowX:'auto', paddingRight:28, paddingBottom:4 }} className="hide-scrollbar">
+
+                  {/* Card 1 — I'm anxious: p-20, inner 136×163, border-2 */}
+                  <div onClick={() => { setChatTopic("I've been feeling really anxious lately"); setTypeChat(true); }} style={{ position:'relative', width:176, flexShrink:0, borderRadius:22, overflow:'hidden', border:'2px solid rgba(255,255,255,0.5)', boxShadow:'0 64px 250px 0 rgba(239,140,90,0.6)', cursor:'pointer' }}>
+                    <div style={{ position:'absolute', inset:0, background:'linear-gradient(163.155deg,#6700e5 4.94%,#ff7e2d 89.60%)' }} />
+                    <div style={{ position:'absolute', inset:0, boxShadow:'inset 0 24px 54px rgba(255,255,255,0.10), inset 0 3px 120px #ccebff', pointerEvents:'none' }} />
+                    <div style={{ position:'relative', padding:20, height:203 }}>
+                      <div style={{ height:163, width:136, display:'flex', flexDirection:'column', alignItems:'flex-end', justifyContent:'space-between' }}>
+                        <div style={{ width:50, height:50, position:'relative', flexShrink:0 }}>
+                          <img alt="" src={imgAiBrutalism28} style={{ position:'absolute', inset:0, display:'block', width:'100%', height:'100%' }} />
+                        </div>
+                        <div style={{ display:'flex', flexDirection:'column', gap:20, alignSelf:'stretch' }}>
+                          <p style={{ margin:0, color:'white', fontSize:15, fontWeight:800, letterSpacing:'-0.3px', lineHeight:'17.25px', fontFamily:'Sofia Sans,sans-serif', whiteSpace:'nowrap' }}>I'm anxious</p>
+                          <p style={{ margin:0, color:'white', fontSize:10, fontWeight:400, lineHeight:'15px', fontFamily:'Sofia Sans,sans-serif', width:136 }}>The first sign is never obvious. It's quiet, then everything at once.</p>
+                        </div>
+                        <div style={{ alignSelf:'stretch', display:'flex', justifyContent:'flex-end' }}>
+                          <p style={{ margin:0, color:'white', fontSize:11, fontWeight:700, fontFamily:'Sofia Sans,sans-serif', textDecoration:'underline solid white', whiteSpace:'nowrap' }}>Start talking ↗</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card 2 — I feel lonely: w-176 h-203, py-18, inner 136×163 */}
+                  <div onClick={() => { setChatTopic("I feel really lonely"); setTypeChat(true); }} style={{ position:'relative', width:176, height:203, flexShrink:0, borderRadius:22, overflow:'hidden', border:'2px solid rgba(255,255,255,0.5)', boxShadow:'0 64px 120px 0 rgba(135,108,254,0.3)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <div style={{ position:'absolute', inset:0, background:'linear-gradient(163.155deg,#0099e5 4.94%,#622dff 89.60%)' }} />
+                    <div style={{ position:'absolute', inset:0, boxShadow:'inset 0 24px 54px rgba(255,255,255,0.10), inset 0 3px 120px #ccebff', pointerEvents:'none' }} />
+                    <div style={{ position:'relative', height:163, width:136, display:'flex', flexDirection:'column', alignItems:'flex-end', justifyContent:'space-between' }}>
+                      <div style={{ width:50, height:50, position:'relative', flexShrink:0 }}>
+                        <img alt="" src={imgAiBrutalism13} style={{ position:'absolute', inset:0, display:'block', width:'100%', height:'100%' }} />
+                      </div>
+                      <div style={{ display:'flex', flexDirection:'column', gap:20, alignSelf:'stretch' }}>
+                        <p style={{ margin:0, color:'white', fontSize:15, fontWeight:800, letterSpacing:'-0.3px', lineHeight:'17.25px', fontFamily:'Sofia Sans,sans-serif', whiteSpace:'nowrap' }}>I feel lonely</p>
+                        <p style={{ margin:0, color:'white', fontSize:10, fontWeight:400, lineHeight:'15px', fontFamily:'Sofia Sans,sans-serif', width:136 }}>Some feelings don't need a reason. They just need to be heard.</p>
+                      </div>
+                      <div style={{ alignSelf:'stretch', display:'flex', justifyContent:'flex-end' }}>
+                        <p style={{ margin:0, color:'white', fontSize:11, fontWeight:700, fontFamily:'Sofia Sans,sans-serif', textDecoration:'underline solid white', whiteSpace:'nowrap' }}>Start talking ↗</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card 3 — I'm overwhelmed: w-176 h-203, flex-1 inner 136×167 */}
+                  <div onClick={() => { setChatTopic("I'm feeling overwhelmed by everything"); setTypeChat(true); }} style={{ position:'relative', width:176, height:203, flexShrink:0, borderRadius:22, overflow:'hidden', border:'1px solid rgba(255,255,255,0.5)', boxShadow:'0 64px 120px 0 rgba(108,254,162,0.3)', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center' }}>
+                    <div style={{ position:'absolute', inset:0, background:'linear-gradient(163.155deg,#f8b841 4.94%,#2dff73 89.60%)' }} />
+                    <div style={{ position:'absolute', inset:0, boxShadow:'inset 0 24px 54px rgba(255,255,255,0.10), inset 0 3px 120px #ccebff', pointerEvents:'none' }} />
+                    <div style={{ position:'relative', flex:'1 0 0', width:'100%', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                      <div style={{ height:167, width:136, display:'flex', flexDirection:'column', alignItems:'flex-end', justifyContent:'space-between' }}>
+                        <div style={{ width:50, height:50, position:'relative', overflow:'hidden', flexShrink:0 }}>
+                          <div style={{ position:'absolute', top:'16.39%', bottom:'16.39%', left:'15.46%', right:'15.46%' }}>
+                            <img alt="" src={imgAiGroup} style={{ position:'absolute', inset:0, display:'block', width:'100%', height:'100%' }} />
+                          </div>
+                        </div>
+                        <div style={{ display:'flex', flexDirection:'column', gap:20, alignSelf:'stretch' }}>
+                          <p style={{ margin:0, color:'white', fontSize:15, fontWeight:800, letterSpacing:'-0.3px', lineHeight:'17.25px', fontFamily:'Sofia Sans,sans-serif', whiteSpace:'nowrap' }}>I'm overwhelmed</p>
+                          <p style={{ margin:0, color:'white', fontSize:10, fontWeight:400, lineHeight:'15px', fontFamily:'Sofia Sans,sans-serif', width:136 }}>When everything piles up at once. You don't have to hold it alone.</p>
+                        </div>
+                        <div style={{ alignSelf:'stretch', display:'flex', justifyContent:'flex-end' }}>
+                          <p style={{ margin:0, color:'white', fontSize:11, fontWeight:700, fontFamily:'Sofia Sans,sans-serif', textDecoration:'underline solid white', whiteSpace:'nowrap' }}>Start talking ↗</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card 4 — I need to vent: w-176 h-203, inner w-150 h-167 */}
+                  <div onClick={() => { setChatTopic("I just need to vent about something"); setTypeChat(true); }} style={{ position:'relative', width:176, height:203, flexShrink:0, borderRadius:22, overflow:'hidden', border:'1px solid rgba(255,255,255,0.5)', boxShadow:'0 64px 250px 0 rgba(239,140,90,0.6)', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center' }}>
+                    <div style={{ position:'absolute', inset:0, background:'linear-gradient(163.155deg,#f8b241 4.94%,#ff2d6c 89.60%)' }} />
+                    <div style={{ position:'absolute', inset:0, boxShadow:'inset 0 24px 54px rgba(255,255,255,0.10), inset 0 3px 120px #ccebff', pointerEvents:'none' }} />
+                    <div style={{ position:'relative', flex:'1 0 0', width:'100%', display:'flex', alignItems:'flex-end', justifyContent:'center' }}>
+                      <div style={{ height:167, width:150, display:'flex', flexDirection:'column', alignItems:'flex-end', justifyContent:'space-between' }}>
+                        <div style={{ width:33.847, height:34.814, position:'relative', flexShrink:0 }}>
+                          <img alt="" src={imgAiVector} style={{ position:'absolute', inset:0, display:'block', width:'100%', height:'100%' }} />
+                        </div>
+                        <div style={{ display:'flex', flexDirection:'column', gap:20, alignSelf:'stretch' }}>
+                          <p style={{ margin:0, color:'white', fontSize:15, fontWeight:800, letterSpacing:'-0.3px', lineHeight:'17.25px', fontFamily:'Sofia Sans,sans-serif', whiteSpace:'nowrap' }}>I need to vent</p>
+                          <p style={{ margin:0, color:'white', fontSize:10, fontWeight:400, lineHeight:'15px', fontFamily:'Sofia Sans,sans-serif', width:136 }}>No agenda. No advice. Just space to let it out.</p>
+                        </div>
+                        <div style={{ alignSelf:'stretch', display:'flex', justifyContent:'flex-end' }}>
+                          <p style={{ margin:0, color:'white', fontSize:11, fontWeight:700, fontFamily:'Sofia Sans,sans-serif', textDecoration:'underline solid white', whiteSpace:'nowrap' }}>Start talking ↗</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              {/* ── Start Chat button (top:596.5 per Figma, centered) ── */}
+              <div style={{ position:'absolute', top:597, left:0, right:0, display:'flex', justifyContent:'center', zIndex:4 }}>
+                <div onClick={() => setTypeChat(true)} style={{ background:'white', display:'inline-flex', alignItems:'center', gap:4, padding:'8px 10px', borderRadius:99, boxShadow:'0 0 0 1px rgba(3,7,18,0.04), 0 2px 4px rgba(3,7,18,0.04)', cursor:'pointer', overflow:'hidden' }}>
+                  <div style={{ width:14, height:14, position:'relative', overflow:'hidden', flexShrink:0 }}>
+                    <div style={{ position:'absolute', top:'20.83%', bottom:'20.83%', left:'20.83%', right:'20.83%' }}>
+                      <div style={{ position:'absolute', top:'-9.18%', bottom:'-9.18%', left:'-9.18%', right:'-9.18%' }}>
+                        <img alt="" src={imgAiPlus} style={{ display:'block', width:'100%', height:'100%', maxWidth:'none' }} />
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ display:'flex', alignItems:'center', justifyContent:'center', paddingLeft:2, paddingRight:2 }}>
+                    <span style={{ color:'black', fontSize:12, fontWeight:400, fontFamily:'Sofia Sans,sans-serif', letterSpacing:'-0.096px', lineHeight:1, whiteSpace:'nowrap' }}>Start Chat</span>
+                  </div>
+                </div>
+              </div>
+
             </div>
 
             {/* ══ SECTION 1 — PEER SUPPORT ══ */}
@@ -277,27 +350,25 @@
 
           </div>{/* end sliding container */}
 
-          {/* Section indicator — right edge */}
-          <div style={{ position:'absolute', right:14, top:'50%', transform:'translateY(-50%)', display:'flex', flexDirection:'column', gap:7, zIndex:210, pointerEvents:'none' }}>
-            {SECTIONS.map((_, i) => (
-              <div key={i} style={{
-                width:4,
-                height: i === section ? 26 : 8,
-                background: i === section ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.38)',
-                borderRadius:99,
-                transition:'all 0.32s ease',
-                filter: i === section ? 'drop-shadow(0 0 4px rgba(255,255,255,0.6))' : 'none',
-              }} />
-            ))}
+          {/* Section indicator — right edge; dark on white AI Chat bg, white on coloured sections */}
+          <div style={{ position:'absolute', right:12, top:'50%', transform:'translateY(-50%)', display:'flex', flexDirection:'column', gap:7, zIndex:210, pointerEvents:'none' }}>
+            {SECTIONS.map((_, i) => {
+              const onWhite = section === 0;
+              const active  = i === section;
+              return (
+                <div key={i} style={{
+                  width:4,
+                  height: active ? 26 : 8,
+                  background: active
+                    ? (onWhite ? 'rgba(20,20,19,0.55)' : 'rgba(255,255,255,0.9)')
+                    : (onWhite ? 'rgba(20,20,19,0.18)' : 'rgba(255,255,255,0.38)'),
+                  borderRadius:99,
+                  transition:'all 0.32s ease',
+                  filter: active && !onWhite ? 'drop-shadow(0 0 4px rgba(255,255,255,0.6))' : 'none',
+                }} />
+              );
+            })}
           </div>
-
-          {/* Swipe hint — sits in the right-center, out of the way */}
-          {section === 0 && !voiceMode && (
-            <div style={{ position:'absolute', right:14, top:'50%', transform:'translateY(-50%)', display:'flex', flexDirection:'column', alignItems:'center', gap:4, zIndex:210, pointerEvents:'none', opacity:0.7 }}>
-              <svg width="10" height="14" viewBox="0 0 10 14" fill="none"><path d="M5 1v12M1 9l4 4 4-4" stroke="rgba(20,20,19,0.45)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              <span style={{ color:'rgba(20,20,19,0.4)', fontSize:9, fontFamily:'Sofia Sans,sans-serif', fontWeight:600, letterSpacing:'0.5px', writingMode:'vertical-rl', textOrientation:'mixed' }}>SWIPE</span>
-            </div>
-          )}
         </div>
       );
     }
