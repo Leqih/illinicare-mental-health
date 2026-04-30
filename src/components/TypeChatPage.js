@@ -295,20 +295,27 @@
           onTouchStart={e => e.stopPropagation()}
           onTouchEnd={e => e.stopPropagation()}
         >
-          {/* Orb + pattern — non-scrolling overlay at top, overflow:hidden clips shadow */}
-          <div style={{ position:'absolute', top:0, left:0, right:0, height:270, zIndex:3, pointerEvents:'none', overflow:'hidden' }}>
-            <div style={{ position:'absolute', left:'50%', top:102, transform:'translateX(-50%)', width:343, height:335, opacity:0.45 }}>
-              <img alt="" src={imgTcPattern} style={{ width:'100%', height:'100%', objectFit:'contain', display:'block' }} />
+          {/* Orb + pattern — identical to SupportPage AI Chat landing */}
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:310, zIndex:3, pointerEvents:'none' }}>
+            {/* Pattern: 342.922×335, centered */}
+            <div style={{ position:'absolute', top:'calc(102px + 50% - 0.5px)', left:'calc(50% + 0.46px)', transform:'translate(-50%,-50%)', width:342.922, height:335, pointerEvents:'none' }}>
+              <img alt="" src={imgAiPattern} style={{ width:'100%', height:'100%', display:'block' }} />
             </div>
-            {/* Subtle ambient glow — contained within the overlay height */}
-            <div style={{ position:'absolute', left:'50%', top:160, transform:'translateX(-50%)', width:280, height:140, borderRadius:'50%', background:'radial-gradient(ellipse at center, rgba(239,140,90,0.18) 0%, rgba(204,235,255,0.12) 50%, transparent 100%)', filter:'blur(24px)' }} />
-            <div style={{ position:'absolute', left:'50%', top:102, transform:'translateX(-50%)', width:155, height:155 }}>
-              <div style={{ position:'absolute', left:18.5, top:18.5, width:117.5, height:117.5, borderRadius:58.75, background:'rgba(255,255,255,0.72)', border:'2px solid rgba(255,255,255,0.5)', overflow:'hidden', boxShadow:'0 8px 32px 0 rgba(239,140,90,0.28), 0 2px 12px 0 rgba(204,235,255,0.4)' }}>
-                <img alt="" src={imgTcOrbMask} style={{ position:'absolute', left:8, top:22, width:102, height:75, objectFit:'contain', display:'block' }} />
-                <div style={{ position:'absolute', inset:0, background:'linear-gradient(145deg,rgba(255,255,255,0.22) 6%,transparent 46%)', borderRadius:58.75 }} />
+            {/* Orb 155px wrapper */}
+            <div style={{ position:'absolute', top:102, left:117.5, width:155, height:155 }}>
+              {/* Inner orb: 117.5px at offset 18.5px — exact same as SupportPage */}
+              <div style={{ position:'absolute', top:18.5, left:18.5, width:117.5, height:117.5, borderRadius:58.75, background:'rgba(255,255,255,0.72)', border:'2px solid rgba(255,255,255,0.5)', boxShadow:'0 64px 250px 0 #ef8c5a, 0 24px 54px 0 rgba(255,255,255,0.10), 0 3px 120px 0 #ccebff', overflow:'hidden' }}>
+                <div style={{ position:'absolute', top:-1.24, left:-1.24, width:115.984, height:115.984, background:'rgba(255,255,255,0.28)' }} />
+                <div style={{ position:'absolute', top:22, left:8, width:102.242, height:75.127, overflow:'visible' }}>
+                  <img alt="" src={imgAiMaskGroup} style={{ position:'absolute', top:'-29.16%', left:'-21.43%', width:'142.86%', height:'158.32%', display:'block', maxWidth:'none' }} />
+                </div>
+                <div style={{ position:'absolute', top:5.76, left:8.17, width:53.065, height:43.968, filter:'blur(3.79px)', background:'radial-gradient(circle at center, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.6) 45%, transparent 100%)' }} />
+                <div style={{ position:'absolute', top:94.01, left:75.18, width:25.774, height:13.645, filter:'blur(2.274px)', background:'radial-gradient(circle at center, rgba(255,255,255,0.6) 0%, transparent 100%)' }} />
+                <div style={{ position:'absolute', top:-1.24, left:-1.24, width:115.984, height:115.984, borderRadius:57.992, background:'linear-gradient(145deg, rgba(255,255,255,0.22) 6.17%, rgba(255,255,255,0) 45.62%)' }} />
               </div>
             </div>
-            <div style={{ position:'absolute', bottom:0, left:0, right:0, height:60, background:'linear-gradient(to bottom,transparent,white)' }} />
+            {/* Fade to white — cuts the orange glow before reaching chat messages */}
+            <div style={{ position:'absolute', bottom:0, left:0, right:0, height:90, background:'linear-gradient(to bottom, transparent, white)' }} />
           </div>
 
           {/* Header */}
