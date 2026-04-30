@@ -321,7 +321,9 @@
           {/* Header */}
           <div style={{ position:'relative', zIndex:15, flexShrink:0, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'52px 20px 12px' }}>
             <div onClick={onBack} style={{ background:'white', borderRadius:99, width:34, height:34, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', flexShrink:0, boxShadow:'0 0 0 1px rgba(3,7,18,0.04),0 2px 4px rgba(3,7,18,0.04)' }}>
-              <img alt="" src={imgTcChevron} style={{ width:14, height:14, objectFit:'contain', display:'block' }} />
+              <svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7 1L1 7L7 13" stroke="#141413" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </div>
             <div style={{ background:'rgba(255,255,255,0.88)', backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)', padding:'9px 20px', borderRadius:22, border:'1px solid rgba(20,20,19,0.07)', boxShadow:'0 0 0 0 rgba(3,7,18,0.04),0 2px 4px rgba(3,7,18,0.04)' }}>
               <span style={{ color:'#141413', fontSize:13, fontWeight:700, fontFamily:SF }}>AI Chat</span>
@@ -339,10 +341,6 @@
 
           {/* Messages — scrolls under the orb overlay */}
           <div ref={messagesRef} style={{ position:'relative', zIndex:2, flex:1, overflowY:'auto', display:'flex', flexDirection:'column', gap:4, paddingTop:168, paddingLeft:20, paddingRight:20 }}>
-
-            <div style={{ alignSelf:'center', background:'rgba(0,0,0,0.04)', borderRadius:99, padding:'5px 14px', margin:'0 0 10px' }}>
-              <span style={{ fontSize:10.5, color:'rgba(20,20,19,0.40)', fontFamily:SF, fontWeight:500, letterSpacing:'0.1px' }}>🔒 What you share stays between us · here to listen, not judge</span>
-            </div>
 
             {messages.map((msg, i) => {
               const prevFrom = i > 0 ? messages[i-1].from : null;
