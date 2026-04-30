@@ -296,7 +296,7 @@
           onTouchEnd={e => e.stopPropagation()}
         >
           {/* Orb + pattern — identical to SupportPage AI Chat landing */}
-          <div style={{ position:'absolute', top:0, left:0, right:0, height:310, zIndex:3, pointerEvents:'none' }}>
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:370, zIndex:3, pointerEvents:'none' }}>
             {/* Pattern: 342.922×335, centered */}
             <div style={{ position:'absolute', top:'calc(102px + 50% - 0.5px)', left:'calc(50% + 0.46px)', transform:'translate(-50%,-50%)', width:342.922, height:335, pointerEvents:'none' }}>
               <img alt="" src={imgAiPattern} style={{ width:'100%', height:'100%', display:'block' }} />
@@ -314,8 +314,8 @@
                 <div style={{ position:'absolute', top:-1.24, left:-1.24, width:115.984, height:115.984, borderRadius:57.992, background:'linear-gradient(145deg, rgba(255,255,255,0.22) 6.17%, rgba(255,255,255,0) 45.62%)' }} />
               </div>
             </div>
-            {/* Fade to white — cuts the orange glow before reaching chat messages */}
-            <div style={{ position:'absolute', bottom:0, left:0, right:0, height:90, background:'linear-gradient(to bottom, transparent, white)' }} />
+            {/* Fade to white — extended to fully cut the orange shadow bleed */}
+            <div style={{ position:'absolute', bottom:0, left:0, right:0, height:160, background:'linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.7) 40%, white 70%)' }} />
           </div>
 
           {/* Header */}
@@ -340,7 +340,7 @@
           </div>
 
           {/* Messages — scrolls under the orb overlay */}
-          <div ref={messagesRef} style={{ position:'relative', zIndex:2, flex:1, overflowY:'auto', display:'flex', flexDirection:'column', gap:4, paddingTop:168, paddingLeft:20, paddingRight:20, background:'white' }}>
+          <div ref={messagesRef} style={{ position:'relative', zIndex:2, flex:1, overflowY:'auto', display:'flex', flexDirection:'column', gap:4, paddingTop:210, paddingLeft:20, paddingRight:20, background:'white' }}>
 
             {messages.map((msg, i) => {
               const prevFrom = i > 0 ? messages[i-1].from : null;
@@ -354,7 +354,11 @@
                     <div style={{ display:'flex', flexDirection:'column', gap:6, maxWidth:'88%' }}>
                       {isFirstInGroup && (
                         <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                          <img alt="" src={imgTcLogo} style={{ width:21, height:21, display:'block', flexShrink:0 }} />
+                          {/* Brutalism X logo — inline SVG, never expires */}
+                          <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink:0 }}>
+                            <rect width="21" height="21" rx="5" fill="#7C5CFC"/>
+                            <path d="M6 6L15 15M15 6L6 15" stroke="white" strokeWidth="2.2" strokeLinecap="round"/>
+                          </svg>
                           <span style={{ fontSize:14, fontWeight:500, color:'#0d0d12', fontFamily:ID, letterSpacing:-0.14, lineHeight:1.25 }}>Answer</span>
                         </div>
                       )}
