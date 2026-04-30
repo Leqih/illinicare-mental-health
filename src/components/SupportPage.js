@@ -83,14 +83,17 @@
               {/* Cool bloom bottom-right */}
               <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 55% 45% at 85% 85%, rgba(220,210,255,0.28) 0%, transparent 65%)' }} />
 
-              {/* Edge fades — left 56px, right 56px */}
-              <div style={{ position:'absolute', top:0, left:0, width:56, height:'100%', background:'linear-gradient(to right, rgba(255,255,255,0.20), transparent)', zIndex:4, pointerEvents:'none' }} />
-              <div style={{ position:'absolute', top:0, right:0, width:56, height:'100%', background:'linear-gradient(to left, rgba(255,255,255,0.20), transparent)', zIndex:4, pointerEvents:'none' }} />
+              {/* Left edge — blur layer + gradient layer separate (avoids mask+blur artifacts) */}
+              <div style={{ position:'absolute', top:0, left:0, width:80, height:'100%', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', WebkitMaskImage:'linear-gradient(to right, black 0%, transparent 100%)', maskImage:'linear-gradient(to right, black 0%, transparent 100%)', zIndex:10, pointerEvents:'none' }} />
+              <div style={{ position:'absolute', top:0, left:0, width:80, height:'100%', background:'linear-gradient(to right, rgba(255,255,255,0.80) 0%, rgba(255,255,255,0) 100%)', zIndex:11, pointerEvents:'none' }} />
+              {/* Right edge — blur layer + gradient layer separate */}
+              <div style={{ position:'absolute', top:0, right:0, width:80, height:'100%', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', WebkitMaskImage:'linear-gradient(to left, black 0%, transparent 100%)', maskImage:'linear-gradient(to left, black 0%, transparent 100%)', zIndex:10, pointerEvents:'none' }} />
+              <div style={{ position:'absolute', top:0, right:0, width:80, height:'100%', background:'linear-gradient(to left, rgba(255,255,255,0.80) 0%, rgba(255,255,255,0) 100%)', zIndex:11, pointerEvents:'none' }} />
 
               {/* ── Header (top:52 per Figma) ── */}
               <div style={{ position:'absolute', top:52, left:0, right:0, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 20px', zIndex:5 }}>
                 {/* Back: white pill, p-10, 14×14 chevron */}
-                <div onClick={onBack} style={{ background:'white', borderRadius:99, padding:10, display:'inline-flex', alignItems:'center', justifyContent:'center', cursor:'pointer', boxShadow:'0 0 0 1px rgba(3,7,18,0.04), 0 2px 4px rgba(3,7,18,0.04)', flexShrink:0 }}>
+                <div onClick={onBack} style={{ background:'rgba(255,255,255,0.88)', border:'1px solid rgba(20,20,19,0.07)', borderRadius:99, padding:10, display:'inline-flex', alignItems:'center', justifyContent:'center', cursor:'pointer', boxShadow:'0 2px 4px rgba(3,7,18,0.04)', flexShrink:0 }}>
                   <div style={{ width:14, height:14, position:'relative', overflow:'hidden' }}>
                     <div style={{ position:'absolute', top:'20.83%', bottom:'20.83%', left:'33.33%', right:'33.33%' }}>
                       <img alt="" src={imgAiSolid} style={{ position:'absolute', inset:0, display:'block', width:'100%', height:'100%', maxWidth:'none' }} />
@@ -102,7 +105,7 @@
                   <span style={{ position:'absolute', left:20, top:9, color:'#141413', fontSize:13, fontWeight:700, fontFamily:'Sofia Sans,sans-serif', whiteSpace:'nowrap' }}>AI Chat</span>
                 </div>
                 {/* Dots menu: size-36, r-99, 18×18 icon */}
-                <div style={{ background:'white', width:36, height:36, borderRadius:99, display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 0 0 1px rgba(3,7,18,0.04), 0 2px 4px rgba(3,7,18,0.04)', overflow:'hidden', cursor:'pointer', flexShrink:0 }}>
+                <div style={{ background:'rgba(255,255,255,0.88)', border:'1px solid rgba(20,20,19,0.07)', width:36, height:36, borderRadius:99, display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 2px 4px rgba(3,7,18,0.04)', overflow:'hidden', cursor:'pointer', flexShrink:0 }}>
                   <div style={{ width:18, height:18, position:'relative', overflow:'hidden' }}>
                     <div style={{ position:'absolute', top:'16.67%', bottom:'16.67%', left:'45.83%', right:'45.83%' }}>
                       <div style={{ position:'absolute', top:'-6.25%', bottom:'-6.25%', left:'-50%', right:'-50%' }}>
@@ -138,22 +141,23 @@
                 </div>
               </div>
 
-              {/* ── Greeting + cards (top:265, left:28, gap:9px) ── */}
-              <div style={{ position:'absolute', top:265, left:28, right:0, zIndex:3, display:'flex', flexDirection:'column', gap:9 }}>
-                {/* "Hey, Alex 👋" */}
+              {/* ── Greeting text — above gradient overlays ── */}
+              <div style={{ position:'absolute', top:265, left:28, right:28, zIndex:15 }}>
                 <div style={{ height:21, position:'relative' }}>
                   <p style={{ position:'absolute', top:4, left:0, margin:0, color:'rgba(20,20,19,0.42)', fontSize:13, fontWeight:600, fontFamily:'Sofia Sans,sans-serif', letterSpacing:'0.2px', whiteSpace:'nowrap' }}>Hey, {userName} 👋</p>
                 </div>
-                {/* "Where should we start today?" */}
+                <div style={{ height:9 }} />
                 <div style={{ height:62, position:'relative' }}>
                   <div style={{ position:'absolute', top:-1, left:0, right:0 }}>
                     <p style={{ margin:0, color:'#141413', fontSize:26, fontWeight:800, lineHeight:'31.72px', fontFamily:'Sofia Sans,sans-serif', letterSpacing:'-0.5px' }}>Where should</p>
                     <p style={{ margin:0, color:'#141413', fontSize:26, fontWeight:800, lineHeight:'31.72px', fontFamily:'Sofia Sans,sans-serif', letterSpacing:'-0.5px' }}>we start today?</p>
                   </div>
                 </div>
+              </div>
 
-                {/* Card carousel: gap-20, overflow-x scroll */}
-                <div style={{ display:'flex', gap:20, overflowX:'auto', paddingRight:28, paddingBottom:4 }} className="hide-scrollbar">
+              {/* ── Card carousel — below gradient overlays ── */}
+              <div style={{ position:'absolute', top:366, left:0, right:0, zIndex:3 }}>
+                <div style={{ display:'flex', gap:20, overflowX:'auto', paddingLeft:28, paddingRight:28, paddingBottom:320, marginBottom:-300, scrollbarWidth:'none', msOverflowStyle:'none' }} className="hide-scrollbar">
 
                   {/* Card 1 — I'm anxious: p-20, inner 136×163, border-2 */}
                   <div onClick={() => { setChatTopic("I've been feeling really anxious lately"); setTypeChat(true); }} style={{ position:'relative', width:176, flexShrink:0, borderRadius:22, overflow:'hidden', border:'2px solid rgba(255,255,255,0.5)', boxShadow:'0 64px 250px 0 rgba(239,140,90,0.6)', cursor:'pointer' }}>
