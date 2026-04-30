@@ -118,6 +118,20 @@
     const imgHandCoin     = 'https://www.figma.com/api/mcp/asset/efe99641-c062-43b3-8728-2fccd0ffd001';
     const imgShield       = 'https://www.figma.com/api/mcp/asset/0a3f8eef-c0d9-48ba-be17-57db77acec5c';
 
+    /* ── AI CHAT PAGE ASSETS (Figma node 269:1749) ── */
+    const imgAiPattern     = 'https://www.figma.com/api/mcp/asset/16cbefa9-f706-4ab9-9425-132f4c684263';
+    const imgAiMaskGroup   = 'https://www.figma.com/api/mcp/asset/5d712685-66e1-4298-8df5-4a45104d04b0';
+    const imgAiBrutalism28 = 'https://www.figma.com/api/mcp/asset/e6d0dc2d-e32b-4d7b-b101-5e565bc36d84';
+    const imgAiBrutalism13 = 'https://www.figma.com/api/mcp/asset/32f78ba1-0fc1-43d3-be3a-54ba47594e7d';
+    const imgAiGroup       = 'https://www.figma.com/api/mcp/asset/fedb352a-e85a-46da-ba6b-b56b863a6b57';
+    const imgAiVector      = 'https://www.figma.com/api/mcp/asset/8dfb4932-b649-4ccf-963c-f4e2b6cc5511';
+    const imgAiSolid       = 'https://www.figma.com/api/mcp/asset/86d55045-e7aa-4981-a677-fba2924f8092';
+    const imgAiIcon        = 'https://www.figma.com/api/mcp/asset/9a9d4563-8b12-4ec6-a30e-1692a24d773a';
+    const imgAiFrame32     = 'https://www.figma.com/api/mcp/asset/25171584-1a36-4ce6-963b-fbeabfe6da02';
+    const imgAiHandCoin    = 'https://www.figma.com/api/mcp/asset/86e4ae20-4982-4525-968b-c62fd5d1fda1';
+    const imgAiShield2     = 'https://www.figma.com/api/mcp/asset/9864da28-7b3c-479f-b4f6-38d58ad99238';
+    const imgAiPlus        = 'https://www.figma.com/api/mcp/asset/e200451b-8746-4093-b649-e51caf75433a';
+
     /* ── WAVEFORM HEIGHTS ── */
     const WAVES = [21,45,29,45,36,18,23,29,33,36,45,55,49,45,38,38,38,38,38];
 
