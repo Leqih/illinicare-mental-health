@@ -26,18 +26,19 @@
     };
     const LOG_MOOD_OPTIONS = ['Angry','Exhausted','Sad','Anxious','Boring','Good','Happy','Grateful'];
 
-    /* ── Animated WebGL shader gradient — soft, low-sat, luminous ── */
-    // All colors kept high-brightness (≥0.76) + low saturation for the
-    // atmospheric "light through haze" look from the reference.
+    /* ── Animated WebGL shader gradient — warm-to-cool 3D depth ── */
+    // Each mood: warm anchor + neutral + cool anchor.
+    // The warm/cool hue spread (even at low sat) creates the dimensional
+    // "peach → gold → lavender" look from the reference.
     const MOOD_GRADIENT_COLORS = {
-      Good:      [[0.79,0.93,0.79], [0.77,0.94,0.89], [0.86,0.96,0.82]],
-      Happy:     [[0.98,0.91,0.68], [0.99,0.87,0.74], [0.96,0.94,0.70]],
-      Grateful:  [[0.99,0.85,0.72], [0.97,0.79,0.80], [0.99,0.91,0.75]],
-      Sad:       [[0.77,0.84,0.98], [0.82,0.86,0.99], [0.83,0.80,0.97]],
-      Anxious:   [[0.98,0.82,0.90], [0.87,0.78,0.97], [0.98,0.88,0.93]],
-      Angry:     [[0.99,0.79,0.75], [0.97,0.75,0.80], [0.99,0.87,0.78]],
-      Exhausted: [[0.88,0.81,0.97], [0.83,0.79,0.96], [0.93,0.84,0.95]],
-      Boring:    [[0.77,0.96,0.94], [0.80,0.97,0.96], [0.83,0.97,0.99]],
+      Good:      [[0.92,0.95,0.80], [0.97,0.93,0.84], [0.80,0.87,0.97]],
+      Happy:     [[0.99,0.93,0.70], [0.99,0.88,0.78], [0.87,0.83,0.97]],
+      Grateful:  [[0.99,0.88,0.72], [0.98,0.85,0.82], [0.92,0.80,0.96]],
+      Sad:       [[0.84,0.88,0.99], [0.88,0.84,0.97], [0.97,0.88,0.92]],
+      Anxious:   [[0.99,0.83,0.87], [0.95,0.80,0.96], [0.84,0.78,0.98]],
+      Angry:     [[0.99,0.81,0.74], [0.99,0.89,0.80], [0.93,0.80,0.90]],
+      Exhausted: [[0.94,0.84,0.97], [0.82,0.80,0.97], [0.82,0.88,0.99]],
+      Boring:    [[0.78,0.96,0.90], [0.84,0.96,0.96], [0.82,0.86,0.99]],
     };
 
     function GradientCanvas({ mood, width = 340, height = 180 }) {
@@ -51,43 +52,42 @@
         if (!gl) return;
 
         const vs = `attribute vec2 a_pos; void main(){gl_Position=vec4(a_pos,0,1);}`;
-        // Shader: large-scale smooth blobs → mix with white → high brightness
-        // Slow drift (×0.14) for the barely-moving atmospheric feel
+        // Shader: two large spatial waves per axis, very slow (×0.11)
+        // The warm-to-cool color span does the 3D work; shader just moves them.
         const fs = `
           precision mediump float;
           uniform float u_time;
           uniform vec2 u_res;
           uniform vec3 u_c0, u_c1, u_c2;
 
-          // Smooth cubic interpolation
           float smooth3(float x){ return x*x*(3.0-2.0*x); }
 
           void main(){
             vec2 uv = gl_FragCoord.xy / u_res;
-            float t = u_time * 0.14;
+            float t = u_time * 0.11;
 
-            // Three very large-scale regions drifting slowly
-            float s0 = sin(uv.x*1.6 + t*0.8  + uv.y*0.7)*0.5 + 0.5;
-            float s1 = sin(uv.y*1.9 - t*0.55 + uv.x*1.1)*0.5 + 0.5;
-            float s2 = sin((uv.x*1.3 - uv.y*1.5) + t*0.7)*0.5 + 0.5;
+            // Large blobs with diagonal drift
+            float s0 = sin(uv.x*1.4 + uv.y*0.8 + t*0.9)*0.5 + 0.5;
+            float s1 = sin(uv.y*1.7 - uv.x*0.9 - t*0.6)*0.5 + 0.5;
+            float s2 = sin(uv.x*1.1 - uv.y*1.4 + t*0.75)*0.5 + 0.5;
 
-            // Cubic smooth for soft transitions
-            float w0 = smooth3(s0);
-            float w1 = smooth3(s1);
-            float w2 = smooth3(1.0 - s2);
-            float sum = w0 + w1 + w2 + 0.001;
+            // Smooth + sharpen contrast between blobs
+            float w0 = smooth3(smooth3(s0));
+            float w1 = smooth3(smooth3(s1));
+            float w2 = smooth3(smooth3(1.0 - s2));
+            float total = w0 + w1 + w2 + 0.001;
 
-            vec3 col = (u_c0*w0 + u_c1*w1 + u_c2*w2) / sum;
+            vec3 col = (u_c0*w0 + u_c1*w1 + u_c2*w2) / total;
 
-            // Mix with white to desaturate + boost luminosity (key to the look)
-            col = mix(col, vec3(1.0), 0.28);
+            // Less white mix so warm-cool colors remain visible
+            col = mix(col, vec3(1.0), 0.18);
 
-            // Soft top-center glow (light source illusion)
-            float glow = 1.0 - 0.18 * length(uv - vec2(0.5, 0.75)) * 2.0;
-            col *= glow;
+            // Soft diffuse light from top-left (matches reference photo)
+            float d = length(uv - vec2(0.2, 0.85));
+            col += vec3(0.04) * (1.0 - clamp(d * 1.8, 0.0, 1.0));
 
-            // Hard floor on brightness so it never goes dark
-            col = max(col, vec3(0.74));
+            // Brightness floor
+            col = max(col, vec3(0.76));
 
             gl_FragColor = vec4(col, 1.0);
           }
@@ -697,27 +697,27 @@
                   const NEGATIVE = ['Anxious','Sad','Angry','Exhausted','Boring'];
                   const isNeg = NEGATIVE.includes(savedMoodData.emotion);
                   return (
-                    /* Scrim */
-                    <div style={{ position:'absolute', inset:0, zIndex:500, display:'flex', alignItems:'center', justifyContent:'center', padding:'0 22px', borderRadius:'inherit' }}>
-                      {/* Blurred dark backdrop */}
-                      <div style={{ position:'absolute', inset:0, background:'rgba(8,6,18,0.50)', backdropFilter:'blur(8px)', WebkitBackdropFilter:'blur(8px)', borderRadius:'inherit' }} />
+                    /* Scrim — light frosted mist (not dark) so the mood wave shows through */
+                    <div style={{ position:'absolute', inset:0, zIndex:500, display:'flex', alignItems:'center', justifyContent:'center', padding:'0 20px', borderRadius:'inherit' }}>
+                      {/* Light frosted backdrop — lets the page gradient bleed through */}
+                      <div style={{ position:'absolute', inset:0, background:'rgba(235,232,248,0.52)', backdropFilter:'blur(14px)', WebkitBackdropFilter:'blur(14px)', borderRadius:'inherit' }} />
 
                       {/* Card */}
-                      <div style={{ position:'relative', width:'100%', borderRadius:32, overflow:'hidden', boxShadow:'0 1px 0 rgba(255,255,255,0.9) inset, 0 40px 80px rgba(0,0,0,0.28), 0 0 0 1px rgba(255,255,255,0.35)' }}>
+                      <div style={{ position:'relative', width:'100%', borderRadius:32, overflow:'hidden', boxShadow:'0 1px 0 rgba(255,255,255,1.0) inset, 0 32px 64px rgba(80,70,120,0.18), 0 0 0 1px rgba(255,255,255,0.55)' }}>
 
-                        {/* Gradient header — taller for more visual weight */}
-                        <div style={{ position:'relative', height:190 }}>
-                          <GradientCanvas mood={savedMoodData.emotion} height={190} />
-                          {/* Checkmark badge floating on gradient */}
+                        {/* Gradient header */}
+                        <div style={{ position:'relative', height:210 }}>
+                          <GradientCanvas mood={savedMoodData.emotion} height={210} />
+                          {/* Checkmark badge */}
                           <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center' }}>
-                            <div style={{ width:76, height:76, borderRadius:38, background:'rgba(255,255,255,0.32)', backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)', border:'1.5px solid rgba(255,255,255,0.75)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 8px 32px rgba(0,0,0,0.12), 0 1px 0 rgba(255,255,255,0.8) inset' }}>
-                              <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
-                                <path d="M6 15L12 21L24 10" stroke="rgba(40,40,40,0.75)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            <div style={{ width:80, height:80, borderRadius:40, background:'rgba(255,255,255,0.48)', backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)', border:'1.5px solid rgba(255,255,255,0.90)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 2px 0 rgba(255,255,255,0.9) inset, 0 12px 36px rgba(80,60,120,0.14)' }}>
+                              <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                                <path d="M6 14L11.5 19.5L22 9" stroke="rgba(30,28,50,0.65)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
                               </svg>
                             </div>
                           </div>
-                          {/* Soft fade into card body */}
-                          <div style={{ position:'absolute', bottom:0, left:0, right:0, height:52, background:'linear-gradient(to bottom, transparent, white)' }} />
+                          {/* Fade into card body */}
+                          <div style={{ position:'absolute', bottom:0, left:0, right:0, height:60, background:'linear-gradient(to bottom, transparent, white)' }} />
                         </div>
 
                         {/* Card body */}
