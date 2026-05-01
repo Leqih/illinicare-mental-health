@@ -106,12 +106,24 @@
     }
 
     /* ── SUPPORT PAGE ── */
-    function SupportPage({ onBack, userName }) {
+    function SupportPage({ onBack, userName, moodContext }) {
       const [section, setSection] = useState(0);
       const [voiceMode, setVoiceMode] = useState(false);
       const [typeChat, setTypeChat] = useState(false);
       const [chatTopic, setChatTopic] = useState(null);
+      const [chatMoodCtx, setChatMoodCtx] = useState(null);
       const [sidebarOpen, setSidebarOpen] = useState(false);
+      const moodOpenedRef = useRef(false);
+
+      /* Auto-open AI chat when navigated from mood log */
+      useEffect(() => {
+        if (moodContext && !moodOpenedRef.current) {
+          moodOpenedRef.current = true;
+          setChatMoodCtx(moodContext);
+          setChatTopic(null);
+          setTypeChat(true);
+        }
+      }, [moodContext]);
       const touchStartY = useRef(null);
       const mouseStartY = useRef(null);
       const SECTIONS = ['AI Chat', 'Peer Support', 'Resource Center'];
@@ -163,7 +175,7 @@
           {/* Voice mode overlay */}
           {voiceMode && <VoiceModeOverlay onClose={() => setVoiceMode(false)} />}
           {/* Type chat overlay */}
-          {typeChat && <TypeChatPage onBack={() => { setTypeChat(false); setChatTopic(null); }} userName={userName} initialTopic={chatTopic} />}
+          {typeChat && <TypeChatPage onBack={() => { setTypeChat(false); setChatTopic(null); setChatMoodCtx(null); }} userName={userName} initialTopic={chatMoodCtx ? null : chatTopic} moodContext={chatMoodCtx} />}
           {/* Shared warp filter */}
           <svg style={{ position:'absolute', width:0, height:0, overflow:'hidden' }}>
             <defs>
@@ -370,58 +382,90 @@
 
             {/* ══ SECTION 1 — PEER SUPPORT ══ */}
             <div style={{ position:'relative', width:390, height:844, overflow:'hidden' }}>
-              <div style={{ position:'absolute', inset:0, background:'#fff3ec' }} />
-              <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 90% 55% at 50% 10%, rgba(255,185,130,0.55) 0%, transparent 68%)' }} />
-              <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 60% 40% at 80% 80%, rgba(255,160,100,0.18) 0%, transparent 65%)' }} />
-              <div style={{ position:'absolute', inset:0, background:'linear-gradient(to bottom, transparent 55%, rgba(60,28,20,0.12) 100%)', pointerEvents:'none', zIndex:1 }} />
+              {/* Background — matches AI Chat white aesthetic */}
+              <div style={{ position:'absolute', inset:0, background:'#ffffff' }} />
+              <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 70% 50% at 50% 5%, rgba(220,210,255,0.50) 0%, transparent 65%)' }} />
+              <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 55% 40% at 85% 88%, rgba(255,235,220,0.30) 0%, transparent 65%)' }} />
+              {/* Edge frosted glass — same as AI Chat */}
+              <div style={{ position:'absolute', top:100, left:0, width:80, height:'calc(100% - 100px)', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', WebkitMaskImage:'linear-gradient(to right, black 0%, transparent 100%)', maskImage:'linear-gradient(to right, black 0%, transparent 100%)', zIndex:10, pointerEvents:'none' }} />
+              <div style={{ position:'absolute', top:100, left:0, width:80, height:'calc(100% - 100px)', background:'linear-gradient(to right, rgba(255,255,255,0.80) 0%, rgba(255,255,255,0) 100%)', zIndex:11, pointerEvents:'none' }} />
+              <div style={{ position:'absolute', top:100, right:0, width:80, height:'calc(100% - 100px)', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', WebkitMaskImage:'linear-gradient(to left, black 0%, transparent 100%)', maskImage:'linear-gradient(to left, black 0%, transparent 100%)', zIndex:10, pointerEvents:'none' }} />
+              <div style={{ position:'absolute', top:100, right:0, width:80, height:'calc(100% - 100px)', background:'linear-gradient(to left, rgba(255,255,255,0.80) 0%, rgba(255,255,255,0) 100%)', zIndex:11, pointerEvents:'none' }} />
 
-              {/* Top bar */}
-              <div style={{ position:'absolute', top:52, left:0, right:0, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 20px', zIndex:5 }}>
-                <div onClick={onBack} style={{ background:'rgba(255,237,229,0.72)', backdropFilter:'blur(12px)', width:36, height:36, borderRadius:18, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', border:'1px solid rgba(20,20,19,0.06)' }}>
-                  <span style={{ color:'#141413', fontSize:20, lineHeight:1, marginTop:-1 }}>‹</span>
+              {/* Header — same pill style as AI Chat */}
+              <div style={{ position:'absolute', top:52, left:0, right:0, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 20px', zIndex:15 }}>
+                <div onClick={onBack} style={{ background:'rgba(255,255,255,0.88)', border:'1px solid rgba(20,20,19,0.07)', borderRadius:99, width:34, height:34, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', boxShadow:'0 2px 4px rgba(3,7,18,0.04)', flexShrink:0 }}>
+                  <svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 1L1 7L7 13" stroke="#141413" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
                 </div>
-                <div style={{ background:'rgba(255,237,229,0.72)', backdropFilter:'blur(12px)', padding:'6px 16px', borderRadius:20, border:'1px solid rgba(20,20,19,0.06)' }}>
+                <div style={{ background:'rgba(255,255,255,0.88)', border:'1px solid rgba(20,20,19,0.07)', padding:'9px 20px', borderRadius:22, boxShadow:'0 2px 4px rgba(3,7,18,0.04)' }}>
                   <span style={{ color:'#141413', fontSize:13, fontWeight:700, fontFamily:'Sofia Sans,sans-serif' }}>Peer Support</span>
                 </div>
-                <div style={{ width:36 }} />
+                <div style={{ width:34 }} />
               </div>
 
-              {/* Header */}
-              <div style={{ position:'absolute', top:120, left:28, right:28, zIndex:2 }}>
-                <p style={{ color:'rgba(20,20,19,0.45)', fontSize:13, fontWeight:600, margin:'0 0 4px', fontFamily:'Sofia Sans,sans-serif', letterSpacing:'0.5px', textTransform:'uppercase' }}>Community</p>
-                <p style={{ color:'#141413', fontSize:24, fontWeight:700, fontFamily:'Sofia Sans,sans-serif', margin:0 }}>Connect with peers<br/>who truly get it</p>
+              {/* Mini orb — smaller version of AI Chat orb, purple tint */}
+              <div style={{ position:'absolute', top:108, left:0, right:0, display:'flex', justifyContent:'center', zIndex:2, pointerEvents:'none' }}>
+                <div style={{ width:80, height:80, borderRadius:40, background:'rgba(255,255,255,0.72)', border:'1.5px solid rgba(255,255,255,0.5)', boxShadow:'0 24px 80px 0 rgba(124,92,252,0.38), 0 8px 28px 0 rgba(255,255,255,0.10), 0 2px 60px 0 #ccebff', overflow:'hidden', position:'relative' }}>
+                  <div style={{ position:'absolute', inset:0, background:'rgba(255,255,255,0.28)' }} />
+                  <div style={{ position:'absolute', top:'28%', left:'10%', width:'80%', height:'65%', overflow:'visible' }}>
+                    <img alt="" src={imgAiMaskGroup} style={{ position:'absolute', top:'-30%', left:'-22%', width:'144%', height:'160%', display:'block', maxWidth:'none' }} />
+                  </div>
+                  <div style={{ position:'absolute', top:'5%', left:'8%', width:'45%', height:'40%', filter:'blur(3px)', background:'radial-gradient(circle at center, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.5) 45%, transparent 100%)' }} />
+                  <div style={{ position:'absolute', inset:0, borderRadius:40, background:'linear-gradient(145deg, rgba(255,255,255,0.22) 6%, rgba(255,255,255,0) 46%)' }} />
+                </div>
+              </div>
+
+              {/* Section title */}
+              <div style={{ position:'absolute', top:208, left:28, right:28, zIndex:2 }}>
+                <p style={{ color:'rgba(20,20,19,0.4)', fontSize:11, fontWeight:700, margin:'0 0 4px', fontFamily:'Sofia Sans,sans-serif', letterSpacing:'1px', textTransform:'uppercase' }}>Community</p>
+                <p style={{ color:'#141413', fontSize:22, fontWeight:700, fontFamily:'Sofia Sans,sans-serif', margin:0, lineHeight:1.25 }}>Connect with peers<br/>who truly get it</p>
               </div>
 
               {/* Peer cards */}
-              <div style={{ position:'absolute', top:225, left:22, right:22, display:'flex', flexDirection:'column', gap:10, zIndex:2 }}>
-                {PEERS.map(({ name, tag, status, color, initial }) => (
-                  <div key={name} style={{ background:'rgba(255,237,229,0.72)', backdropFilter:'blur(14px)', borderRadius:18, padding:'12px 16px', display:'flex', alignItems:'center', gap:14, border:'1px solid rgba(20,20,19,0.06)', boxShadow:'0 2px 12px rgba(20,20,19,0.05)' }}>
-                    <div style={{ width:44, height:44, borderRadius:22, background:color, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                      <span style={{ fontSize:17, fontWeight:700, color:'rgba(20,20,19,0.6)', fontFamily:'Sofia Sans,sans-serif' }}>{initial}</span>
-                    </div>
-                    <div style={{ flex:1, minWidth:0 }}>
-                      <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                        <span style={{ fontSize:14, fontWeight:700, color:'#141413', fontFamily:'Sofia Sans,sans-serif' }}>{name}</span>
-                        <span style={{ background:'rgba(20,20,19,0.07)', padding:'2px 8px', borderRadius:99, fontSize:10, fontWeight:600, color:'rgba(20,20,19,0.55)', fontFamily:'Sofia Sans,sans-serif' }}>{tag}</span>
+              <div style={{ position:'absolute', top:300, left:22, right:22, display:'flex', flexDirection:'column', gap:9, zIndex:2 }}>
+                {PEERS.map(({ name, tag, status, color, initial }) => {
+                  const isOnline = status === 'Online now';
+                  return (
+                    <div key={name} style={{ background:'rgba(255,255,255,0.88)', backdropFilter:'blur(14px)', WebkitBackdropFilter:'blur(14px)', borderRadius:18, padding:'11px 14px', display:'flex', alignItems:'center', gap:12, border:'1px solid rgba(20,20,19,0.06)', boxShadow:'0 1px 8px rgba(20,20,19,0.05)' }}>
+                      {/* Avatar with online dot */}
+                      <div style={{ position:'relative', flexShrink:0 }}>
+                        <div style={{ width:42, height:42, borderRadius:21, background:color, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                          <span style={{ fontSize:16, fontWeight:700, color:'rgba(20,20,19,0.65)', fontFamily:'Sofia Sans,sans-serif' }}>{initial}</span>
+                        </div>
+                        {isOnline && <div style={{ position:'absolute', bottom:1, right:1, width:10, height:10, borderRadius:5, background:'#22c55e', border:'2px solid white' }} />}
                       </div>
-                      <span style={{ fontSize:12, color:'rgba(20,20,19,0.4)', fontFamily:'Sofia Sans,sans-serif' }}>{status}</span>
+                      {/* Info */}
+                      <div style={{ flex:1, minWidth:0 }}>
+                        <div style={{ display:'flex', alignItems:'center', gap:7, marginBottom:2 }}>
+                          <span style={{ fontSize:13, fontWeight:700, color:'#141413', fontFamily:'Sofia Sans,sans-serif' }}>{name}</span>
+                          <span style={{ background:'rgba(124,92,252,0.10)', padding:'2px 8px', borderRadius:99, fontSize:10, fontWeight:700, color:'#7C5CFC', fontFamily:'Sofia Sans,sans-serif' }}>{tag}</span>
+                        </div>
+                        <span style={{ fontSize:11.5, color: isOnline ? '#22c55e' : 'rgba(20,20,19,0.38)', fontFamily:'Sofia Sans,sans-serif', fontWeight: isOnline ? 600 : 400 }}>{status}</span>
+                      </div>
+                      {/* Chat button */}
+                      <div style={{ width:32, height:32, borderRadius:16, background:'rgba(124,92,252,0.08)', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', flexShrink:0 }}>
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 1H2C1.45 1 1 1.45 1 2V9C1 9.55 1.45 10 2 10H4L6.5 13L9 10H12C12.55 10 13 9.55 13 9V2C13 1.45 12.55 1 12 1Z" stroke="#7C5CFC" strokeWidth="1.3" strokeLinejoin="round"/>
+                        </svg>
+                      </div>
                     </div>
-                    <div style={{ width:32, height:32, borderRadius:16, background:'white', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', flexShrink:0 }}>
-                      <img alt="" src={imgPeerChatBtn} style={{ width:14, height:14, display:'block', objectFit:'contain' }} />
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
-              {/* CTA */}
+              {/* CTA — dark button with arrow inline SVG */}
               <div style={{ position:'absolute', bottom:115, left:28, right:28, zIndex:2 }}>
-                <div style={{ background:'#141413', borderRadius:18, padding:'16px 24px', display:'flex', alignItems:'center', justifyContent:'space-between', cursor:'pointer', boxShadow:'0 8px 24px rgba(20,20,19,0.18)' }}>
+                <div style={{ background:'#141413', borderRadius:18, padding:'16px 22px', display:'flex', alignItems:'center', justifyContent:'space-between', cursor:'pointer', boxShadow:'0 8px 28px rgba(20,20,19,0.16)' }}>
                   <div>
                     <p style={{ color:'white', fontWeight:700, fontSize:15, margin:'0 0 2px', fontFamily:'Sofia Sans,sans-serif' }}>Find a Match</p>
-                    <p style={{ color:'rgba(255,255,255,0.55)', fontSize:12, margin:0, fontFamily:'Sofia Sans,sans-serif' }}>3 peers available now</p>
+                    <p style={{ color:'rgba(255,255,255,0.50)', fontSize:12, margin:0, fontFamily:'Sofia Sans,sans-serif' }}>3 peers available now</p>
                   </div>
-                  <div style={{ width:36, height:36, borderRadius:18, background:'rgba(255,255,255,0.12)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                    <img alt="" src={imgPeerArrow} style={{ width:16, height:16, display:'block', objectFit:'contain' }} />
+                  <div style={{ width:36, height:36, borderRadius:18, background:'rgba(255,255,255,0.10)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M3 8H13M13 8L8.5 3.5M13 8L8.5 12.5" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
                   </div>
                 </div>
               </div>
@@ -429,36 +473,43 @@
 
             {/* ══ SECTION 2 — RESOURCE CENTER ══ */}
             <div style={{ position:'relative', width:390, height:844, overflow:'hidden' }}>
-              <div style={{ position:'absolute', inset:0, background:'#fff3ec' }} />
-              <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 90% 55% at 50% 10%, rgba(255,185,130,0.55) 0%, transparent 68%)' }} />
-              <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 60% 40% at 20% 85%, rgba(255,160,100,0.18) 0%, transparent 65%)' }} />
-              <div style={{ position:'absolute', inset:0, background:'linear-gradient(to bottom, transparent 55%, rgba(60,28,20,0.12) 100%)', pointerEvents:'none', zIndex:1 }} />
+              {/* Background — white with subtle warm/cool blooms */}
+              <div style={{ position:'absolute', inset:0, background:'#ffffff' }} />
+              <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 70% 50% at 50% 5%, rgba(255,235,220,0.55) 0%, transparent 65%)' }} />
+              <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 55% 40% at 15% 88%, rgba(220,210,255,0.28) 0%, transparent 65%)' }} />
+              {/* Edge frosted glass */}
+              <div style={{ position:'absolute', top:100, left:0, width:80, height:'calc(100% - 100px)', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', WebkitMaskImage:'linear-gradient(to right, black 0%, transparent 100%)', maskImage:'linear-gradient(to right, black 0%, transparent 100%)', zIndex:10, pointerEvents:'none' }} />
+              <div style={{ position:'absolute', top:100, left:0, width:80, height:'calc(100% - 100px)', background:'linear-gradient(to right, rgba(255,255,255,0.80) 0%, rgba(255,255,255,0) 100%)', zIndex:11, pointerEvents:'none' }} />
+              <div style={{ position:'absolute', top:100, right:0, width:80, height:'calc(100% - 100px)', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', WebkitMaskImage:'linear-gradient(to left, black 0%, transparent 100%)', maskImage:'linear-gradient(to left, black 0%, transparent 100%)', zIndex:10, pointerEvents:'none' }} />
+              <div style={{ position:'absolute', top:100, right:0, width:80, height:'calc(100% - 100px)', background:'linear-gradient(to left, rgba(255,255,255,0.80) 0%, rgba(255,255,255,0) 100%)', zIndex:11, pointerEvents:'none' }} />
 
-              {/* Top bar */}
-              <div style={{ position:'absolute', top:52, left:0, right:0, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 20px', zIndex:5 }}>
-                <div onClick={onBack} style={{ background:'rgba(255,237,229,0.72)', backdropFilter:'blur(12px)', width:36, height:36, borderRadius:18, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', border:'1px solid rgba(20,20,19,0.06)' }}>
-                  <span style={{ color:'#141413', fontSize:20, lineHeight:1, marginTop:-1 }}>‹</span>
+              {/* Header — consistent pill style */}
+              <div style={{ position:'absolute', top:52, left:0, right:0, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 20px', zIndex:15 }}>
+                <div onClick={onBack} style={{ background:'rgba(255,255,255,0.88)', border:'1px solid rgba(20,20,19,0.07)', borderRadius:99, width:34, height:34, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', boxShadow:'0 2px 4px rgba(3,7,18,0.04)', flexShrink:0 }}>
+                  <svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 1L1 7L7 13" stroke="#141413" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
                 </div>
-                <div style={{ background:'rgba(255,237,229,0.72)', backdropFilter:'blur(12px)', padding:'6px 16px', borderRadius:20, border:'1px solid rgba(20,20,19,0.06)' }}>
-                  <span style={{ color:'#141413', fontSize:13, fontWeight:700, fontFamily:'Sofia Sans,sans-serif' }}>Resource Center</span>
+                <div style={{ background:'rgba(255,255,255,0.88)', border:'1px solid rgba(20,20,19,0.07)', padding:'9px 20px', borderRadius:22, boxShadow:'0 2px 4px rgba(3,7,18,0.04)' }}>
+                  <span style={{ color:'#141413', fontSize:13, fontWeight:700, fontFamily:'Sofia Sans,sans-serif' }}>Resources</span>
                 </div>
-                <div style={{ width:36 }} />
+                <div style={{ width:34 }} />
               </div>
 
-              {/* Header */}
+              {/* Section title */}
               <div style={{ position:'absolute', top:120, left:28, right:28, zIndex:2 }}>
-                <p style={{ color:'rgba(20,20,19,0.45)', fontSize:13, fontWeight:600, margin:'0 0 4px', fontFamily:'Sofia Sans,sans-serif', letterSpacing:'0.5px', textTransform:'uppercase' }}>Support Tools</p>
-                <p style={{ color:'#141413', fontSize:24, fontWeight:700, fontFamily:'Sofia Sans,sans-serif', margin:0 }}>Resources whenever<br/>you need them</p>
+                <p style={{ color:'rgba(20,20,19,0.4)', fontSize:11, fontWeight:700, margin:'0 0 4px', fontFamily:'Sofia Sans,sans-serif', letterSpacing:'1px', textTransform:'uppercase' }}>Support Tools</p>
+                <p style={{ color:'#141413', fontSize:22, fontWeight:700, fontFamily:'Sofia Sans,sans-serif', margin:0, lineHeight:1.25 }}>Resources whenever<br/>you need them</p>
               </div>
 
-              {/* Resource grid */}
-              <div style={{ position:'absolute', top:225, left:22, right:22, display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, zIndex:2 }}>
+              {/* Resource grid — white cards with accent bar */}
+              <div style={{ position:'absolute', top:210, left:22, right:22, display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, zIndex:2 }}>
                 {RESOURCES.map(({ icon, title, sub, accent }) => (
-                  <div key={title} style={{ background:'rgba(255,237,229,0.72)', backdropFilter:'blur(14px)', borderRadius:18, padding:'14px 14px', cursor:'pointer', border:'1px solid rgba(20,20,19,0.06)', boxShadow:'0 2px 10px rgba(20,20,19,0.05)', minHeight:90 }}>
+                  <div key={title} style={{ background:'rgba(255,255,255,0.88)', backdropFilter:'blur(14px)', WebkitBackdropFilter:'blur(14px)', borderRadius:18, padding:'14px 14px', cursor:'pointer', border:'1px solid rgba(20,20,19,0.06)', boxShadow:'0 1px 8px rgba(20,20,19,0.05)', minHeight:90 }}>
                     <div style={{ fontSize:22, marginBottom:7 }}>{icon}</div>
                     <p style={{ fontSize:13, fontWeight:700, color:'#141413', margin:'0 0 3px', fontFamily:'Sofia Sans,sans-serif', lineHeight:1.2 }}>{title}</p>
-                    <p style={{ fontSize:10.5, color:'rgba(20,20,19,0.45)', margin:0, fontFamily:'Sofia Sans,sans-serif', lineHeight:1.35 }}>{sub}</p>
-                    <div style={{ marginTop:8, display:'inline-block', background:accent, height:2.5, width:24, borderRadius:99 }} />
+                    <p style={{ fontSize:10.5, color:'rgba(20,20,19,0.42)', margin:0, fontFamily:'Sofia Sans,sans-serif', lineHeight:1.35 }}>{sub}</p>
+                    <div style={{ marginTop:9, display:'inline-block', background:accent, height:2.5, width:24, borderRadius:99 }} />
                   </div>
                 ))}
               </div>
@@ -469,24 +520,17 @@
           {/* Chat history sidebar */}
           <ChatSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-          {/* Section indicator — right edge; dark on white AI Chat bg, white on coloured sections */}
+          {/* Section indicator — right edge; all sections are white-bg, always dark dots */}
           <div style={{ position:'absolute', right:12, top:'50%', transform:'translateY(-50%)', display:'flex', flexDirection:'column', gap:7, zIndex:210, pointerEvents:'none' }}>
-            {SECTIONS.map((_, i) => {
-              const onWhite = section === 0;
-              const active  = i === section;
-              return (
-                <div key={i} style={{
-                  width:4,
-                  height: active ? 26 : 8,
-                  background: active
-                    ? (onWhite ? 'rgba(20,20,19,0.55)' : 'rgba(255,255,255,0.9)')
-                    : (onWhite ? 'rgba(20,20,19,0.18)' : 'rgba(255,255,255,0.38)'),
-                  borderRadius:99,
-                  transition:'all 0.32s ease',
-                  filter: active && !onWhite ? 'drop-shadow(0 0 4px rgba(255,255,255,0.6))' : 'none',
-                }} />
-              );
-            })}
+            {SECTIONS.map((_, i) => (
+              <div key={i} style={{
+                width:4,
+                height: i === section ? 26 : 8,
+                background: i === section ? 'rgba(20,20,19,0.55)' : 'rgba(20,20,19,0.16)',
+                borderRadius:99,
+                transition:'all 0.32s ease',
+              }} />
+            ))}
           </div>
         </div>
       );

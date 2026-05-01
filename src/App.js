@@ -16,6 +16,9 @@
       const [page, setPage] = useState('home');
       const [checkinOpen, setCheckin] = useState(false);
       const [userName, setUserName] = useState(() => load('userName', 'Alex'));
+      const [allMoodLogs, setAllMoodLogs] = useState(() => load('allMoodLogs', []));
+      const [chatMoodContext, setChatMoodContext] = useState(null);
+      const [bannerDismissed, setBannerDismissed] = useState(false);
       const [todayMood, setTodayMood] = useState(() => isNewDay ? null : load('todayMood', null));
       const [count, setCount] = useState(() => load('count', 7));
       const [todayMoods, setTodayMoods] = useState(() => isNewDay ? [] : load('todayMoods', ['good', 'sad']));
@@ -38,6 +41,9 @@
       useEffect(() => { localStorage.setItem('todayMoods', JSON.stringify(todayMoods)); }, [todayMoods]);
       useEffect(() => { localStorage.setItem('todayEntries', JSON.stringify(todayEntries)); }, [todayEntries]);
       useEffect(() => { localStorage.setItem('moodEntries', JSON.stringify(moodEntries)); }, [moodEntries]);
+      useEffect(() => { localStorage.setItem('allMoodLogs', JSON.stringify(allMoodLogs)); }, [allMoodLogs]);
+      /* Clear mood context when leaving AI chat */
+      useEffect(() => { if (page !== 'peers') setChatMoodContext(null); }, [page]);
 
       const handleSave = entry => {
         setTodayMood(entry);
@@ -48,7 +54,7 @@
       const MAX_MOODS_PER_DAY = 6;
       const handleLogMoodSave = (moodLabel, details) => {
         setTodayEntries(prev => {
-          if (prev.length >= MAX_MOODS_PER_DAY) return prev; // cap at 3 per day
+          if (prev.length >= MAX_MOODS_PER_DAY) return prev;
           const now = new Date();
           const time = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
           const newEntry = { mood: moodLabel, dayLabel: 'Today', time, ...details };
@@ -58,7 +64,35 @@
           setTodayMoods(m => [...m, moodLabel.toLowerCase()]);
           return [...prev, newEntry];
         });
+        /* Persist to all-time mood log for trend analysis */
+        setAllMoodLogs(prev => [...prev, {
+          emotion: moodLabel,
+          contexts: [...(details.activities || []), ...(details.location || [])].filter(Boolean),
+          note: details.note || '',
+          timestamp: Date.now(),
+        }]);
       };
+
+      const handleChatWithMood = (moodCtx) => {
+        setChatMoodContext(moodCtx);
+        setPage('peers');
+      };
+
+      /* ── Mood trend → proactive banner ── */
+      const NEGATIVE_MOODS = ['Anxious','Sad','Angry','Exhausted'];
+      const computeMoodBanner = (logs) => {
+        if (logs.length < 2) return null;
+        const recent = logs.slice(-5);
+        const negCount = recent.filter(l => NEGATIVE_MOODS.includes(l.emotion)).length;
+        if (negCount >= 3) return { text: `You've logged some tough feelings lately, ${userName}. Aiden is here whenever you're ready.`, moodCtx: logs[logs.length - 1] };
+        if (logs.length >= 2) {
+          const last = logs[logs.length - 1], prev = logs[logs.length - 2];
+          if (NEGATIVE_MOODS.includes(last.emotion) && !NEGATIVE_MOODS.includes(prev.emotion))
+            return { text: `Today seems harder than usual. Want to talk to Aiden?`, moodCtx: last };
+        }
+        return null;
+      };
+      const moodBanner = !bannerDismissed ? computeMoodBanner(allMoodLogs) : null;
 
       /* Week strip mood states */
 
@@ -136,6 +170,34 @@
                 </div>
               </div>
 
+              {/* ── PROACTIVE AI BANNER ── */}
+              {moodBanner && (
+                <div style={{ position:'absolute', top:350, left:22, width:346, zIndex:50 }}>
+                  <div style={{ background:'rgba(124,92,252,0.07)', border:'1px solid rgba(124,92,252,0.18)', borderRadius:18, padding:'11px 13px', display:'flex', alignItems:'center', gap:11, boxShadow:'0 2px 12px rgba(124,92,252,0.10)' }}>
+                    {/* Mini orb icon */}
+                    <div style={{ width:36, height:36, borderRadius:18, background:'linear-gradient(145deg,#c4a8f8,#9b72e8)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, boxShadow:'0 2px 10px rgba(140,100,220,0.30)' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53L12 21.35z" fill="rgba(255,255,255,0.92)"/>
+                      </svg>
+                    </div>
+                    {/* Text */}
+                    <p style={{ fontFamily:'Sofia Sans,sans-serif', flex:1, fontSize:12.5, fontWeight:500, color:'#3d2b8a', lineHeight:1.4, margin:0 }}>{moodBanner.text}</p>
+                    {/* Chat button */}
+                    <div onClick={() => handleChatWithMood(moodBanner.moodCtx)}
+                      style={{ flexShrink:0, background:'#7C5CFC', borderRadius:99, padding:'6px 13px', cursor:'pointer' }}>
+                      <span style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:12, fontWeight:700, color:'white', whiteSpace:'nowrap' }}>Chat</span>
+                    </div>
+                    {/* Dismiss */}
+                    <div onClick={() => setBannerDismissed(true)}
+                      style={{ flexShrink:0, width:24, height:24, borderRadius:12, background:'rgba(20,20,19,0.07)', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' }}>
+                      <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                        <path d="M1.5 1.5L8.5 8.5M8.5 1.5L1.5 8.5" stroke="rgba(20,20,19,0.45)" strokeWidth="1.5" strokeLinecap="round"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* ── WEEK STRIP ── */}
               <div style={{ position:'absolute', display:'flex', alignItems:'center', justifyContent:'space-between', left:0, paddingLeft:22, paddingRight:22, paddingTop:12, paddingBottom:12, top:297, width:390 }}>
                 <DayCard label="MON"   mood="good" onClick={() => setViewEntry(moodEntries['MON'])} />
@@ -173,7 +235,7 @@
             {checkinOpen && <CheckinSheet onClose={() => setCheckin(false)} onSave={handleSave} />}
 
             {/* Log Mood page */}
-            {page === 'logMood' && <LogMoodPage onBack={() => { setEditEntry(null); setPage('home'); }} onSave={handleLogMoodSave} initialData={editEntry} />}
+            {page === 'logMood' && <LogMoodPage onBack={() => { setEditEntry(null); setPage('home'); }} onSave={handleLogMoodSave} initialData={editEntry} onChatWithMood={handleChatWithMood} />}
 
             {/* Stats page */}
             {page === 'stats' && <StatsPage onBack={() => setPage('home')} onNav={setPage} todayMood={todayMood} count={count} allEntries={[...Object.values(moodEntries), ...todayEntries].filter(Boolean)} />}
@@ -182,7 +244,7 @@
             {page === 'profile' && <ProfilePage onBack={() => setPage('home')} userName={userName} setUserName={setUserName} />}
 
             {/* Support page */}
-            {page === 'peers' && <SupportPage onBack={() => setPage('home')} userName={userName} />}
+            {page === 'peers' && <SupportPage onBack={() => setPage('home')} userName={userName} moodContext={chatMoodContext} />}
 
             {/* Persistent bottom nav — rendered last so it sits above all page content */}
             {page !== 'logMood' && <BottomNav activePage={page} onNav={setPage} />}

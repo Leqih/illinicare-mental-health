@@ -152,15 +152,42 @@
       );
     }
 
-    function TypeChatPage({ onBack, userName, initialTopic }) {
+    function TypeChatPage({ onBack, userName, initialTopic, moodContext }) {
       const SF = 'Sofia Sans,sans-serif';
       const R = UIUC_RESOURCES;
       const [input, setInput] = useState('');
+
+      /* ── Mood-aware opening helpers ── */
+      const getMoodOpening = (ctx) => {
+        if (!ctx) return `Hey ${userName} 💙 No pressure, no judgment — I'm just here to listen. What's going on for you today?`;
+        const { emotion, contexts = [], note } = ctx;
+        const ctxStr = contexts.length ? ` — especially around ${contexts.slice(0,2).join(' & ')}` : '';
+        const noteStr = note ? ` You wrote: "${note}".` : '';
+        if (emotion === 'Anxious') return `Hey ${userName} 💙 I saw you just logged feeling anxious${ctxStr}.${noteStr} That's exhausting to carry. I'm here — take your time, what's been going on?`;
+        if (emotion === 'Angry')   return `Hey ${userName} 💙 I saw you're feeling angry${ctxStr}.${noteStr} That's completely valid. Want to talk about what's been getting to you?`;
+        if (emotion === 'Sad')     return `Hey ${userName} 💜 I can see things feel pretty heavy right now${ctxStr}.${noteStr} You don't have to explain everything. I'm just here — what's been weighing on you?`;
+        if (emotion === 'Exhausted') return `Hey ${userName} 💜 You logged feeling exhausted${ctxStr}.${noteStr} Running on empty is real. What's been draining you most?`;
+        if (emotion === 'Boring')  return `Hey ${userName} 😊 Sounds like a "meh" kind of day${ctxStr}.${noteStr} Sometimes those are the hardest to name. What's underneath it?`;
+        if (['Good','Happy','Grateful'].includes(emotion)) return `Hey ${userName} ✨ You're feeling ${emotion.toLowerCase()} today${ctxStr}!${noteStr} Love that — what's been going well? Reflecting on good things helps them stick.`;
+        return `Hey ${userName} 💙 Thanks for checking in. I'm here to listen — what's on your mind?`;
+      };
+      const getMoodChips = (ctx) => {
+        if (!ctx) return ["I've been anxious","I'm overwhelmed","I can't sleep","Something happened","I feel alone","I just need to vent"];
+        const { emotion } = ctx;
+        if (emotion === 'Anxious')   return ["It's been building for a while","Something specific triggered it","I just can't switch off","I don't know where it's coming from"];
+        if (emotion === 'Sad')       return ["A lot is weighing on me","I've been low for a while","I just needed to say it out loud","I'm not sure what I need"];
+        if (emotion === 'Angry')     return ["Something really got to me","It's been piling up","I'm frustrated with myself","I just needed to vent"];
+        if (emotion === 'Exhausted') return ["I've been running on empty","I can't keep up with everything","I just have no energy left","I need a break but can't take one"];
+        if (emotion === 'Boring')    return ["Just feeling flat today","Nothing feels meaningful right now","I'm restless but can't focus","Not sure what I need"];
+        if (['Good','Happy','Grateful'].includes(emotion)) return ["Things have been going well","I wanted to share something","I'm feeling hopeful","Just checking in 💜"];
+        return ["I've been anxious","I'm overwhelmed","Something happened","I just need to vent"];
+      };
+
       const [messages, setMessages] = useState([
-        { from:'ai', text:`Hey ${userName} 💙 No pressure, no judgment — I'm just here to listen. What's going on for you today?` },
+        { from:'ai', text: getMoodOpening(moodContext) },
       ]);
       const [typing, setTyping] = useState(false);
-      const [chips, setChips] = useState(["I've been anxious","I'm overwhelmed","I can't sleep","Something happened","I feel alone","I just need to vent"]);
+      const [chips, setChips] = useState(getMoodChips(moodContext));
       const [turn, setTurn] = useState(0);
       const [lastIntent, setLastIntent] = useState(null);
       const [widgetAnswers, setWidgetAnswers] = useState({});

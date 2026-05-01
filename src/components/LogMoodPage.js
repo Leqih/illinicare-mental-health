@@ -26,7 +26,7 @@
     };
     const LOG_MOOD_OPTIONS = ['Angry','Exhausted','Sad','Anxious','Boring','Good','Happy','Grateful'];
 
-    function LogMoodPage({ onBack, onSave, initialData }) {
+    function LogMoodPage({ onBack, onSave, initialData, onChatWithMood }) {
       const [selected, setSelected] = useState(initialData ? (initialData.mood.charAt(0).toUpperCase() + initialData.mood.slice(1)) : 'Good');
       const [prevMood, setPrevMood]  = useState(null);   // slides out
       const [slideDir, setSlideDir]  = useState(null);   // 'left' | 'right'
@@ -34,6 +34,8 @@
       const dragRef  = useRef({ startX:0, dragging:false });
       const timerRef = useRef(null);
       const [showTellMore, setShowTellMore] = useState(!!initialData);
+      const [showSaved, setShowSaved] = useState(false);
+      const [savedMoodData, setSavedMoodData] = useState(null);
       const [reason, setReason] = useState('');
       const [note, setNote]     = useState(initialData?.note || '');
       const [activities, setActivities]   = useState(initialData?.activities || []);
@@ -566,11 +568,60 @@
                 {/* Sticky footer save button */}
                 <div style={{ flexShrink:0, padding:'12px 20px 20px', background:'rgba(250,247,245,0.97)', borderTop:'1px solid rgba(20,20,19,0.06)', backdropFilter:'blur(8px)', WebkitBackdropFilter:'blur(8px)' }}>
                   <div
-                    onClick={() => { onSave(selected, { activities, companions, location, bodyParts, note }); onBack(); }}
+                    onClick={() => {
+                      const ctx = { emotion: selected, contexts: [...activities, ...location].filter(Boolean), note };
+                      onSave(selected, { activities, companions, location, bodyParts, note });
+                      setSavedMoodData(ctx);
+                      setShowSaved(true);
+                    }}
                     style={{ background:accentColor, height:52, borderRadius:26, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:`0 4px 20px ${accentLight}` }}>
                     <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:600, fontSize:16, color:'white', letterSpacing:'-0.2px', margin:0 }}>Complete check-in ✓</p>
                   </div>
                 </div>
+
+                {/* ── Post-save success overlay ── */}
+                {showSaved && savedMoodData && (() => {
+                  const NEGATIVE = ['Anxious','Sad','Angry','Exhausted','Boring'];
+                  const isNeg = NEGATIVE.includes(savedMoodData.emotion);
+                  return (
+                    <div style={{ position:'absolute', inset:0, zIndex:500, borderRadius:'inherit', background:'rgba(250,247,245,0.97)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:0, padding:'0 28px', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)' }}>
+                      {/* Animated checkmark ring */}
+                      <div style={{ width:80, height:80, borderRadius:40, background: accentColor + '18', border:`2px solid ${accentColor}40`, display:'flex', alignItems:'center', justifyContent:'center', marginBottom:18 }}>
+                        <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+                          <circle cx="18" cy="18" r="17" stroke={accentColor} strokeWidth="2" strokeOpacity="0.3"/>
+                          <path d="M10 18L15.5 23.5L26 13" stroke={accentColor} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </div>
+                      {/* Title */}
+                      <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:700, fontSize:24, color:'#141413', letterSpacing:'-0.4px', margin:'0 0 6px', textAlign:'center' }}>
+                        Logged — {savedMoodData.emotion} ✓
+                      </p>
+                      {/* Subtitle */}
+                      <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:400, fontSize:14, color:'rgba(20,20,19,0.50)', margin:'0 0 36px', textAlign:'center', lineHeight:1.5 }}>
+                        {isNeg
+                          ? "Would you like to talk to Aiden about how you're feeling?"
+                          : "Reflecting on positive days helps them stick 💜 Want to share with Aiden?"}
+                      </p>
+                      {/* Talk to Aiden CTA */}
+                      {onChatWithMood && (
+                        <div onClick={() => onChatWithMood(savedMoodData)}
+                          style={{ width:'100%', height:52, borderRadius:26, background: accentColor, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:10, marginBottom:12, boxShadow:`0 4px 20px ${accentLight}` }}>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" fill="rgba(255,255,255,0.9)"/>
+                          </svg>
+                          <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:600, fontSize:16, color:'white', letterSpacing:'-0.2px', margin:0 }}>
+                            Talk to Aiden about this
+                          </p>
+                        </div>
+                      )}
+                      {/* Back to home */}
+                      <div onClick={onBack}
+                        style={{ width:'100%', height:48, borderRadius:26, background:'rgba(20,20,19,0.06)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                        <p style={{ fontFamily:'Sofia Sans,sans-serif', fontWeight:500, fontSize:15, color:'rgba(20,20,19,0.55)', margin:0 }}>Back to home</p>
+                      </div>
+                    </div>
+                  );
+                })()}
 
               </div>
             );
