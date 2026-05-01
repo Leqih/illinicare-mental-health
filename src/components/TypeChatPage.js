@@ -295,31 +295,8 @@
           onTouchStart={e => e.stopPropagation()}
           onTouchEnd={e => e.stopPropagation()}
         >
-          {/* Orb + pattern — compact version for chat view */}
-          <div style={{ position:'absolute', top:0, left:0, right:0, height:290, zIndex:3, pointerEvents:'none', overflow:'hidden' }}>
-            {/* Pattern: 342.922×335, centered on orb */}
-            <div style={{ position:'absolute', top:'calc(102px + 50% - 0.5px)', left:'calc(50% + 0.46px)', transform:'translate(-50%,-50%)', width:342.922, height:335, pointerEvents:'none' }}>
-              <img alt="" src={imgAiPattern} style={{ width:'100%', height:'100%', display:'block' }} />
-            </div>
-            {/* Orb 155px wrapper */}
-            <div style={{ position:'absolute', top:102, left:117.5, width:155, height:155 }}>
-              {/* Inner orb: 117.5px at offset 18.5px — identical to SupportPage */}
-              <div style={{ position:'absolute', top:18.5, left:18.5, width:117.5, height:117.5, borderRadius:58.75, background:'rgba(255,255,255,0.72)', border:'2px solid rgba(255,255,255,0.5)', boxShadow:'0 64px 250px 0 #ef8c5a, 0 24px 54px 0 rgba(255,255,255,0.10), 0 3px 120px 0 #ccebff', overflow:'hidden' }}>
-                <div style={{ position:'absolute', top:-1.24, left:-1.24, width:115.984, height:115.984, background:'rgba(255,255,255,0.28)' }} />
-                <div style={{ position:'absolute', top:22, left:8, width:102.242, height:75.127, overflow:'visible' }}>
-                  <img alt="" src={imgAiMaskGroup} style={{ position:'absolute', top:'-29.16%', left:'-21.43%', width:'142.86%', height:'158.32%', display:'block', maxWidth:'none' }} />
-                </div>
-                <div style={{ position:'absolute', top:5.76, left:8.17, width:53.065, height:43.968, filter:'blur(3.79px)', background:'radial-gradient(circle at center, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.6) 45%, transparent 100%)' }} />
-                <div style={{ position:'absolute', top:94.01, left:75.18, width:25.774, height:13.645, filter:'blur(2.274px)', background:'radial-gradient(circle at center, rgba(255,255,255,0.6) 0%, transparent 100%)' }} />
-                <div style={{ position:'absolute', top:-1.24, left:-1.24, width:115.984, height:115.984, borderRadius:57.992, background:'linear-gradient(145deg, rgba(255,255,255,0.22) 6.17%, rgba(255,255,255,0) 45.62%)' }} />
-              </div>
-            </div>
-            {/* Fade to white — clips the orange shadow bleed at 290px */}
-            <div style={{ position:'absolute', bottom:0, left:0, right:0, height:100, background:'linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.85) 55%, white 85%)' }} />
-          </div>
-
-          {/* Header */}
-          <div style={{ position:'relative', zIndex:15, flexShrink:0, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'52px 20px 12px' }}>
+          {/* Header — solid white bg so orb disappears cleanly behind it when scrolled */}
+          <div style={{ position:'relative', zIndex:15, flexShrink:0, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'52px 20px 12px', background:'white' }}>
             <div onClick={onBack} style={{ background:'white', borderRadius:99, width:34, height:34, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', flexShrink:0, boxShadow:'0 0 0 1px rgba(3,7,18,0.04),0 2px 4px rgba(3,7,18,0.04)' }}>
               <svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M7 1L1 7L7 13" stroke="#141413" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
@@ -338,9 +315,32 @@
             </div>
           </div>
 
-          {/* Messages — scrolls under the orb overlay (290px), header ~98px, so paddingTop≥192 */}
-          <div ref={messagesRef} style={{ position:'relative', zIndex:2, flex:1, overflowY:'auto', display:'flex', flexDirection:'column', gap:4, paddingTop:200, paddingLeft:20, paddingRight:20, background:'white' }}>
+          {/* Messages — orb is first child so it scrolls away naturally */}
+          <div ref={messagesRef} style={{ position:'relative', zIndex:2, flex:1, overflowY:'auto', display:'flex', flexDirection:'column', gap:4, paddingTop:0, paddingLeft:0, paddingRight:0, background:'white' }}>
 
+            {/* Orb section — scrolls with content, disappears as conversation grows */}
+            <div style={{ flexShrink:0, position:'relative', height:220, overflow:'hidden', pointerEvents:'none', background:'white' }}>
+              {/* Pattern centered on orb ball (ball center ≈ 98px from section top) */}
+              <div style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-50%,-50%) translateY(-20px)', width:342.922, height:335 }}>
+                <img alt="" src={imgAiPattern} style={{ width:'100%', height:'100%', display:'block' }} />
+              </div>
+              {/* Orb 155px wrapper — horizontally centered */}
+              <div style={{ position:'absolute', top:10, left:'calc(50% - 77.5px)', width:155, height:155 }}>
+                <div style={{ position:'absolute', top:18.5, left:18.5, width:117.5, height:117.5, borderRadius:58.75, background:'rgba(255,255,255,0.72)', border:'2px solid rgba(255,255,255,0.5)', boxShadow:'0 64px 250px 0 #ef8c5a, 0 24px 54px 0 rgba(255,255,255,0.10), 0 3px 120px 0 #ccebff', overflow:'hidden' }}>
+                  <div style={{ position:'absolute', top:-1.24, left:-1.24, width:115.984, height:115.984, background:'rgba(255,255,255,0.28)' }} />
+                  <div style={{ position:'absolute', top:22, left:8, width:102.242, height:75.127, overflow:'visible' }}>
+                    <img alt="" src={imgAiMaskGroup} style={{ position:'absolute', top:'-29.16%', left:'-21.43%', width:'142.86%', height:'158.32%', display:'block', maxWidth:'none' }} />
+                  </div>
+                  <div style={{ position:'absolute', top:5.76, left:8.17, width:53.065, height:43.968, filter:'blur(3.79px)', background:'radial-gradient(circle at center, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.6) 45%, transparent 100%)' }} />
+                  <div style={{ position:'absolute', top:94.01, left:75.18, width:25.774, height:13.645, filter:'blur(2.274px)', background:'radial-gradient(circle at center, rgba(255,255,255,0.6) 0%, transparent 100%)' }} />
+                  <div style={{ position:'absolute', top:-1.24, left:-1.24, width:115.984, height:115.984, borderRadius:57.992, background:'linear-gradient(145deg, rgba(255,255,255,0.22) 6.17%, rgba(255,255,255,0) 45.62%)' }} />
+                </div>
+              </div>
+              {/* Fade to white at bottom */}
+              <div style={{ position:'absolute', bottom:0, left:0, right:0, height:90, background:'linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.9) 60%, white 90%)' }} />
+            </div>
+
+            <div style={{ paddingLeft:20, paddingRight:20, display:'flex', flexDirection:'column', gap:4 }}>
             {messages.map((msg, i) => {
               const prevFrom = i > 0 ? messages[i-1].from : null;
               const nextMsg = messages[i+1];
@@ -405,6 +405,7 @@
               </div>
             )}
             <div style={{ height:8, flexShrink:0 }} />
+            </div>{/* end padded messages wrapper */}
           </div>
 
           {/* Chips + input panel */}
