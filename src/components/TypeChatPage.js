@@ -328,14 +328,13 @@
             <div style={{ background:'rgba(255,255,255,0.88)', backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)', padding:'9px 20px', borderRadius:22, border:'1px solid rgba(20,20,19,0.07)', boxShadow:'0 0 0 0 rgba(3,7,18,0.04),0 2px 4px rgba(3,7,18,0.04)' }}>
               <span style={{ color:'#141413', fontSize:13, fontWeight:700, fontFamily:SF }}>AI Chat</span>
             </div>
-            <div style={{ background:'white', borderRadius:99, width:36, height:36, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, overflow:'hidden', boxShadow:'0 0 0 1px rgba(3,7,18,0.04),0 2px 4px rgba(3,7,18,0.04)' }}>
-              <div style={{ width:18, height:18, position:'relative', overflow:'hidden' }}>
-                <div style={{ position:'absolute', top:'16.67%', bottom:'16.67%', left:'45.83%', right:'45.83%' }}>
-                  <div style={{ position:'absolute', top:'-6.25%', bottom:'-6.25%', left:'-50%', right:'-50%' }}>
-                    <img alt="" src={imgAiIcon} style={{ display:'block', width:'100%', height:'100%', maxWidth:'none' }} />
-                  </div>
-                </div>
-              </div>
+            <div style={{ background:'white', borderRadius:99, width:36, height:36, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, cursor:'pointer', boxShadow:'0 0 0 1px rgba(3,7,18,0.04),0 2px 4px rgba(3,7,18,0.04)' }}>
+              {/* 3-dot menu — inline SVG */}
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="9" cy="4" r="1.4" fill="#141413"/>
+                <circle cx="9" cy="9" r="1.4" fill="#141413"/>
+                <circle cx="9" cy="14" r="1.4" fill="#141413"/>
+              </svg>
             </div>
           </div>
 
@@ -371,7 +370,10 @@
                         <p style={{ margin:0, fontSize:12, lineHeight:1.25, color:'#0d0d12', fontFamily:ID }}>{msg.text}</p>
                       </div>
                       <div style={{ width:12.5, height:9.652, flexShrink:0, marginRight:-8, marginBottom:6 }}>
-                        <img alt="" src={imgTcTail} style={{ display:'block', width:'100%', height:'100%' }} />
+                        {/* Speech bubble tail — inline SVG */}
+                        <svg width="13" height="10" viewBox="0 0 13 10" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display:'block', width:'100%', height:'100%' }}>
+                          <path d="M0.5 9.652 C3.5 9.652 12.5 9.652 12.5 1 L12.5 9.652 Z" fill="white"/>
+                        </svg>
                       </div>
                     </div>
                   )}
@@ -389,7 +391,10 @@
             {typing && (
               <div style={{ display:'flex', flexDirection:'column', gap:6, marginTop:14, alignSelf:'flex-start', maxWidth:'88%' }}>
                 <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                  <img alt="" src={imgTcLogo} style={{ width:21, height:21, display:'block', flexShrink:0 }} />
+                  <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink:0 }}>
+                    <rect width="21" height="21" rx="5" fill="#7C5CFC"/>
+                    <path d="M6 6L15 15M15 6L6 15" stroke="white" strokeWidth="2.2" strokeLinecap="round"/>
+                  </svg>
                   <span style={{ fontSize:14, fontWeight:500, color:'#0d0d12', fontFamily:ID, letterSpacing:-0.14 }}>Answer</span>
                 </div>
                 <div style={{ display:'flex', gap:4, alignItems:'center', paddingLeft:2 }}>
@@ -423,10 +428,18 @@
                 />
               </div>
               <div style={{ width:28, height:28, borderRadius:99, background:'#f6f8fa', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, cursor:'pointer', boxShadow:'0 0 0 0.7px rgba(3,7,18,0.06),0 8px 16px rgba(3,7,18,0.08)' }}>
-                <img alt="" src={imgTcMic} style={{ width:14, height:14, objectFit:'contain', display:'block' }} />
+                {/* Mic icon — inline SVG */}
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="4.5" y="1" width="5" height="7" rx="2.5" fill="#141413"/>
+                  <path d="M2 7a5 5 0 0 0 10 0" stroke="#141413" strokeWidth="1.4" strokeLinecap="round"/>
+                  <line x1="7" y1="12" x2="7" y2="14" stroke="#141413" strokeWidth="1.4" strokeLinecap="round"/>
+                </svg>
               </div>
               <div onClick={() => sendMessage()} style={{ width:28, height:28, borderRadius:24, background:'#0d0d12', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, cursor:'pointer', boxShadow:'0 0 0 0.7px rgba(3,7,18,0.06),0 8px 16px rgba(3,7,18,0.08)' }}>
-                <img alt="" src={imgTcSend} style={{ width:14, height:14, objectFit:'contain', display:'block' }} />
+                {/* Send icon — inline SVG arrow */}
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1.5 11.5L11.5 1.5M11.5 1.5H4.5M11.5 1.5V8.5" stroke="white" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
               </div>
             </div>
           </div>

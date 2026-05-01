@@ -214,14 +214,13 @@
                   <span style={{ position:'absolute', left:20, top:9, color:'#141413', fontSize:13, fontWeight:700, fontFamily:'Sofia Sans,sans-serif', whiteSpace:'nowrap' }}>AI Chat</span>
                 </div>
                 {/* Dots menu */}
-                <div style={{ background:'rgba(255,255,255,0.88)', border:'1px solid rgba(20,20,19,0.07)', width:36, height:36, borderRadius:99, display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 2px 4px rgba(3,7,18,0.04)', overflow:'hidden', cursor:'pointer', flexShrink:0 }}>
-                  <div style={{ width:18, height:18, position:'relative', overflow:'hidden' }}>
-                    <div style={{ position:'absolute', top:'16.67%', bottom:'16.67%', left:'45.83%', right:'45.83%' }}>
-                      <div style={{ position:'absolute', top:'-6.25%', bottom:'-6.25%', left:'-50%', right:'-50%' }}>
-                        <img alt="" src={imgAiIcon} style={{ display:'block', width:'100%', height:'100%', maxWidth:'none' }} />
-                      </div>
-                    </div>
-                  </div>
+                <div style={{ background:'rgba(255,255,255,0.88)', border:'1px solid rgba(20,20,19,0.07)', width:36, height:36, borderRadius:99, display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 2px 4px rgba(3,7,18,0.04)', cursor:'pointer', flexShrink:0 }}>
+                  {/* 3-dot vertical menu — inline SVG */}
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="9" cy="4" r="1.4" fill="#141413"/>
+                    <circle cx="9" cy="9" r="1.4" fill="#141413"/>
+                    <circle cx="9" cy="14" r="1.4" fill="#141413"/>
+                  </svg>
                 </div>
               </div>
 
