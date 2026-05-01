@@ -26,17 +26,17 @@
     };
     const LOG_MOOD_OPTIONS = ['Angry','Exhausted','Sad','Anxious','Boring','Good','Happy','Grateful'];
 
-    /* ── Mood-specific CSS gradients — soft analogous, S≈40% L≈86% ──
-       Colors mixed ~25% toward white vs prev iteration. A→B→C→B→A loop. */
+    /* ── Mood-specific CSS gradients — pastel, S≈25% L≈91% ──
+       Mixed ~50% toward white for bright airy feel. A→B→C→B→A loop. */
     const MOOD_CARD_GRADIENT = {
-      Good:      'linear-gradient(135deg, #AAE0B8, #BEE6A2, #D8EC94, #BEE6A2, #AAE0B8)',
-      Happy:     'linear-gradient(135deg, #F2E29C, #F2CC9C, #F2BA9C, #F2CC9C, #F2E29C)',
-      Grateful:  'linear-gradient(135deg, #F2D09C, #F2ACAC, #E0A2BA, #F2ACAC, #F2D09C)',
-      Sad:       'linear-gradient(135deg, #A4C0EE, #B4AEE6, #C6A2DE, #B4AEE6, #A4C0EE)',
-      Anxious:   'linear-gradient(135deg, #EAAEC6, #D2A2DA, #B49CEA, #D2A2DA, #EAAEC6)',
-      Angry:     'linear-gradient(135deg, #EAA2A2, #EAC09C, #EADA9C, #EAC09C, #EAA2A2)',
-      Exhausted: 'linear-gradient(135deg, #C0A2E4, #A2A2DE, #9CBAE4, #A2A2DE, #C0A2E4)',
-      Boring:    'linear-gradient(135deg, #9CD8D2, #9CC0E4, #A8AED8, #9CC0E4, #9CD8D2)',
+      Good:      'linear-gradient(135deg, #C0EAC8, #CEEEA8, #E0F0A8, #CEEEA8, #C0EAC8)',
+      Happy:     'linear-gradient(135deg, #F8EDB8, #F8D8B8, #F8CCB8, #F8D8B8, #F8EDB8)',
+      Grateful:  'linear-gradient(135deg, #F8DEBB, #F8C4C4, #EEB8CC, #F8C4C4, #F8DEBB)',
+      Sad:       'linear-gradient(135deg, #BCCEF6, #CAC4F0, #D8B8EA, #CAC4F0, #BCCEF6)',
+      Anxious:   'linear-gradient(135deg, #F4C8D8, #E4C0EC, #CEC0F6, #E4C0EC, #F4C8D8)',
+      Angry:     'linear-gradient(135deg, #F4BCBC, #F4D4B8, #F4EAB8, #F4D4B8, #F4BCBC)',
+      Exhausted: 'linear-gradient(135deg, #D8BEF0, #C0C0EC, #BAD0EC, #C0C0EC, #D8BEF0)',
+      Boring:    'linear-gradient(135deg, #C8EAE6, #C8DCEE, #D4D8EE, #C8DCEE, #C8EAE6)',
     };
 
     /* ── Inject CSS keyframes once for the animated gradient ── */
