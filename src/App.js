@@ -176,38 +176,37 @@
                   onClick={() => setBannerDismissed(true)}>
                   {/* Scrim */}
                   <div style={{ position:'absolute', inset:0, background:'rgba(10,8,20,0.52)', backdropFilter:'blur(4px)', WebkitBackdropFilter:'blur(4px)' }} />
-                  {/* Card */}
+                  {/* Card — frosted glass, single unified surface */}
                   <div onClick={e => e.stopPropagation()}
-                    style={{ position:'relative', width:'100%', background:'#ffffff', borderRadius:28, overflow:'hidden', boxShadow:'0 24px 80px rgba(0,0,0,0.28)' }}>
-                    {/* Purple gradient header zone */}
-                    <div style={{ background:'linear-gradient(160deg,#ede8ff 0%,#f5f0ff 100%)', padding:'32px 24px 24px', display:'flex', flexDirection:'column', alignItems:'center', gap:16 }}>
+                    style={{ position:'relative', width:'100%', background:'rgba(255,255,255,0.72)', backdropFilter:'blur(40px)', WebkitBackdropFilter:'blur(40px)', borderRadius:28, overflow:'hidden', boxShadow:'0 2px 0 rgba(255,255,255,0.9) inset, 0 24px 60px rgba(0,0,0,0.22)', border:'1px solid rgba(255,255,255,0.55)', padding:'32px 22px 24px', display:'flex', flexDirection:'column', alignItems:'center', gap:18 }}>
                       {/* Orb */}
-                      <div style={{ width:80, height:80, borderRadius:40, background:'linear-gradient(145deg,#c4a8f8,#9b72e8)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 12px 40px rgba(124,92,252,0.45), 0 4px 16px rgba(124,92,252,0.20)' }}>
-                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+                      <div style={{ width:76, height:76, borderRadius:38, background:'linear-gradient(145deg,#c4a8f8,#9b72e8)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 10px 36px rgba(124,92,252,0.50), 0 2px 8px rgba(124,92,252,0.22)' }}>
+                        <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
                           <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53L12 21.35z" fill="rgba(255,255,255,0.96)"/>
                         </svg>
                       </div>
-                      {/* Title */}
+                      {/* Text */}
                       <div style={{ textAlign:'center' }}>
-                        <p style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:22, fontWeight:700, color:'#141413', letterSpacing:'-0.4px', margin:'0 0 6px', lineHeight:1.2 }}>Aiden noticed 💜</p>
-                        <p style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:14, fontWeight:400, color:'rgba(20,20,19,0.55)', lineHeight:1.5, margin:0 }}>{moodBanner.text}</p>
+                        <p style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:22, fontWeight:700, color:'#141413', letterSpacing:'-0.4px', margin:'0 0 8px', lineHeight:1.2 }}>Aiden noticed 💜</p>
+                        <p style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:14.5, fontWeight:400, color:'rgba(20,20,19,0.60)', lineHeight:1.55, margin:0 }}>{moodBanner.text}</p>
+                      </div>
+                      {/* Divider */}
+                      <div style={{ width:'100%', height:1, background:'rgba(20,20,19,0.08)' }} />
+                      {/* Actions */}
+                      <div style={{ width:'100%', display:'flex', flexDirection:'column', gap:10 }}>
+                        <div onClick={() => handleChatWithMood(moodBanner.moodCtx)}
+                          style={{ background:'linear-gradient(135deg,#9b72e8,#7C5CFC)', borderRadius:16, height:52, display:'flex', alignItems:'center', justifyContent:'center', gap:8, cursor:'pointer', boxShadow:'0 6px 20px rgba(124,92,252,0.40)' }}>
+                          <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+                            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" fill="rgba(255,255,255,0.95)"/>
+                          </svg>
+                          <span style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:16, fontWeight:700, color:'white', letterSpacing:'-0.2px' }}>Talk to Aiden</span>
+                        </div>
+                        <div onClick={() => setBannerDismissed(true)}
+                          style={{ height:40, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' }}>
+                          <span style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:14, fontWeight:500, color:'rgba(20,20,19,0.36)' }}>Maybe later</span>
+                        </div>
                       </div>
                     </div>
-                    {/* Action zone */}
-                    <div style={{ padding:'20px 20px 24px', display:'flex', flexDirection:'column', gap:10 }}>
-                      <div onClick={() => handleChatWithMood(moodBanner.moodCtx)}
-                        style={{ background:'linear-gradient(135deg,#9b72e8,#7C5CFC)', borderRadius:18, height:54, display:'flex', alignItems:'center', justifyContent:'center', gap:8, cursor:'pointer', boxShadow:'0 8px 24px rgba(124,92,252,0.38)' }}>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" fill="rgba(255,255,255,0.95)"/>
-                        </svg>
-                        <span style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:16, fontWeight:700, color:'white', letterSpacing:'-0.2px' }}>Talk to Aiden</span>
-                      </div>
-                      <div onClick={() => setBannerDismissed(true)}
-                        style={{ height:44, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' }}>
-                        <span style={{ fontFamily:'Sofia Sans,sans-serif', fontSize:14, fontWeight:500, color:'rgba(20,20,19,0.38)' }}>Maybe later</span>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               )}
 
