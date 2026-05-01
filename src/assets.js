@@ -119,8 +119,9 @@
     const imgShield       = 'https://www.figma.com/api/mcp/asset/0a3f8eef-c0d9-48ba-be17-57db77acec5c';
 
     /* ── AI CHAT PAGE ASSETS (Figma node 269:1749) ── */
-    const imgAiPattern     = 'https://www.figma.com/api/mcp/asset/16cbefa9-f706-4ab9-9425-132f4c684263';
-    const imgAiMaskGroup   = 'https://www.figma.com/api/mcp/asset/5d712685-66e1-4298-8df5-4a45104d04b0';
+    /* orb-pattern.svg and orb-mask.svg are local files — never expire */
+    const imgAiPattern     = 'src/assets/orb-pattern.svg';
+    const imgAiMaskGroup   = 'src/assets/orb-mask.svg';
     const imgAiBrutalism28 = 'https://www.figma.com/api/mcp/asset/e6d0dc2d-e32b-4d7b-b101-5e565bc36d84';
     const imgAiBrutalism13 = 'https://www.figma.com/api/mcp/asset/32f78ba1-0fc1-43d3-be3a-54ba47594e7d';
     const imgAiGroup       = 'https://www.figma.com/api/mcp/asset/fedb352a-e85a-46da-ba6b-b56b863a6b57';

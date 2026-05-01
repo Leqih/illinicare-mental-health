@@ -295,15 +295,15 @@
           onTouchStart={e => e.stopPropagation()}
           onTouchEnd={e => e.stopPropagation()}
         >
-          {/* Orb + pattern — identical to SupportPage AI Chat landing */}
-          <div style={{ position:'absolute', top:0, left:0, right:0, height:370, zIndex:3, pointerEvents:'none' }}>
-            {/* Pattern: 342.922×335, centered */}
+          {/* Orb + pattern — compact version for chat view */}
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:290, zIndex:3, pointerEvents:'none', overflow:'hidden' }}>
+            {/* Pattern: 342.922×335, centered on orb */}
             <div style={{ position:'absolute', top:'calc(102px + 50% - 0.5px)', left:'calc(50% + 0.46px)', transform:'translate(-50%,-50%)', width:342.922, height:335, pointerEvents:'none' }}>
               <img alt="" src={imgAiPattern} style={{ width:'100%', height:'100%', display:'block' }} />
             </div>
             {/* Orb 155px wrapper */}
             <div style={{ position:'absolute', top:102, left:117.5, width:155, height:155 }}>
-              {/* Inner orb: 117.5px at offset 18.5px — exact same as SupportPage */}
+              {/* Inner orb: 117.5px at offset 18.5px — identical to SupportPage */}
               <div style={{ position:'absolute', top:18.5, left:18.5, width:117.5, height:117.5, borderRadius:58.75, background:'rgba(255,255,255,0.72)', border:'2px solid rgba(255,255,255,0.5)', boxShadow:'0 64px 250px 0 #ef8c5a, 0 24px 54px 0 rgba(255,255,255,0.10), 0 3px 120px 0 #ccebff', overflow:'hidden' }}>
                 <div style={{ position:'absolute', top:-1.24, left:-1.24, width:115.984, height:115.984, background:'rgba(255,255,255,0.28)' }} />
                 <div style={{ position:'absolute', top:22, left:8, width:102.242, height:75.127, overflow:'visible' }}>
@@ -314,8 +314,8 @@
                 <div style={{ position:'absolute', top:-1.24, left:-1.24, width:115.984, height:115.984, borderRadius:57.992, background:'linear-gradient(145deg, rgba(255,255,255,0.22) 6.17%, rgba(255,255,255,0) 45.62%)' }} />
               </div>
             </div>
-            {/* Fade to white — extended to fully cut the orange shadow bleed */}
-            <div style={{ position:'absolute', bottom:0, left:0, right:0, height:160, background:'linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.7) 40%, white 70%)' }} />
+            {/* Fade to white — clips the orange shadow bleed at 290px */}
+            <div style={{ position:'absolute', bottom:0, left:0, right:0, height:100, background:'linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.85) 55%, white 85%)' }} />
           </div>
 
           {/* Header */}
@@ -338,8 +338,8 @@
             </div>
           </div>
 
-          {/* Messages — scrolls under the orb overlay */}
-          <div ref={messagesRef} style={{ position:'relative', zIndex:2, flex:1, overflowY:'auto', display:'flex', flexDirection:'column', gap:4, paddingTop:280, paddingLeft:20, paddingRight:20, background:'white' }}>
+          {/* Messages — scrolls under the orb overlay (290px), header ~98px, so paddingTop≥192 */}
+          <div ref={messagesRef} style={{ position:'relative', zIndex:2, flex:1, overflowY:'auto', display:'flex', flexDirection:'column', gap:4, paddingTop:200, paddingLeft:20, paddingRight:20, background:'white' }}>
 
             {messages.map((msg, i) => {
               const prevFrom = i > 0 ? messages[i-1].from : null;
