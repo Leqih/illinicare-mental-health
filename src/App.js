@@ -238,7 +238,7 @@
               )}
 
               {/* ── WEEK STRIP ── */}
-              <div style={{ position:'absolute', display:'flex', alignItems:'center', justifyContent:'space-between', left:0, paddingLeft:22, paddingRight:22, paddingTop:12, paddingBottom:12, top:297, width:390 }}>
+              <div style={{ position:'absolute', display:'flex', alignItems:'center', justifyContent:'space-between', left:0, paddingLeft:22.203, paddingRight:22.2, paddingTop:12, paddingBottom:12, top:297, width:390 }}>
                 <DayCard label="MON"   mood="good" onClick={() => setViewEntry(moodEntries['MON'])} />
                 <DayCard label="TUE"   mood="sad"  onClick={() => setViewEntry(moodEntries['TUE'])} />
                 <DayCard label="TODAY" mood={todayEntries.length > 0 ? todayEntries[todayEntries.length-1].mood.toLowerCase() : (moodEntries['TODAY'] ? moodEntries['TODAY'].mood.toLowerCase() : null)} onClick={() => todayEntries.length > 0 ? setShowTodaySheet(true) : setPage('logMood')} />

@@ -87,11 +87,22 @@
     const imgGoodFaceBody = 'https://www.figma.com/api/mcp/asset/0f3404e8-9733-4b3d-a806-4682944d73da';
     const imgGoodFaceSmile= 'https://www.figma.com/api/mcp/asset/9790efa6-7ab6-4eb1-a43c-3deea5491787';
     /* Day-card faces (node 70-91) – fresh URLs */
-    const imgRectangle82    = 'https://www.figma.com/api/mcp/asset/c83e53f9-a197-493d-b547-2911979b0f93'; /* sticker backing – fresh 24-685 */
+    const imgRectangle82    = 'https://www.figma.com/api/mcp/asset/a6f294ed-dbe8-4802-aae8-b129c57c2733'; /* sticker backing – exact 24-685 */
     const imgDayGoodBlob    = 'https://www.figma.com/api/mcp/asset/89163802-f512-4042-ac30-08797cd46f13';
     const imgDayGoodSmile   = 'https://www.figma.com/api/mcp/asset/04c8dadb-d70f-43ed-b0a6-72f4a6849dd5';
     const imgDaySadFace     = 'https://www.figma.com/api/mcp/asset/7db808b7-1749-4d36-84b3-d81084ef6047';
     const imgDayAnxiousFace = 'https://www.figma.com/api/mcp/asset/397a5454-4058-4a8d-9965-2779926979dd';
+    /* Week strip exact assets — node 24-685 */
+    const imgWeekStripRectangle82 = 'https://www.figma.com/api/mcp/asset/a6f294ed-dbe8-4802-aae8-b129c57c2733';
+    const imgWeekStripVector      = 'https://www.figma.com/api/mcp/asset/b3b0f575-7274-4606-b81c-e043cac7a0f5';
+    const imgWeekStripVector24    = 'https://www.figma.com/api/mcp/asset/1d46f1bf-e57a-46bd-99a4-f50477a5f0f3';
+    const imgWeekStripVector25    = 'https://www.figma.com/api/mcp/asset/87212ff3-41a2-47a6-8aa3-def0571f18ae';
+    const imgWeekStripVector34    = 'https://www.figma.com/api/mcp/asset/2af96c76-4723-4392-a9c5-162f498ea592';
+    const imgWeekStripVector1     = 'https://www.figma.com/api/mcp/asset/0fd782d2-2b8b-4983-9613-28d548fbac67';
+    const imgWeekStripGroup6      = 'https://www.figma.com/api/mcp/asset/efa91b28-4c0d-4aef-998a-08b1e52d31a0';
+    const imgWeekStripGroup14     = 'https://www.figma.com/api/mcp/asset/ea2d2688-aac3-4344-bf79-27c1dd70039b';
+    const imgWeekStripGroup7      = 'https://www.figma.com/api/mcp/asset/facb074e-1629-4633-8557-4293539df07f';
+    const imgWeekStripGroup8      = 'https://www.figma.com/api/mcp/asset/6d2e9440-ad53-4599-8d87-5985bb0f466b';
     /* Week strip exact assets — node 191-2586 fresh URLs */
     const imgW82     = 'https://www.figma.com/api/mcp/asset/c591003e-d863-4f36-8514-99f0e51f581d'; /* Rectangle82 sticker backing */
     const imgWV      = 'https://www.figma.com/api/mcp/asset/93604d04-d46e-4e0f-9fbe-5bc332e642c4'; /* MON main green blob body */

@@ -401,10 +401,11 @@
 
             {/* ══ SECTION 1 — PEER SUPPORT ══ */}
             <div style={{ position:'relative', width:390, height:844, overflow:'hidden' }}>
-              {/* Background — matches AI Chat white aesthetic */}
+              {/* Background — use the Figma canvas asset, then soften with white wash */}
               <div style={{ position:'absolute', inset:0, background:'#ffffff' }} />
-              <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 70% 50% at 50% 5%, rgba(220,210,255,0.50) 0%, transparent 65%)' }} />
-              <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 55% 40% at 85% 88%, rgba(255,235,220,0.30) 0%, transparent 65%)' }} />
+              <img alt="" src={imgSupportBg} style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', display:'block' }} />
+              <div style={{ position:'absolute', inset:0, background:'linear-gradient(180deg, rgba(255,255,255,0.34) 0%, rgba(255,255,255,0.14) 38%, rgba(255,255,255,0.20) 100%)' }} />
+              <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 62% 48% at 50% 9%, rgba(223,214,255,0.36) 0%, transparent 62%)' }} />
               {/* Edge frosted glass — same as AI Chat */}
               <div style={{ position:'absolute', top:100, left:0, width:80, height:'calc(100% - 100px)', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', WebkitMaskImage:'linear-gradient(to right, black 0%, transparent 100%)', maskImage:'linear-gradient(to right, black 0%, transparent 100%)', zIndex:10, pointerEvents:'none' }} />
               <div style={{ position:'absolute', top:100, left:0, width:80, height:'calc(100% - 100px)', background:'linear-gradient(to right, rgba(255,255,255,0.80) 0%, rgba(255,255,255,0) 100%)', zIndex:11, pointerEvents:'none' }} />
@@ -426,7 +427,7 @@
 
               {/* Mini orb — smaller version of AI Chat orb, purple tint */}
               <div style={{ position:'absolute', top:108, left:0, right:0, display:'flex', justifyContent:'center', zIndex:2, pointerEvents:'none' }}>
-                <div style={{ width:80, height:80, borderRadius:40, background:'rgba(255,255,255,0.72)', border:'1.5px solid rgba(255,255,255,0.5)', boxShadow:'0 24px 80px 0 rgba(124,92,252,0.38), 0 8px 28px 0 rgba(255,255,255,0.10), 0 2px 60px 0 #ccebff', overflow:'hidden', position:'relative' }}>
+                <div style={{ width:92, height:92, borderRadius:46, background:'rgba(255,255,255,0.72)', border:'1.5px solid rgba(255,255,255,0.55)', boxShadow:'0 28px 90px 0 rgba(124,92,252,0.34), 0 8px 28px 0 rgba(255,255,255,0.10), 0 2px 60px 0 #ccebff', overflow:'hidden', position:'relative' }}>
                   <div style={{ position:'absolute', inset:0, background:'rgba(255,255,255,0.28)' }} />
                   <div style={{ position:'absolute', top:'28%', left:'10%', width:'80%', height:'65%', overflow:'visible' }}>
                     <img alt="" src={imgAiMaskGroup} style={{ position:'absolute', top:'-30%', left:'-22%', width:'144%', height:'160%', display:'block', maxWidth:'none' }} />
@@ -437,37 +438,41 @@
               </div>
 
               {/* Section title */}
-              <div style={{ position:'absolute', top:208, left:28, right:28, zIndex:2 }}>
-                <p style={{ color:'rgba(20,20,19,0.4)', fontSize:11, fontWeight:700, margin:'0 0 4px', fontFamily:'Sofia Sans,sans-serif', letterSpacing:'1px', textTransform:'uppercase' }}>Community</p>
-                <p style={{ color:'#141413', fontSize:22, fontWeight:700, fontFamily:'Sofia Sans,sans-serif', margin:0, lineHeight:1.25 }}>Connect with peers<br/>who truly get it</p>
+              <div style={{ position:'absolute', top:196, left:28, right:28, zIndex:2, display:'flex', flexDirection:'column', gap:8 }}>
+                <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                  <div style={{ width:7, height:7, borderRadius:99, background:'#fde047', boxShadow:'0 0 0 6px rgba(253,224,71,0.10)' }} />
+                  <p style={{ color:'rgba(20,20,19,0.58)', fontSize:11, fontWeight:700, margin:0, fontFamily:'Sofia Sans,sans-serif', letterSpacing:'1.12px', textTransform:'uppercase' }}>Community</p>
+                </div>
+                <div style={{ maxWidth:252 }}>
+                  <p style={{ color:'#141413', fontSize:27, fontWeight:800, fontFamily:'Sofia Sans,sans-serif', margin:0, lineHeight:1.04, letterSpacing:'-0.7px' }}>Connect with peers</p>
+                  <p style={{ color:'#141413', fontSize:27, fontWeight:800, fontFamily:'Sofia Sans,sans-serif', margin:0, lineHeight:1.04, letterSpacing:'-0.7px' }}>who truly get it</p>
+                </div>
               </div>
 
               {/* Peer cards */}
-              <div style={{ position:'absolute', top:300, left:22, right:22, display:'flex', flexDirection:'column', gap:9, zIndex:2 }}>
+              <div style={{ position:'absolute', top:286, left:22, right:22, display:'flex', flexDirection:'column', gap:12, zIndex:2 }}>
                 {PEERS.map(({ name, tag, status, color, initial }) => {
                   const isOnline = status === 'Online now';
                   return (
-                    <div key={name} style={{ background:'rgba(255,255,255,0.88)', backdropFilter:'blur(14px)', WebkitBackdropFilter:'blur(14px)', borderRadius:18, padding:'11px 14px', display:'flex', alignItems:'center', gap:12, border:'1px solid rgba(20,20,19,0.06)', boxShadow:'0 1px 8px rgba(20,20,19,0.05)' }}>
+                    <div key={name} style={{ background:'rgba(255,255,255,0.84)', backdropFilter:'blur(18px)', WebkitBackdropFilter:'blur(18px)', borderRadius:22, padding:'14px 16px', display:'flex', alignItems:'center', gap:14, border:'1px solid rgba(255,255,255,0.46)', boxShadow:'0 14px 32px rgba(20,20,19,0.06), inset 0 1px 0 rgba(255,255,255,0.38)' }}>
                       {/* Avatar with online dot */}
                       <div style={{ position:'relative', flexShrink:0 }}>
-                        <div style={{ width:42, height:42, borderRadius:21, background:color, display:'flex', alignItems:'center', justifyContent:'center' }}>
-                          <span style={{ fontSize:16, fontWeight:700, color:'rgba(20,20,19,0.65)', fontFamily:'Sofia Sans,sans-serif' }}>{initial}</span>
+                        <div style={{ width:48, height:48, borderRadius:24, background:color, display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'inset 0 1px 0 rgba(255,255,255,0.38)' }}>
+                          <span style={{ fontSize:18, fontWeight:800, color:'rgba(20,20,19,0.48)', fontFamily:'Sofia Sans,sans-serif' }}>{initial}</span>
                         </div>
-                        {isOnline && <div style={{ position:'absolute', bottom:1, right:1, width:10, height:10, borderRadius:5, background:'#22c55e', border:'2px solid white' }} />}
+                        {isOnline && <div style={{ position:'absolute', bottom:2, right:1, width:11, height:11, borderRadius:6, background:'#2ecc71', border:'2px solid white' }} />}
                       </div>
                       {/* Info */}
                       <div style={{ flex:1, minWidth:0 }}>
-                        <div style={{ display:'flex', alignItems:'center', gap:7, marginBottom:2 }}>
-                          <span style={{ fontSize:13, fontWeight:700, color:'#141413', fontFamily:'Sofia Sans,sans-serif' }}>{name}</span>
-                          <span style={{ background:'rgba(124,92,252,0.10)', padding:'2px 8px', borderRadius:99, fontSize:10, fontWeight:700, color:'#7C5CFC', fontFamily:'Sofia Sans,sans-serif' }}>{tag}</span>
+                        <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4 }}>
+                          <span style={{ fontSize:15, fontWeight:800, color:'#141413', fontFamily:'Sofia Sans,sans-serif', letterSpacing:'-0.24px' }}>{name}</span>
+                          <span style={{ background:'rgba(124,92,252,0.11)', padding:'4px 10px', borderRadius:99, fontSize:10.5, fontWeight:700, color:'#7C5CFC', fontFamily:'Sofia Sans,sans-serif', lineHeight:1 }}>{tag}</span>
                         </div>
-                        <span style={{ fontSize:11.5, color: isOnline ? '#22c55e' : 'rgba(20,20,19,0.38)', fontFamily:'Sofia Sans,sans-serif', fontWeight: isOnline ? 600 : 400 }}>{status}</span>
+                        <span style={{ fontSize:12.5, color: isOnline ? '#2ecc71' : 'rgba(20,20,19,0.38)', fontFamily:'Sofia Sans,sans-serif', fontWeight: isOnline ? 700 : 500, letterSpacing:'-0.08px' }}>{status}</span>
                       </div>
                       {/* Chat button */}
-                      <div style={{ width:32, height:32, borderRadius:16, background:'rgba(124,92,252,0.08)', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', flexShrink:0 }}>
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M12 1H2C1.45 1 1 1.45 1 2V9C1 9.55 1.45 10 2 10H4L6.5 13L9 10H12C12.55 10 13 9.55 13 9V2C13 1.45 12.55 1 12 1Z" stroke="#7C5CFC" strokeWidth="1.3" strokeLinejoin="round"/>
-                        </svg>
+                      <div style={{ width:38, height:38, borderRadius:19, background:'rgba(124,92,252,0.08)', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', flexShrink:0, boxShadow:'inset 0 1px 0 rgba(255,255,255,0.24)' }}>
+                        <img alt="" src={imgPeerChatBtn} style={{ width:17, height:17, display:'block' }} />
                       </div>
                     </div>
                   );
@@ -475,16 +480,14 @@
               </div>
 
               {/* CTA — dark button with arrow inline SVG */}
-              <div style={{ position:'absolute', bottom:115, left:28, right:28, zIndex:2 }}>
-                <div style={{ background:'#141413', borderRadius:18, padding:'16px 22px', display:'flex', alignItems:'center', justifyContent:'space-between', cursor:'pointer', boxShadow:'0 8px 28px rgba(20,20,19,0.16)' }}>
+              <div style={{ position:'absolute', bottom:122, left:28, right:28, zIndex:3 }}>
+                <div style={{ background:'linear-gradient(180deg, rgba(25,37,58,0.96) 0%, rgba(20,20,19,0.98) 100%)', borderRadius:24, padding:'18px 22px', display:'flex', alignItems:'center', justifyContent:'space-between', cursor:'pointer', boxShadow:'0 22px 48px rgba(20,20,19,0.20), 0 0 0 1px rgba(255,255,255,0.05) inset' }}>
                   <div>
-                    <p style={{ color:'white', fontWeight:700, fontSize:15, margin:'0 0 2px', fontFamily:'Sofia Sans,sans-serif' }}>Find a Match</p>
-                    <p style={{ color:'rgba(255,255,255,0.50)', fontSize:12, margin:0, fontFamily:'Sofia Sans,sans-serif' }}>3 peers available now</p>
+                    <p style={{ color:'white', fontWeight:800, fontSize:17, margin:'0 0 4px', fontFamily:'Sofia Sans,sans-serif', letterSpacing:'-0.26px' }}>Find a Match</p>
+                    <p style={{ color:'rgba(255,255,255,0.52)', fontSize:12.5, margin:0, fontFamily:'Sofia Sans,sans-serif', fontWeight:500, letterSpacing:'-0.08px' }}>3 peers available now</p>
                   </div>
-                  <div style={{ width:36, height:36, borderRadius:18, background:'rgba(255,255,255,0.10)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M3 8H13M13 8L8.5 3.5M13 8L8.5 12.5" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
+                  <div style={{ width:42, height:42, borderRadius:21, background:'rgba(255,255,255,0.10)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'inset 0 1px 0 rgba(255,255,255,0.14)' }}>
+                    <img alt="" src={imgPeerArrow} style={{ width:18, height:18, display:'block' }} />
                   </div>
                 </div>
               </div>
@@ -554,4 +557,3 @@
         </div>
       );
     }
-

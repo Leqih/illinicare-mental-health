@@ -36,71 +36,235 @@
     const BOOKABLE_KEYS = new Set(['caps','letsTalk','mckinley','resilience']);
     const RESOURCE_SHORT_DETAIL = res => (res.detail || '').split('·')[0].trim();
     const THERAPIST_FIT_LINE = t => `Best for ${t.specializations.slice(0,2).map(s => s[0].toUpperCase() + s.slice(1)).join(' + ')}`;
+    const CHAT_HOME_PALETTE = {
+      ink:'#141413',
+      body:'#4a4462',
+      muted:'rgba(58,51,84,0.66)',
+      purple:'#8a6cff',
+      peach:'rgba(255,210,184,0.44)',
+      blue:'rgba(191,225,255,0.22)',
+      glass:'linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.86))',
+      glassBorder:'1px solid rgba(255,255,255,0.72)',
+      cardShadow:'0 18px 42px rgba(255,183,143,0.12), 0 14px 30px rgba(168,145,255,0.12), 0 6px 16px rgba(20,20,19,0.04)',
+      widgetGlow:'radial-gradient(circle at 50% 54%, rgba(255,255,255,0.92) 0%, rgba(246,216,255,0.8) 18%, rgba(255,202,171,0.62) 36%, rgba(181,212,255,0.46) 58%, rgba(255,255,255,0) 76%)',
+      widgetGrid:'linear-gradient(90deg, rgba(140,122,255,0.06) 0, rgba(140,122,255,0.06) 1px, transparent 1px, transparent 18px), linear-gradient(180deg, rgba(140,122,255,0.06) 0, rgba(140,122,255,0.06) 1px, transparent 1px, transparent 18px)',
+      widgetLine:'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,184,140,0.82) 14%, rgba(138,108,255,0.96) 52%, rgba(141,214,255,0.82) 88%, rgba(255,255,255,0) 100%)',
+    };
+    const FULL_CARD_GRADIENT = (accent) => `linear-gradient(160deg, rgba(20,17,29,0.98) 0%, ${accent}d8 18%, rgba(250,133,69,0.9) 54%, rgba(14,13,20,0.98) 100%)`;
+    const FULL_CARD_ORB = (accent) => `radial-gradient(circle at 50% 54%, rgba(255,255,255,0.96) 0%, ${accent}50 18%, rgba(255,180,145,0.58) 38%, rgba(129,194,255,0.42) 58%, rgba(255,255,255,0) 78%)`;
+    const FIGMA_RESOURCE_GRADIENT = 'linear-gradient(166.19deg, rgb(18, 18, 255) 4.94%, rgb(255, 167, 135) 89.6%)';
+    const FIGMA_MULTI_GRADIENT = 'linear-gradient(167deg, #ff6912 4.94%, #af87ff 89.6%)';
+    const FIGMA_DURATION_GRADIENT = 'linear-gradient(174deg, #2d49ff 4.94%, #6bd288 89.6%)';
+    const FIGMA_DARK_BUBBLE = '#141413';
+    const FIGMA_LIGHT_BUBBLE = '#f6f6f6';
+    const FIGMA_HERO_PANEL = 'linear-gradient(180deg, #2f4f97 0%, #1f386f 100%)';
+    const FIGMA_RESOURCE_BUTTON = '#3c3c3c';
+    const STANDALONE_PANEL_STYLE = {
+      background:'rgba(255,255,255,0.14)',
+      border:'1px solid rgba(255,255,255,0.26)',
+      borderRadius:20,
+      padding:10,
+      boxShadow:'inset 0 1px 0 rgba(255,255,255,0.14)',
+    };
+    const STANDALONE_FOOTER_TEXT_STYLE = {
+      fontSize:10.5,
+      fontWeight:700,
+      color:'rgba(255,255,255,0.84)',
+    };
+    const standAloneOptionStyle = (active, extra = {}) => ({
+      borderRadius:20,
+      border:active ? '2px solid #141413' : '1px solid rgba(20,20,19,0.08)',
+      background:active ? FIGMA_DARK_BUBBLE : 'rgba(248,248,252,0.96)',
+      color:active ? 'white' : '#141413',
+      cursor:'pointer',
+      transition:'all 0.16s ease',
+      boxShadow:active ? '0 10px 22px rgba(20,20,19,0.14)' : 'none',
+      ...extra,
+    });
+    const multiSelectOptionStyle = (active, extra = {}) => ({
+      borderRadius:22,
+      border:active ? '2px solid #141413' : '1px solid rgba(20,20,19,0.08)',
+      background:'rgba(255,255,255,0.97)',
+      color:'#141413',
+      cursor:'pointer',
+      transition:'all 0.16s ease',
+      boxShadow:active ? '0 10px 22px rgba(20,20,19,0.10)' : 'none',
+      ...extra,
+    });
+    const normalizeWidgetTitle = (value) => {
+      if (!value) return '';
+      const stripped = value.replace(/\s*\(pick any that apply\)\s*/i, '').trim();
+      const letters = stripped.match(/[A-Za-z]/g) || [];
+      if (letters.length && stripped === stripped.toUpperCase()) {
+        const lowered = stripped.toLowerCase();
+        return lowered.charAt(0).toUpperCase() + lowered.slice(1);
+      }
+      return stripped;
+    };
+    const RAIL_SOFT_PILL_STYLE = {
+      background:'rgba(255,255,255,0.16)',
+      border:'1px solid rgba(255,255,255,0.24)',
+      borderRadius:99,
+      padding:'5px 10px',
+    };
+    const RAIL_WHITE_PILL_STYLE = {
+      background:'rgba(255,255,255,0.96)',
+      borderRadius:20,
+      padding:'8px 14px',
+      display:'flex',
+      justifyContent:'center',
+    };
+    const railPrimaryButtonStyle = (active) => ({
+      display:'flex',
+      alignItems:'center',
+      justifyContent:'space-between',
+      gap:12,
+      background:active ? 'linear-gradient(135deg,#4ade80,#22c55e)' : FIGMA_RESOURCE_BUTTON,
+      border:'1px solid rgba(255,255,255,0.5)',
+      borderRadius:20,
+      padding:'10px 14px',
+      boxShadow:`0 10px 22px ${active ? 'rgba(74,222,128,0.24)' : 'rgba(20,20,19,0.12)'}`,
+      opacity:1,
+    });
+    const RESOURCE_ACTION_COPY = {
+      breathing: 'Try now',
+      talkCampus: 'Open app',
+      welltrack: 'Start tool',
+      communityAdvocacy: 'Reach out',
+      intlStudent: 'Get help',
+      safeZone: 'Reach out',
+      groupCounseling: 'Learn more',
+      griefSupport: 'Learn more',
+    };
+    const widgetAnswerPillStyle = (SF) => ({
+      display:'inline-flex',
+      alignItems:'center',
+      gap:6,
+      background:'rgba(130,90,220,0.09)',
+      borderRadius:99,
+      padding:'5px 13px',
+      border:'1px solid rgba(130,90,220,0.18)',
+      fontSize:12,
+      color:'rgba(110,65,200,0.9)',
+      fontFamily:SF,
+      fontWeight:700,
+    });
+    const widgetAnswerStyle = (SF) => ({
+      marginLeft:36,
+      animation:'msgIn 0.25s ease-out',
+      ...widgetAnswerPillStyle(SF),
+    });
+
+    function WidgetShell({
+      title,
+      helper,
+      badge,
+      footer,
+      children,
+      SF,
+      maxWidth='84%',
+      bodyMaxHeight,
+      bodyPadding='14px 20px 0',
+      titleCaps=true,
+      centerHeader=false,
+      showLeadDot=true,
+      gradient=FIGMA_MULTI_GRADIENT,
+      headerPadding='18px 18px 14px',
+      titleSize=15,
+      titleLineHeight='17.25px',
+      helperSize=11,
+      helperLineHeight=1.35,
+      badgePadding='7px 13px',
+      badgeSize=10.5,
+      headerMinHeight,
+      footerPadding='12px 18px 16px',
+    }) {
+      return (
+        <div style={{ marginLeft:36, width:maxWidth, maxWidth:'100%', background:gradient, borderRadius:22, overflow:'hidden', border:'2px solid rgba(255,255,255,0.5)', boxShadow:'0 28px 68px rgba(49,71,164,0.14), 0 14px 28px rgba(255,167,135,0.14)', animation:'msgIn 0.28s ease-out', position:'relative' }}>
+          <div style={{ position:'absolute', inset:0, boxShadow:'inset 0 3px 120px rgba(204,235,255,0.52)', pointerEvents:'none' }} />
+          <div style={{ position:'absolute', inset:'40px 24px 18px 24px', background:'radial-gradient(circle at 50% 46%, rgba(255,255,255,0.48), rgba(255,255,255,0) 64%)', filter:'blur(12px)', pointerEvents:'none' }} />
+          <div style={{ position:'relative', zIndex:1, display:'flex', flexDirection:'column' }}>
+            <div style={{ padding:headerPadding, borderBottom:'1px solid rgba(255,255,255,0.24)' }}>
+              <div style={{ position:'relative', minHeight:headerMinHeight || (centerHeader ? 50 : 'auto'), display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:10 }}>
+                <div style={{ minWidth:0, flex:1, textAlign:centerHeader ? 'center' : 'left', paddingRight:centerHeader && badge ? 82 : 0 }}>
+                  <div style={{ display:'flex', alignItems:'center', justifyContent:centerHeader ? 'center' : 'flex-start', gap:7, marginBottom:helper ? 7 : 0 }}>
+                    {showLeadDot && <div style={{ width:8, height:8, borderRadius:'50%', background:'rgba(255,255,255,0.94)', boxShadow:'0 0 0 5px rgba(255,255,255,0.12)' }} />}
+                    <p style={{ margin:0, fontSize:titleSize, fontWeight:800, color:'white', fontFamily:SF, letterSpacing:titleCaps ? '0.48px' : '-0.3px', textTransform:titleCaps ? 'uppercase' : 'none', lineHeight:titleLineHeight }}>{title}</p>
+                  </div>
+                  {helper && <p style={{ margin:0, fontSize:helperSize, color:'rgba(255,255,255,0.84)', fontFamily:SF, lineHeight:helperLineHeight }}>{helper}</p>}
+                </div>
+                {badge && (
+                  <div style={{ background:'rgba(255,255,255,0.14)', borderRadius:20, padding:badgePadding, border:'1px solid rgba(255,255,255,0.22)', flexShrink:0, position:centerHeader ? 'absolute' : 'static', right:0, top:0 }}>
+                    <span style={{ fontSize:badgeSize, fontWeight:800, color:'white', fontFamily:SF, letterSpacing:'0.28px' }}>{badge}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className={bodyMaxHeight ? 'hide-scrollbar' : undefined} style={{ padding:bodyPadding, maxHeight:bodyMaxHeight, overflowY:bodyMaxHeight ? 'auto' : 'visible', WebkitOverflowScrolling:'touch', position:'relative', scrollbarWidth:'none', msOverflowStyle:'none' }}>
+              {children}
+            </div>
+            {footer && (
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:10, padding:footerPadding, marginTop:10, borderTop:'1px solid rgba(255,255,255,0.24)', background:'linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))' }}>
+                {footer}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
 
     function ResourceCard({ res, SF, onBook, priorityIndex = 0, horizontal = false }) {
-      const BADGE = { 1:['URGENT','#dc2626','rgba(254,226,226,0.95)'], 2:['START HERE','#7c3aed','rgba(237,233,254,0.95)'], 3:['RECOMMENDED','#059669','rgba(209,250,229,0.95)'], 4:['HELPFUL','#0891b2','rgba(224,242,254,0.95)'] };
-      const [bLabel, bText, bBg] = BADGE[res.level] || BADGE[3];
       const canBook = onBook && res._key && BOOKABLE_KEYS.has(res._key);
-      const priorityLabel = priorityIndex === 0 ? 'Top pick' : priorityIndex === 1 ? 'Next' : 'Backup';
-      const priorityTint  = priorityIndex === 0 ? `${res.color}16` : priorityIndex === 1 ? 'rgba(20,20,19,0.018)' : 'rgba(20,20,19,0.01)';
-      const priorityShadow = priorityIndex === 0 ? `0 16px 38px ${res.color}24` : '0 2px 14px rgba(20,20,19,0.09)';
-      const microDetail = RESOURCE_SHORT_DETAIL(res);
+      const hasCall = !!res.phone;
+      const primaryLabel = canBook ? 'Start Matching' : (hasCall ? 'Call now' : (RESOURCE_ACTION_COPY[res._key] || 'Explore'));
+      const secondaryLabel = canBook && hasCall ? 'Call instead' : (canBook ? 'Request in chat' : (hasCall ? res.phone : 'Self-guided'));
+      const actionEnabled = canBook || hasCall;
+      const descriptor = canBook ? (res._key === 'letsTalk' ? 'Consult Session' : 'Counseling Center') : hasCall ? 'Support Line' : 'Support Resource';
+      const heroLabel = res._key === 'caps' ? 'Illinois Counseling Center' : res.title;
+      const heroSub = res._key === 'caps' ? '*/ilcounseling' : canBook ? '*/booksupport' : (hasCall ? 'Immediate support' : 'Resource match');
+      const handlePrimaryAction = () => {
+        if (canBook) { onBook(); return; }
+        if (hasCall) window.location.href = `tel:${res.phone}`;
+      };
       return (
-        <div style={{ marginLeft:horizontal ? 0 : 36, width:horizontal ? 286 : undefined, minWidth:horizontal ? 286 : undefined, maxWidth:horizontal ? 286 : '86%', background:horizontal ? `linear-gradient(163deg, ${res.color}24 2%, rgba(255,255,255,0.96) 30%, rgba(255,255,255,0.97) 100%)` : `linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.96)), ${priorityTint}`, borderRadius:22, overflow:'hidden', boxShadow:priorityShadow, border:`1px solid ${priorityIndex === 0 ? `${res.color}35` : 'rgba(20,20,19,0.06)'}`, display:'flex', flexShrink:0, scrollSnapAlign:'start', position:'relative' }}>
-          {horizontal && <div style={{ position:'absolute', inset:0, background:`radial-gradient(circle at 78% 18%, ${res.color}16 0%, transparent 28%), radial-gradient(circle at 18% 100%, rgba(255,255,255,0.88) 0%, transparent 42%)`, pointerEvents:'none' }} />}
-          <div style={{ width:horizontal ? 0 : (priorityIndex === 0 ? 5 : 3), background:res.color, flexShrink:0 }} />
-          <div style={{ flex:1, padding: horizontal ? '12px 12px 12px' : '11px 13px', position:'relative', zIndex:1 }}>
-            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:8, marginBottom:9 }}>
-              <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:priorityIndex === 0 ? `${res.color}16` : 'rgba(20,20,19,0.04)', borderRadius:99, padding:'4px 8px', border:`1px solid ${priorityIndex === 0 ? `${res.color}24` : 'rgba(20,20,19,0.06)'}` }}>
-                <span style={{ fontSize:9.5, fontWeight:800, color:priorityIndex === 0 ? res.color : 'rgba(20,20,19,0.52)', fontFamily:SF, letterSpacing:'0.3px', textTransform:'uppercase' }}>{priorityIndex + 1}</span>
-                <span style={{ fontSize:9.5, fontWeight:800, color:priorityIndex === 0 ? res.color : 'rgba(20,20,19,0.52)', fontFamily:SF, letterSpacing:'0.3px', textTransform:'uppercase' }}>{priorityLabel}</span>
+        <div style={{ marginLeft:horizontal ? 0 : 36, width:horizontal ? 286 : undefined, minWidth:horizontal ? 286 : undefined, maxWidth:horizontal ? 286 : '86%', minHeight:horizontal ? 320 : undefined, background:FIGMA_RESOURCE_GRADIENT, borderRadius:22, overflow:'hidden', border:'2px solid rgba(255,255,255,0.5)', boxShadow:'0 22px 48px rgba(49,71,164,0.16), 0 14px 28px rgba(255,167,135,0.14)', display:'flex', flexDirection:'column', flexShrink:0, scrollSnapAlign:'start', position:'relative' }}>
+          <div style={{ position:'absolute', inset:0, background:'linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.02) 34%, rgba(255,255,255,0) 60%)', pointerEvents:'none' }} />
+          <div style={{ position:'absolute', inset:0, boxShadow:'inset 0 24px 54px rgba(255,255,255,0.10), inset 0 3px 120px rgba(204,235,255,0.38)', pointerEvents:'none' }} />
+          <div style={{ position:'relative', zIndex:1, display:'flex', flexDirection:'column', height:'100%', padding:14 }}>
+            <div style={{ position:'relative', background:FIGMA_HERO_PANEL, borderRadius:20, minHeight:170, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', textAlign:'center', padding:'20px 18px 18px', boxShadow:'inset 0 1px 0 rgba(255,255,255,0.12)' }}>
+              <div style={{ position:'absolute', inset:0, borderRadius:20, background:'linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0) 34%), radial-gradient(circle at 50% 52%, rgba(255,255,255,0.06), rgba(255,255,255,0) 48%)', pointerEvents:'none' }} />
+              <div style={{ position:'absolute', right:12, top:12, width:28, height:28, borderRadius:14, background:'rgba(255,255,255,0.7)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                <span style={{ fontSize:13, lineHeight:1, color:'#141413', fontFamily:SF }}>↗</span>
               </div>
-              <div style={{ flexShrink:0, background:bBg, borderRadius:99, padding:'3px 8px', marginTop:1 }}>
-                <span style={{ fontSize:9, fontWeight:800, color:bText, fontFamily:SF, letterSpacing:'0.5px' }}>{bLabel}</span>
+              <div style={{ width:74, height:74, borderRadius:'50%', background:'linear-gradient(180deg, rgba(31,47,112,0.86), rgba(22,37,87,0.92))', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:12, boxShadow:'0 10px 26px rgba(10,14,33,0.22)' }}>
+                <span style={{ fontSize:26, lineHeight:1 }}>{res.icon}</span>
               </div>
+              <p style={{ margin:0, fontSize:14.5, fontWeight:800, color:'white', fontFamily:SF, lineHeight:1.2 }}>{heroLabel}</p>
+              <p style={{ margin:'3px 0 0', fontSize:10.5, fontWeight:700, color:'rgba(255,255,255,0.88)', fontFamily:SF, lineHeight:1.2 }}>{heroSub}</p>
             </div>
-            {/* Header: icon + title + priority badge */}
-            <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:8 }}>
-              <div style={{ display:'flex', alignItems:'center', gap:9 }}>
-                <div style={{ width:32, height:32, borderRadius:10, background:`${res.color}18`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                  <span style={{ fontSize:16, lineHeight:1 }}>{res.icon}</span>
-                </div>
-                <div>
-                  <p style={{ margin:0, fontSize:13, fontWeight:700, color:'#141413', fontFamily:SF, letterSpacing:'-0.2px', lineHeight:1.3 }}>{res.title}</p>
-                  <p style={{ margin:0, fontSize:10.5, color:'rgba(20,20,19,0.44)', fontFamily:SF, lineHeight:1.3, display:'-webkit-box', WebkitLineClamp:1, WebkitBoxOrient:'vertical', overflow:'hidden' }}>{res.sub}</p>
-                </div>
+            <div style={{ paddingTop:12, display:'flex', flexDirection:'column', gap:10, flex:1 }}>
+              <div>
+                <p style={{ margin:0, fontSize:12.5, fontWeight:800, color:'white', fontFamily:SF, lineHeight:1.24 }}>{descriptor}</p>
+                <p style={{ margin:'8px 0 0', fontSize:10.5, color:'rgba(255,255,255,0.92)', fontFamily:SF, lineHeight:1.4, display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden' }}>{res.sub}</p>
               </div>
-            </div>
-            {/* Tagline */}
-            {(horizontal ? microDetail : res.tagline) && (
-              <p style={{ margin:'4px 0 8px', fontSize:11, color:'rgba(20,20,19,0.56)', fontFamily:SF, lineHeight:1.4, display:'-webkit-box', WebkitLineClamp: horizontal ? 2 : 'unset', WebkitBoxOrient:'vertical', overflow:'hidden' }}>{horizontal ? microDetail : res.tagline}</p>
-            )}
-            {/* Attribute chips */}
-            {res.tags && (
-              <div style={{ display:'flex', flexWrap:'wrap', gap:5, marginBottom:8 }}>
-                {(horizontal ? res.tags.slice(0, 2) : res.tags).map(t => (
-                  <div key={t} style={{ background:`${res.color}14`, border:`1px solid ${res.color}30`, borderRadius:99, padding:'3px 9px' }}>
-                    <span style={{ fontSize:10.5, fontWeight:700, color:res.color, fontFamily:SF }}>{t}</span>
+              <div style={{ display:'flex', flexWrap:'wrap', gap:7 }}>
+                {(res.tags || []).slice(0, 2).map(tag => (
+                  <div key={tag} style={{ minWidth:75, ...RAIL_WHITE_PILL_STYLE, padding:'8px 16px' }}>
+                    <span style={{ fontSize:12, fontWeight:500, color:'#3c3c3c', fontFamily:SF, lineHeight:1 }}>{tag}</span>
                   </div>
                 ))}
               </div>
-            )}
-            {/* Footer: location + book + call buttons */}
-            <div style={{ display:'flex', flexDirection:horizontal ? 'column' : 'row', alignItems:horizontal ? 'stretch' : 'center', justifyContent:'space-between', gap:8 }}>
-              {!horizontal && <p style={{ margin:0, fontSize:10, color:'rgba(20,20,19,0.34)', fontFamily:SF, letterSpacing:'0.1px', lineHeight:1.4, flex:1 }}>{res.detail}</p>}
-              <div style={{ display:'flex', gap:6, flexShrink:0, justifyContent:horizontal ? 'space-between' : 'flex-start', background:horizontal ? 'rgba(255,255,255,0.82)' : 'transparent', border:horizontal ? '1px solid rgba(20,20,19,0.05)' : 'none', borderRadius:18, padding:horizontal ? '8px' : 0, boxShadow:horizontal ? '0 8px 20px rgba(20,20,19,0.05)' : 'none' }}>
-                {canBook && (
-                  <div onClick={onBook} style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:4, background:horizontal ? `linear-gradient(135deg, ${res.color}, ${res.color}cc)` : `${res.color}15`, borderRadius:99, padding:horizontal ? '10px 12px' : '5px 10px', cursor:'pointer', border:horizontal ? 'none' : `1px solid ${res.color}30`, boxShadow:horizontal ? `0 8px 18px ${res.color}33` : 'none', flex:horizontal ? 1 : 'unset' }}>
-                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke={res.color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    <span style={{ fontSize:10.5, fontWeight:700, color:horizontal ? 'white' : res.color, fontFamily:SF, whiteSpace:'nowrap' }}>{priorityIndex === 0 ? 'Start' : 'Book'}</span>
+              <div style={{ marginTop:'auto', display:'flex', flexDirection:'column', gap:10 }}>
+                <div onClick={actionEnabled ? handlePrimaryAction : undefined} style={{ ...railPrimaryButtonStyle(false), cursor:actionEnabled ? 'pointer' : 'default', opacity:actionEnabled ? 1 : 0.68 }}>
+                  <span style={{ fontSize:12.5, fontWeight:500, color:'white', fontFamily:SF }}>{primaryLabel}</span>
+                  <div style={{ width:23, height:23, borderRadius:'50%', background:'white', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                    <span style={{ fontSize:12, lineHeight:1, color:'#141413' }}>{canBook ? '→' : hasCall ? '↗' : '→'}</span>
                   </div>
-                )}
-                {res.phone && (
-                  <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:4, background:horizontal && !canBook ? `linear-gradient(135deg, ${res.color}, ${res.color}cc)` : res.color, borderRadius:99, padding:horizontal ? '10px 12px' : '5px 11px', cursor:'pointer', boxShadow:`0 2px 8px ${res.color}44`, flex:horizontal ? 1 : 'unset' }}>
-                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.81a19.79 19.79 0 01-3.07-8.63A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.18 6.18l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
-                    <span style={{ fontSize:11, fontWeight:700, color:'white', fontFamily:SF, whiteSpace:'nowrap' }}>{horizontal ? 'Call now' : res.phone}</span>
-                  </div>
-                )}
+                </div>
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:8 }}>
+                  <span style={{ fontSize:10.5, color:'rgba(255,255,255,0.82)', fontFamily:SF, lineHeight:1.35 }}>{canBook ? 'Book without leaving chat' : RESOURCE_SHORT_DETAIL(res)}</span>
+                  {secondaryLabel && <span style={{ fontSize:10.5, fontWeight:700, color:'white', fontFamily:SF }}>{secondaryLabel}</span>}
+                </div>
               </div>
             </div>
           </div>
@@ -115,7 +279,7 @@
             <span style={{ fontSize:10, fontWeight:800, color:'rgba(20,20,19,0.34)', fontFamily:SF, letterSpacing:'0.55px', textTransform:'uppercase' }}>Suggested support</span>
             <span style={{ fontSize:10, fontWeight:700, color:'rgba(111,94,255,0.72)', fontFamily:SF }}>Swipe across</span>
           </div>
-          <div style={{ display:'flex', gap:12, overflowX:'auto', paddingRight:18, paddingBottom:6, scrollSnapType:'x proximity', scrollPaddingLeft:0, scrollbarWidth:'none', msOverflowStyle:'none' }}>
+          <div style={{ display:'flex', gap:12, overflowX:'auto', paddingRight:18, paddingBottom:6, scrollSnapType:'x mandatory', scrollPaddingLeft:0, scrollbarWidth:'none', msOverflowStyle:'none' }}>
             {resources.map((item, idx) => (
               <ResourceCard key={`${item.res._key || item.res.title}-${idx}`} res={item.res} SF={SF} onBook={BOOKABLE_KEYS.has(item.res?._key) ? onBook : null} priorityIndex={item.priorityIndex || idx} horizontal />
             ))}
@@ -127,44 +291,443 @@
     /* ── INLINE WIDGETS ── */
     function DurationWidget({ onAnswer, answered, SF }) {
       const [sel, setSel] = useState(null);
-      const opts = ['Just today','A few days','About a week','2–3 weeks','Over a month','A long time'];
-      const hints = {
-        'Just today':'recent spike',
-        'A few days':'this week',
-        'About a week':'lingering',
-        '2–3 weeks':'sticking around',
-        'Over a month':'ongoing',
-        'A long time':'hard to remember otherwise',
-      };
-      if (answered) return (
-        <div style={{ marginLeft:36, display:'inline-flex', alignItems:'center', gap:6, background:'rgba(130,90,220,0.09)', borderRadius:99, padding:'5px 13px', border:'1px solid rgba(130,90,220,0.18)', animation:'msgIn 0.25s ease-out' }}>
-          <span style={{ fontSize:12, color:'rgba(110,65,200,0.9)', fontFamily:SF, fontWeight:700 }}>✓ {answered}</span>
-        </div>
-      );
+      const durationRows = [
+        [
+          { label:'Just today', width:168, size:12 },
+          { label:'A few days', width:94, size:12 },
+          { label:'About a week', width:94, size:10 },
+        ],
+        [
+          { label:'2–3 weeks', width:95, size:12 },
+          { label:'Over a month', width:174, size:12 },
+          { label:'A long time', width:94, size:10 },
+        ],
+      ];
+      if (answered) return <div style={widgetAnswerStyle(SF)}>✓ {answered}</div>;
       return (
-        <div style={{ marginLeft:36, maxWidth:'82%', background:'linear-gradient(180deg, rgba(255,255,255,0.99), rgba(252,248,255,0.97))', borderRadius:24, overflow:'hidden', border:'1px solid rgba(124,92,252,0.14)', boxShadow:'0 14px 32px rgba(20,20,19,0.07)', animation:'msgIn 0.28s ease-out', position:'relative' }}>
-          <div style={{ position:'absolute', inset:0, background:'radial-gradient(circle at 88% 14%, rgba(155,110,243,0.12) 0%, transparent 22%), radial-gradient(circle at 10% 100%, rgba(255,229,214,0.55) 0%, transparent 36%)', pointerEvents:'none' }} />
-          <div style={{ padding:'12px 12px 12px', position:'relative', zIndex:1 }}>
-            <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:10, marginBottom:10 }}>
-              <div>
-                <div style={{ display:'flex', alignItems:'center', gap:7, marginBottom:4 }}>
-                  <div style={{ width:7, height:7, borderRadius:'50%', background:'linear-gradient(135deg,#9b6ef3,#7b4fd4)', boxShadow:'0 0 0 4px rgba(155,110,243,0.10)' }} />
-                  <p style={{ margin:0, fontSize:10.5, fontWeight:800, color:'#7b4fd4', fontFamily:SF, letterSpacing:'0.7px', textTransform:'uppercase' }}>How long?</p>
+        <WidgetShell
+          title="How long?"
+          SF={SF}
+          titleCaps={false}
+          footer={null}
+          centerHeader
+          showLeadDot={false}
+          gradient={FIGMA_DURATION_GRADIENT}
+          headerPadding="16px 18px 10px"
+          titleSize={13.5}
+          titleLineHeight="15px"
+          bodyPadding="12px 18px 14px"
+        >
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(3, minmax(0, 1fr))', gap:8 }}>
+            {durationRows.flat().map((item) => {
+              const active = sel === item.label;
+              return (
+                <div
+                  key={item.label}
+                  onClick={() => { setSel(item.label); setTimeout(() => onAnswer(item.label), 220); }}
+                  style={{
+                    minWidth:0,
+                    minHeight:40,
+                    padding:'9px 10px',
+                    display:'flex',
+                    alignItems:'center',
+                    justifyContent:'center',
+                    textAlign:'center',
+                    ...standAloneOptionStyle(active, { borderRadius:20 }),
+                  }}
+                >
+                  <span style={{ fontSize:11.5, fontWeight:500, fontFamily:SF, lineHeight:'14px' }}>{item.label}</span>
                 </div>
-                <p style={{ margin:0, fontSize:10, color:'rgba(20,20,19,0.42)', fontFamily:SF, lineHeight:1.35 }}>Choose one.</p>
-              </div>
-              <div style={{ background:'rgba(124,92,252,0.08)', borderRadius:99, padding:'5px 8px', border:'1px solid rgba(124,92,252,0.12)' }}>
-                <span style={{ fontSize:9, fontWeight:800, color:'#7b4fd4', fontFamily:SF, letterSpacing:'0.35px' }}>ONE TAP</span>
+              );
+            })}
+          </div>
+        </WidgetShell>
+      );
+    }
+
+    function DurationSeverityDeck({ onComplete, answered, SF }) {
+      const [page, setPage] = useState(0);
+      const [duration, setDuration] = useState(null);
+      const [severity, setSeverity] = useState(null);
+      const touchStartX = useRef(null);
+      const durationOptions = [
+        'Just today',
+        'A few days',
+        'About a week',
+        '2–3 weeks',
+        'Over a month',
+        'A long time',
+      ];
+      const severityOptions = [
+        { label:'Mild', emoji:'😌' },
+        { label:'Noticeable', emoji:'😕' },
+        { label:'Moderate', emoji:'😟' },
+        { label:'Intense', emoji:'😣' },
+        { label:'Overwhelming', emoji:'😰' },
+      ];
+      const severityRows = [severityOptions.slice(0, 3), severityOptions.slice(3)];
+      if (answered) {
+        const [d, s] = answered.split(' · ');
+        return (
+          <div style={{ marginLeft:36, display:'flex', flexWrap:'wrap', gap:6, maxWidth:'86%', animation:'msgIn 0.25s ease-out' }}>
+            <div style={widgetAnswerPillStyle(SF)}>✓ {d}</div>
+            <div style={widgetAnswerPillStyle(SF)}>✓ {s}</div>
+          </div>
+        );
+      }
+      const handleTouchStart = (e) => {
+        touchStartX.current = e.touches?.[0]?.clientX ?? null;
+      };
+      const handleTouchEnd = (e) => {
+        if (touchStartX.current == null) return;
+        const endX = e.changedTouches?.[0]?.clientX ?? touchStartX.current;
+        const delta = endX - touchStartX.current;
+        if (Math.abs(delta) > 40) {
+          if (delta < 0 && page < 1) setPage(page + 1);
+          if (delta > 0 && page > 0) setPage(page - 1);
+        }
+        touchStartX.current = null;
+      };
+      const finishIfReady = (nextDuration, nextSeverity) => {
+        if (nextDuration && nextSeverity) {
+          setTimeout(() => onComplete(nextDuration, nextSeverity), 220);
+        }
+      };
+      return (
+        <div
+          style={{ marginLeft:36, width:'84%', maxWidth:'100%', overflow:'hidden', touchAction:'pan-y', animation:'msgIn 0.28s ease-out' }}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          <div style={{ display:'flex', width:'200%', transform:`translateX(-${page * 50}%)`, transition:'transform 0.28s ease' }}>
+            <div style={{ width:'50%', paddingRight:8, boxSizing:'border-box' }}>
+              <div style={{ background:FIGMA_DURATION_GRADIENT, borderRadius:22, border:'2px solid rgba(255,255,255,0.5)', overflow:'hidden', position:'relative', boxShadow:'0 30px 86px rgba(68,112,255,0.22), 0 14px 32px rgba(107,210,136,0.20)' }}>
+                <div style={{ position:'absolute', inset:0, boxShadow:'inset 0 3px 120px rgba(204,235,255,0.6)', pointerEvents:'none' }} />
+                <div style={{ position:'absolute', inset:'40px 28px 16px 28px', background:'radial-gradient(circle at 50% 48%, rgba(255,255,255,0.54), rgba(255,255,255,0) 64%)', filter:'blur(12px)', pointerEvents:'none' }} />
+                <div style={{ padding:'18px 18px 16px', position:'relative', zIndex:1 }}>
+                  <div style={{ position:'relative', minHeight:24, marginBottom:14 }}>
+                    <p style={{ margin:0, fontSize:15, fontWeight:800, color:'white', fontFamily:SF, letterSpacing:'-0.3px', lineHeight:'17.25px', textAlign:'center' }}>How long?</p>
+                    <div style={{ background:'rgba(255,255,255,0.14)', border:'1px solid rgba(255,255,255,0.22)', borderRadius:20, padding:'7px 13px', flexShrink:0, position:'absolute', right:0, top:-2 }}>
+                      <span style={{ fontSize:10.5, fontWeight:800, color:'white', fontFamily:SF, letterSpacing:'0.28px' }}>SWIPE</span>
+                    </div>
+                  </div>
+                  <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                    {[
+                      [
+                        { label:'Just today', width:168, size:12 },
+                        { label:'A few days', width:94, size:12 },
+                        { label:'About a week', width:94, size:10 },
+                      ],
+                      [
+                        { label:'2–3 weeks', width:95, size:12 },
+                        { label:'Over a month', width:174, size:12 },
+                        { label:'A long time', width:94, size:10 },
+                      ],
+                    ].map((row, rowIdx) => {
+                      const rowTotal = row.reduce((sum, item) => sum + item.width, 0);
+                      return (
+                        <div key={rowIdx} style={{ display:'flex', alignItems:'center', gap:8 }}>
+                          {row.map((item) => {
+                            const active = duration === item.label;
+                            return (
+                              <div
+                                key={item.label}
+                                onClick={() => {
+                                  setDuration(item.label);
+                                  setPage(1);
+                                  finishIfReady(item.label, severity);
+                                }}
+                                style={{
+                                  flex:`${item.width} 1 0`,
+                                  minWidth:0,
+                                  minHeight:38,
+                                  padding:'8px 16px',
+                                  borderRadius:20,
+                                  background:active ? FIGMA_DARK_BUBBLE : 'rgba(255,255,255,0.98)',
+                                  color:active ? 'white' : '#141413',
+                                  cursor:'pointer',
+                                  display:'flex',
+                                  alignItems:'center',
+                                  justifyContent:'center',
+                                  textAlign:'center',
+                                  transition:'all 0.16s ease',
+                                  boxShadow:active ? '0 8px 18px rgba(20,20,19,0.16)' : 'none',
+                                }}
+                              >
+                                <span style={{ fontSize:item.size, fontWeight:400, fontFamily:SF, lineHeight:'15px', whiteSpace:'nowrap', transform: rowTotal > 320 ? 'scale(0.96)' : 'none' }}>{item.label}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div style={{ marginTop:'auto', paddingTop:14, display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:7 }}>
+                      {[0, 1].map((dot) => (
+                        <div key={dot} onClick={() => setPage(dot)} style={{ width:dot === page ? 10 : 8, height:dot === page ? 10 : 8, borderRadius:'50%', background:dot === page ? '#141413' : 'rgba(255,255,255,0.92)', cursor:'pointer', transition:'all 0.16s ease' }} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(3, minmax(0, 1fr))', gap:7, background:'rgba(255,255,255,0.68)', border:'1px solid rgba(20,20,19,0.05)', borderRadius:18, padding:8, boxShadow:'inset 0 1px 0 rgba(255,255,255,0.6)' }}>
-              {opts.map(o => (
-                <div key={o} onClick={() => { setSel(o); setTimeout(() => onAnswer(o), 220); }}
-                  style={{ minHeight:50, padding:'9px 10px', borderRadius:16, border:`1.5px solid ${sel===o?'#9b6ef3':'rgba(20,20,19,0.08)'}`, background:sel===o?'linear-gradient(135deg,#9b6ef3,#7b4fd4)':'rgba(248,248,252,0.9)', cursor:'pointer', transition:'all 0.16s', display:'flex', flexDirection:'column', justifyContent:'center', gap:2 }}>
-                  <span style={{ fontSize:11.5, fontWeight:700, color:sel===o?'white':'rgba(20,20,19,0.76)', fontFamily:SF, lineHeight:1.15 }}>{o}</span>
-                  <span style={{ fontSize:9, fontWeight:600, color:sel===o?'rgba(255,255,255,0.82)':'rgba(20,20,19,0.36)', fontFamily:SF, lineHeight:1.15 }}>{hints[o]}</span>
+            <div style={{ width:'50%', paddingLeft:8, boxSizing:'border-box' }}>
+              <div style={{ background:'linear-gradient(160deg, #14131f 0%, #955dff 18%, #ffaf7a 58%, #1a1830 100%)', borderRadius:22, border:'2px solid rgba(255,255,255,0.5)', overflow:'hidden', position:'relative', boxShadow:'0 28px 78px rgba(149,93,255,0.22), 0 14px 34px rgba(255,175,122,0.18)' }}>
+                <div style={{ position:'absolute', inset:0, boxShadow:'inset 0 3px 120px rgba(204,235,255,0.46)', pointerEvents:'none' }} />
+                <div style={{ position:'absolute', inset:'34px 22px 16px 22px', background:'radial-gradient(circle at 50% 45%, rgba(255,255,255,0.56), rgba(255,255,255,0) 66%)', filter:'blur(14px)', pointerEvents:'none' }} />
+                <div style={{ padding:'18px 18px 16px', position:'relative', zIndex:1 }}>
+                  <div style={{ position:'relative', minHeight:24, marginBottom:16 }}>
+                    <p style={{ margin:0, fontSize:15, fontWeight:800, color:'white', fontFamily:SF, letterSpacing:'-0.3px', lineHeight:'17.25px', textAlign:'center' }}>Intensity</p>
+                    <div style={{ background:'rgba(255,255,255,0.14)', border:'1px solid rgba(255,255,255,0.22)', borderRadius:20, padding:'7px 13px', flexShrink:0, position:'absolute', right:0, top:-2 }}>
+                      <span style={{ fontSize:10.5, fontWeight:800, color:'white', fontFamily:SF, letterSpacing:'0.28px' }}>ONE TAP</span>
+                    </div>
+                  </div>
+                  <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                    {severityRows.map((row, rowIdx) => (
+                      <div key={rowIdx} style={{ display:'grid', gridTemplateColumns:`repeat(${row.length}, minmax(0, 1fr))`, gap:8 }}>
+                        {row.map((item) => {
+                          const active = severity === item.label;
+                          return (
+                            <div
+                              key={item.label}
+                              onClick={() => {
+                                setSeverity(item.label);
+                                finishIfReady(duration, item.label);
+                              }}
+                              style={{
+                                minHeight:76,
+                                padding:'9px 8px',
+                                borderRadius:20,
+                                background:active ? FIGMA_DARK_BUBBLE : 'rgba(255,255,255,0.96)',
+                                color:active ? 'white' : '#141413',
+                                display:'flex',
+                                flexDirection:'column',
+                                alignItems:'center',
+                                justifyContent:'center',
+                                gap:6,
+                                cursor:'pointer',
+                                transition:'all 0.16s ease',
+                                boxShadow:active ? '0 8px 18px rgba(20,20,19,0.16)' : 'none',
+                              }}
+                            >
+                              <span style={{ fontSize:26, lineHeight:1 }}>{item.emoji}</span>
+                              <span style={{ fontSize:11, fontWeight:600, fontFamily:SF, lineHeight:'13px', textAlign:'center' }}>{item.label}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ marginTop:'auto', paddingTop:14, display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:7 }}>
+                      {[0, 1].map((dot) => (
+                        <div key={dot} onClick={() => setPage(dot)} style={{ width:dot === page ? 10 : 8, height:dot === page ? 10 : 8, borderRadius:'50%', background:dot === page ? '#141413' : 'rgba(255,255,255,0.92)', cursor:'pointer', transition:'all 0.16s ease' }} />
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function AnxietySwipeDeck({ onComplete, answered, SF }) {
+      const [page, setPage] = useState(0);
+      const [duration, setDuration] = useState(null);
+      const [picks, setPicks] = useState([]);
+      const dragStartX = useRef(null);
+      const deckRootRef = useRef(null);
+      const [dragOffset, setDragOffset] = useState(0);
+      const [isDragging, setIsDragging] = useState(false);
+      const durationRows = [
+        [
+          { label:'Just today', width:168, size:12 },
+          { label:'A few days', width:94, size:12 },
+          { label:'About a week', width:94, size:10 },
+        ],
+        [
+          { label:'2–3 weeks', width:95, size:12 },
+          { label:'Over a month', width:174, size:12 },
+          { label:'A long time', width:94, size:10 },
+        ],
+      ];
+      const symptomOptions = [
+        'Racing, looping thoughts',
+        'Tight chest or shallow breath',
+        "Restless — can't sit still",
+        'Hard to focus on anything',
+        'Sudden dread for no reason',
+        'Trouble sleeping too',
+      ];
+      if (answered) {
+        const [d, symptoms] = answered.split(' · ', 2);
+        return (
+          <div style={{ marginLeft:36, display:'flex', flexWrap:'wrap', gap:6, maxWidth:'86%', animation:'msgIn 0.25s ease-out' }}>
+            <div style={widgetAnswerPillStyle(SF)}>✓ {d}</div>
+            {symptoms && <div style={widgetAnswerPillStyle(SF)}>✓ {symptoms}</div>}
+          </div>
+        );
+      }
+      const SLIDE_GAP = 12;
+      const CARD_HEIGHT = page === 0 ? 'min(54vh, 300px)' : 'min(55vh, 314px)';
+      const handlePointerDown = (e) => {
+        dragStartX.current = e.clientX;
+        setIsDragging(true);
+        setDragOffset(0);
+      };
+      const handlePointerMove = (e) => {
+        if (dragStartX.current == null) return;
+        const delta = e.clientX - dragStartX.current;
+        setDragOffset(Math.max(-72, Math.min(72, delta)));
+      };
+      const finishDrag = (clientX) => {
+        if (dragStartX.current == null) return;
+        const delta = clientX - dragStartX.current;
+        if (Math.abs(delta) > 40) {
+          if (delta < 0 && page < 1) setPage(page + 1);
+          if (delta > 0 && page > 0) setPage(page - 1);
+        }
+        dragStartX.current = null;
+        setIsDragging(false);
+        setDragOffset(0);
+      };
+      const handlePointerUp = (e) => {
+        finishDrag(e.clientX);
+      };
+      const handlePointerCancel = () => {
+        dragStartX.current = null;
+        setIsDragging(false);
+        setDragOffset(0);
+      };
+      const togglePick = (label) => {
+        setPicks((prev) => prev.includes(label) ? prev.filter((item) => item !== label) : [...prev, label]);
+      };
+      return (
+        <div
+          ref={deckRootRef}
+          style={{ marginLeft:36, marginTop:page === 1 ? -16 : -14, width:'calc(100% - 36px)', maxWidth:342, overflow:'hidden', touchAction:'pan-y', animation:'msgIn 0.28s ease-out', userSelect:'none', transition:'margin-top 0.24s cubic-bezier(.22,.8,.24,1)' }}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerCancel}
+          onPointerLeave={(e) => { if (isDragging) finishDrag(e.clientX); }}
+        >
+          <div style={{ position:'relative', height:CARD_HEIGHT }}>
+            <div style={{ position:'absolute', inset:0, transform:`translateX(calc(${page === 0 ? 0 : -100}% + ${page === 0 ? dragOffset : dragOffset - SLIDE_GAP}px))`, transition:isDragging ? 'none' : 'transform 0.32s cubic-bezier(.22,.8,.24,1)' }}>
+              <div style={{ height:'100%', background:FIGMA_DURATION_GRADIENT, borderRadius:22, border:'2px solid rgba(255,255,255,0.5)', overflow:'hidden', position:'relative', boxShadow:'0 30px 86px rgba(68,112,255,0.22), 0 14px 32px rgba(107,210,136,0.20)' }}>
+                <div style={{ position:'absolute', inset:0, boxShadow:'inset 0 3px 120px rgba(204,235,255,0.6)', pointerEvents:'none' }} />
+                <div style={{ position:'absolute', inset:'40px 28px 16px 28px', background:'radial-gradient(circle at 50% 48%, rgba(255,255,255,0.54), rgba(255,255,255,0) 64%)', filter:'blur(12px)', pointerEvents:'none' }} />
+                <div style={{ padding:'18px 18px 16px', position:'relative', zIndex:1, display:'flex', flexDirection:'column', height:'100%' }}>
+                  <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:10, marginBottom:18 }}>
+                    <div>
+                      <p style={{ margin:0, fontSize:15, fontWeight:800, color:'white', fontFamily:SF, letterSpacing:'-0.3px', lineHeight:'17.25px' }}>How long?</p>
+                      <p style={{ margin:'6px 0 0', fontSize:11, color:'rgba(255,255,255,0.82)', fontFamily:SF, lineHeight:1.35 }}>Choose the closest fit.</p>
+                    </div>
+                    <div style={{ background:'rgba(255,255,255,0.14)', border:'1px solid rgba(255,255,255,0.22)', borderRadius:20, padding:'7px 13px' }}>
+                      <span style={{ fontSize:10.5, fontWeight:800, color:'white', fontFamily:SF, letterSpacing:'0.28px' }}>SWIPE</span>
+                    </div>
+                  </div>
+                  <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                    {durationRows.map((row, rowIdx) => {
+                      const rowTotal = row.reduce((sum, item) => sum + item.width, 0);
+                      return (
+                      <div key={rowIdx} style={{ display:'flex', alignItems:'center', gap:8 }}>
+                        {row.map(item => {
+                          const active = duration === item.label;
+                          return (
+                            <div
+                              key={item.label}
+                              onClick={() => {
+                                setDuration(item.label);
+                                setPage(1);
+                              }}
+                              style={{
+                                flex:`${item.width} 1 0`,
+                                minWidth:0,
+                                minHeight:30,
+                                padding:'8px 16px',
+                                borderRadius:20,
+                                background:active ? FIGMA_DARK_BUBBLE : 'rgba(255,255,255,0.98)',
+                                color:active ? 'white' : '#141413',
+                                cursor:'pointer',
+                                display:'flex',
+                                alignItems:'center',
+                                justifyContent:'center',
+                                textAlign:'center',
+                                transition:'all 0.16s ease',
+                                boxShadow:active ? '0 8px 18px rgba(20,20,19,0.16)' : 'none',
+                              }}
+                            >
+                              <span style={{ fontSize:item.size, fontWeight:400, fontFamily:SF, lineHeight:'15px', whiteSpace:'nowrap', transform: rowTotal > 320 ? 'scale(0.96)' : 'none' }}>{item.label}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )})}
+                  </div>
+                  <div style={{ marginTop:'auto', paddingTop:18, display:'flex', alignItems:'center', justifyContent:'space-between', gap:12 }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                      {[0, 1].map((dot) => (
+                        <div key={dot} onClick={() => setPage(dot)} style={{ width:dot === page ? 10 : 8, height:dot === page ? 10 : 8, borderRadius:'50%', background:dot === page ? '#141413' : 'rgba(255,255,255,0.92)', cursor:'pointer', transition:'all 0.16s ease' }} />
+                      ))}
+                    </div>
+                    <span style={{ fontSize:10.5, fontWeight:700, color:'rgba(255,255,255,0.82)', fontFamily:SF }}>Next: symptoms</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style={{ position:'absolute', inset:0, transform:`translateX(calc(${page === 1 ? 0 : 100}% + ${page === 1 ? dragOffset : dragOffset + SLIDE_GAP}px))`, transition:isDragging ? 'none' : 'transform 0.32s cubic-bezier(.22,.8,.24,1)' }}>
+              <div style={{ height:'100%', background:FIGMA_MULTI_GRADIENT, borderRadius:22, border:'2px solid rgba(255,255,255,0.5)', overflow:'hidden', position:'relative', boxShadow:'0 34px 96px rgba(255,105,18,0.2), 0 16px 36px rgba(175,135,255,0.2)' }}>
+                <div style={{ position:'absolute', inset:0, boxShadow:'inset 0 3px 120px rgba(204,235,255,0.6)', pointerEvents:'none' }} />
+                <div style={{ position:'absolute', inset:'40px 26px 18px 26px', background:'radial-gradient(circle at 50% 52%, rgba(255,255,255,0.52), rgba(255,255,255,0) 66%)', filter:'blur(12px)', pointerEvents:'none' }} />
+                <div style={{ padding:'14px 14px 12px', position:'relative', zIndex:1, display:'flex', flexDirection:'column', gap:10, height:'100%' }}>
+                  <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:10 }}>
+                    <div>
+                      <p style={{ margin:0, fontSize:15, fontWeight:800, color:'white', fontFamily:SF, letterSpacing:'-0.3px' }}>Where does it show up?</p>
+                      <p style={{ margin:'6px 0 0', fontSize:11, color:'rgba(255,255,255,0.82)', fontFamily:SF, lineHeight:1.35 }}>Pick what fits.</p>
+                    </div>
+                    <div style={{ background:'rgba(255,255,255,0.14)', border:'1px solid rgba(255,255,255,0.22)', borderRadius:20, padding:'7px 13px' }}>
+                      <span style={{ fontSize:10.5, fontWeight:800, color:'white', fontFamily:SF, letterSpacing:'0.28px' }}>MULTI</span>
+                    </div>
+                  </div>
+                  <div className="hide-scrollbar" style={{ display:'flex', flexDirection:'column', gap:10, flex:1, minHeight:0, overflowY:'auto', paddingRight:2, scrollbarWidth:'none', msOverflowStyle:'none' }}>
+                    {symptomOptions.map((label) => {
+                      const active = picks.includes(label);
+                      return (
+                        <div
+                          key={label}
+                          onClick={() => togglePick(label)}
+                          style={{ background:'rgba(255,255,255,0.96)', border:active ? '2px solid #141413' : '1px solid rgba(255,255,255,0.5)', borderRadius:20, padding:'9px 13px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:10, cursor:'pointer', transition:'all 0.16s ease' }}
+                        >
+                          <span style={{ fontSize:11.5, fontWeight:500, color:'#141413', fontFamily:SF, lineHeight:1.24, paddingRight:8 }}>{label}</span>
+                          <div style={{ width:21, height:21, borderRadius:'50%', background:active ? '#141413' : 'rgba(20,20,19,0.07)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                            <span style={{ fontSize:12, lineHeight:1, color:active ? 'white' : 'transparent' }}>✓</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, marginTop:'auto' }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                      {[0, 1].map((dot) => (
+                        <div key={dot} onClick={() => setPage(dot)} style={{ width:dot === page ? 10 : 8, height:dot === page ? 10 : 8, borderRadius:'50%', background:dot === page ? '#141413' : 'rgba(255,255,255,0.92)', cursor:'pointer', transition:'all 0.16s ease' }} />
+                      ))}
+                    </div>
+                    <div
+                      onClick={() => duration && picks.length && onComplete(duration, picks.join(' · '))}
+                      style={{ display:'inline-flex', alignItems:'center', gap:8, background:duration && picks.length ? FIGMA_DARK_BUBBLE : 'rgba(20,20,19,0.18)', border:'1px solid rgba(255,255,255,0.28)', borderRadius:20, padding:'8px 12px', cursor:duration && picks.length ? 'pointer' : 'default', opacity:duration && picks.length ? 1 : 0.72 }}
+                    >
+                      <span style={{ fontSize:11.5, fontWeight:500, color:'white', fontFamily:SF }}>Confirm</span>
+                      <div style={{ width:21, height:21, borderRadius:'50%', background:'white', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                        <span style={{ fontSize:12, lineHeight:1, color:'#141413' }}>✓</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -173,83 +736,72 @@
 
     function TagWidget({ options, label, onAnswer, answered, SF }) {
       const [picks, setPicks] = useState([]);
-      const [expanded, setExpanded] = useState(false);
       const toggle = t => setPicks(p => p.includes(t) ? p.filter(x=>x!==t) : [...p,t]);
-      const roomy = options.some(o => o.length > 18) || options.length > 5;
-      const compactGrid = options.length >= 10 && options.every(o => o.length <= 24);
-      const needsProgressiveReveal = compactGrid && options.length > 8;
-      const visibleOptions = needsProgressiveReveal && !expanded ? options.slice(0, 6) : options;
+      const hasInlineHelper = /\(pick any that apply\)/i.test(label || '');
+      const titleText = normalizeWidgetTitle(label || 'Select what fits');
+      const helperText = hasInlineHelper ? 'Choose any that apply.' : 'Choose any that apply.';
       if (answered) return (
         <div style={{ marginLeft:36, display:'flex', flexWrap:'wrap', gap:5, maxWidth:'86%', animation:'msgIn 0.25s ease-out' }}>
           {answered.split(' · ').map(t => (
-            <div key={t} style={{ background:'rgba(130,90,220,0.09)', borderRadius:99, padding:'4px 10px', border:'1px solid rgba(130,90,220,0.18)' }}>
-              <span style={{ fontSize:11.5, color:'rgba(110,65,200,0.85)', fontFamily:SF, fontWeight:700 }}>✓ {t}</span>
-            </div>
+            <div key={t} style={{ ...widgetAnswerPillStyle(SF), padding:'4px 10px' }}>✓ {t}</div>
           ))}
         </div>
       );
       return (
-        <div style={{ marginLeft:36, maxWidth:'82%', background:'linear-gradient(180deg, rgba(255,255,255,0.99), rgba(252,248,255,0.97))', borderRadius:24, overflow:'hidden', border:'1px solid rgba(124,92,252,0.14)', boxShadow:'0 14px 32px rgba(20,20,19,0.07)', animation:'msgIn 0.28s ease-out', position:'relative' }}>
-          <div style={{ position:'absolute', inset:0, background:'radial-gradient(circle at 88% 14%, rgba(155,110,243,0.12) 0%, transparent 22%), radial-gradient(circle at 10% 100%, rgba(255,229,214,0.45) 0%, transparent 36%)', pointerEvents:'none' }} />
-          <div style={{ padding:'12px 12px 0', position:'relative', zIndex:1 }}>
-            <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:10, marginBottom:10 }}>
-              <div>
-                <div style={{ display:'flex', alignItems:'center', gap:7, marginBottom:4 }}>
-                  <div style={{ width:7, height:7, borderRadius:'50%', background:'linear-gradient(135deg,#9b6ef3,#7b4fd4)', boxShadow:'0 0 0 4px rgba(155,110,243,0.10)' }} />
-                  <p style={{ margin:0, fontSize:10.5, fontWeight:800, color:'#7b4fd4', fontFamily:SF, letterSpacing:'0.7px', textTransform:'uppercase' }}>{label || 'Pick any that apply'}</p>
+        <WidgetShell
+          title={titleText}
+          helper={helperText}
+          badge="MULTI"
+          SF={SF}
+          titleCaps={true}
+          centerHeader={false}
+          showLeadDot={true}
+          bodyMaxHeight={246}
+          bodyPadding="12px 18px 0"
+          headerPadding="14px 18px 11px"
+          titleSize={12.5}
+          titleLineHeight="15px"
+          helperSize={10.5}
+          helperLineHeight={1.25}
+          badgePadding="6px 12px"
+          badgeSize={10}
+          headerMinHeight={44}
+          footerPadding="10px 18px 14px"
+          footer={(
+            <>
+              <span style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.86)', fontFamily:SF }}>
+                {picks.length ? `${picks.length} selected` : 'Select 1+'}
+              </span>
+              <div
+                onClick={() => picks.length && onAnswer(picks.join(' · '))}
+                style={{ display:'inline-flex', alignItems:'center', gap:8, background:picks.length ? FIGMA_DARK_BUBBLE : 'rgba(20,20,19,0.18)', border:'1px solid rgba(255,255,255,0.28)', borderRadius:20, padding:'7px 12px', cursor:picks.length ? 'pointer' : 'default', opacity:picks.length ? 1 : 0.72 }}
+              >
+                <span style={{ fontSize:11.5, fontWeight:500, color:'white', fontFamily:SF }}>Confirm</span>
+                <div style={{ width:21, height:21, borderRadius:'50%', background:'white', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                  <span style={{ fontSize:12, lineHeight:1, color:'#141413' }}>✓</span>
                 </div>
-                <p style={{ margin:0, fontSize:10, color:'rgba(20,20,19,0.42)', fontFamily:SF, lineHeight:1.35 }}>{roomy ? 'Pick what fits.' : 'Pick one or more.'}</p>
               </div>
-              <div style={{ background:'rgba(124,92,252,0.08)', borderRadius:99, padding:'5px 8px', border:'1px solid rgba(124,92,252,0.12)' }}>
-                <span style={{ fontSize:9, fontWeight:800, color:'#7b4fd4', fontFamily:SF, letterSpacing:'0.35px' }}>{picks.length ? `${picks.length} PICKED` : 'MULTI'}</span>
-              </div>
-            </div>
-            <div style={{ display:compactGrid ? 'grid' : 'flex', gridTemplateColumns:compactGrid ? 'repeat(2, minmax(0, 1fr))' : undefined, flexDirection:compactGrid ? undefined : 'column', gap:8, maxHeight: compactGrid ? 208 : (roomy ? 216 : 176), overflowY:'auto', WebkitOverflowScrolling:'touch', padding:8, paddingRight:10, marginBottom:0, background:'rgba(255,255,255,0.68)', border:'1px solid rgba(20,20,19,0.05)', borderRadius:18, boxShadow:'inset 0 1px 0 rgba(255,255,255,0.6)' }}>
-              {visibleOptions.map(t => (
-                <div key={t} onClick={() => toggle(t)}
-                  style={{
-                    padding:compactGrid ? '10px 11px' : '11px 12px',
-                    borderRadius:16,
-                    border:`1.5px solid ${picks.includes(t)?'#9b6ef3':'rgba(20,20,19,0.08)'}`,
-                    background:picks.includes(t)?'rgba(155,110,243,0.09)':'rgba(248,248,252,0.92)',
-                    cursor:'pointer',
-                    transition:'all 0.15s',
-                    display:'flex',
-                    alignItems:'center',
-                    justifyContent:'space-between',
-                    gap:10,
-                    minHeight:compactGrid ? 44 : 46,
-                  }}>
-                  <span style={{ fontSize:compactGrid ? 11.5 : 12.5, fontWeight:700, color:picks.includes(t)?'#7b4fd4':'rgba(20,20,19,0.72)', fontFamily:SF, lineHeight:1.28, paddingRight:6 }}>{t}</span>
-                  <div style={{ width:18, height:18, borderRadius:9, background:picks.includes(t)?'#9b6ef3':'rgba(20,20,19,0.04)', border:`1px solid ${picks.includes(t)?'#9b6ef3':'rgba(20,20,19,0.08)'}`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                    <span style={{ fontSize:11, fontWeight:900, color:picks.includes(t)?'white':'transparent', fontFamily:SF }}>✓</span>
+            </>
+          )}
+        >
+          <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+            {options.map(t => {
+              const active = picks.includes(t);
+              return (
+                <div
+                  key={t}
+                  onClick={() => toggle(t)}
+                  style={{ padding:'8px 16px', minHeight:38, display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, ...multiSelectOptionStyle(active) }}
+                >
+                  <span style={{ fontSize:11.5, fontWeight:500, color:'#141413', fontFamily:SF, lineHeight:'14px', paddingRight:8 }}>{t}</span>
+                  <div style={{ width:21, height:21, borderRadius:'50%', background:active ? '#141413' : 'rgba(20,20,19,0.07)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, border:active ? '1px solid #141413' : '1px solid transparent' }}>
+                    <span style={{ fontSize:12, lineHeight:1, color:active ? 'white' : 'transparent' }}>✓</span>
                   </div>
                 </div>
-              ))}
-            </div>
-            {needsProgressiveReveal && !expanded && (
-              <div style={{ display:'flex', justifyContent:'flex-start', paddingTop:8 }}>
-                <div onClick={() => setExpanded(true)} style={{ display:'inline-flex', alignItems:'center', gap:6, background:'rgba(20,20,19,0.045)', border:'1px solid rgba(20,20,19,0.06)', borderRadius:99, padding:'7px 10px', cursor:'pointer' }}>
-                  <span style={{ fontSize:11, fontWeight:700, color:'rgba(20,20,19,0.58)', fontFamily:SF }}>Show all {options.length}</span>
-                  <span style={{ fontSize:11, fontWeight:800, color:'rgba(20,20,19,0.42)', fontFamily:SF }}>↓</span>
-                </div>
-              </div>
-            )}
-            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:10, padding:'10px 0 12px', marginTop:8, borderTop:'1px solid rgba(20,20,19,0.05)', background:'linear-gradient(180deg, rgba(255,255,255,0.82), rgba(255,255,255,0.98))' }}>
-              <p style={{ margin:0, fontSize:11, color:'rgba(20,20,19,0.44)', fontFamily:SF }}>{picks.length ? `${picks.length} selected` : 'Pick at least one'}</p>
-              {picks.length > 0 ? (
-                <div onClick={() => onAnswer(picks.join(' · '))}
-                  style={{ display:'inline-flex', alignItems:'center', gap:5, background:'linear-gradient(135deg,#9b6ef3,#7b4fd4)', borderRadius:99, padding:'8px 16px', cursor:'pointer', boxShadow:'0 2px 8px rgba(120,70,220,0.28)' }}>
-                  <span style={{ fontSize:12.5, fontWeight:700, color:'white', fontFamily:SF }}>Done →</span>
-                </div>
-              ) : (
-                <div style={{ display:'inline-flex', alignItems:'center', gap:5, background:'rgba(20,20,19,0.05)', borderRadius:99, padding:'8px 14px', border:'1px solid rgba(20,20,19,0.06)' }}>
-                  <span style={{ fontSize:12, fontWeight:700, color:'rgba(20,20,19,0.28)', fontFamily:SF }}>Done →</span>
-                </div>
-              )}
-            </div>
+              );
+            })}
           </div>
-        </div>
+        </WidgetShell>
       );
     }
 
@@ -265,96 +817,111 @@
       ];
       if (answered) {
         const f = opts.find(o => o.l === answered);
-        return (
-          <div style={{ marginLeft:36, display:'inline-flex', alignItems:'center', gap:6, background:'rgba(130,90,220,0.09)', borderRadius:99, padding:'5px 13px', border:'1px solid rgba(130,90,220,0.18)', animation:'msgIn 0.25s ease-out' }}>
-            <span style={{ fontSize:12, color:'rgba(110,65,200,0.9)', fontFamily:SF, fontWeight:700 }}>✓ {f?.e} {answered}</span>
-          </div>
-        );
+        return <div style={widgetAnswerStyle(SF)}>✓ {f?.e} {answered}</div>;
       }
       const containerWidth = width || 'min(92%, 360px)';
       return (
-        <div style={{ marginLeft:36, width:containerWidth, background:'linear-gradient(180deg, rgba(255,255,255,0.99), rgba(252,248,255,0.97))', borderRadius:22, overflow:'hidden', border:'1px solid rgba(124,92,252,0.12)', boxShadow:'0 12px 28px rgba(20,20,19,0.07)', animation:'msgIn 0.28s ease-out', position:'relative' }}>
-          <div style={{ position:'absolute', inset:0, background:'radial-gradient(circle at 88% 14%, rgba(155,110,243,0.10) 0%, transparent 24%), radial-gradient(circle at 10% 100%, rgba(255,229,214,0.35) 0%, transparent 36%)', pointerEvents:'none' }} />
-          <div style={{ borderLeft:'3px solid #9b6ef3', padding:'11px 13px 13px', position:'relative', zIndex:1 }}>
-            <p style={{ margin:'0 0 10px', fontSize:10, fontWeight:700, color:'rgba(20,20,19,0.35)', fontFamily:SF, letterSpacing:'0.6px', textTransform:'uppercase' }}>{label || 'How intense does it feel?'}</p>
-            <div style={{ display:'flex', gap:6 }}>
-              {opts.map(o => {
-                const isActive = sel === o.v;
-                const isHov = hov === o.v && !sel;
-                return (
-                  <div key={o.v}
-                    onClick={() => { setSel(o.v); setTimeout(() => onAnswer(o.l), 220); }}
-                    onMouseEnter={() => setHov(o.v)}
-                    onMouseLeave={() => setHov(null)}
-                    style={{
-                      flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:5,
-                      padding:'9px 3px 8px',
-                      borderRadius:12,
-                      border:`1.5px solid ${isActive ? o.color : isHov ? o.color+'88' : 'rgba(20,20,19,0.07)'}`,
-                      background: isActive ? o.bg : isHov ? o.bg+'80' : 'rgba(20,20,19,0.015)',
-                      cursor:'pointer',
-                      transition:'all 0.18s ease',
-                      transform: isActive ? 'scale(1.06)' : isHov ? 'scale(1.03)' : 'scale(1)',
-                      boxShadow: isActive ? `0 2px 8px ${o.color}44` : 'none',
-                    }}>
-                    <span style={{ fontSize:24, lineHeight:1, filter: isActive ? 'none' : isHov ? 'none' : 'grayscale(20%)' }}>{o.e}</span>
-                    <span style={{ fontSize:8.5, fontWeight:700, color: isActive ? o.color.replace(')',',0.9)').replace('rgb','rgba') : 'rgba(20,20,19,0.38)', fontFamily:SF, textAlign:'center', lineHeight:1.2, letterSpacing:'0.2px' }}>{o.l}</span>
-                  </div>
-                );
-              })}
-            </div>
-            {/* intensity bar */}
-            <div style={{ marginTop:8, height:3, borderRadius:99, background:'linear-gradient(to right, #4ade80, #a3e635, #facc15, #fb923c, #f87171)', opacity: sel ? 1 : 0.25, transition:'opacity 0.3s' }} />
+        <WidgetShell
+          title="Intensity"
+          SF={SF}
+          titleCaps={false}
+          maxWidth={containerWidth}
+          footer={null}
+          centerHeader
+          showLeadDot={false}
+          gradient="linear-gradient(160deg, #775fff 0%, #f0b8a0 58%, #4d556a 100%)"
+          headerPadding="16px 18px 10px"
+          titleSize={13.5}
+          titleLineHeight="15px"
+          bodyPadding="12px 18px 14px"
+        >
+          <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+            {[opts.slice(0, 3), opts.slice(3)].map((row, rowIdx) => (
+              <div key={rowIdx} style={{ display:'grid', gridTemplateColumns:`repeat(${row.length}, minmax(0, 1fr))`, gap:8 }}>
+                {row.map(o => {
+                  const isActive = sel === o.v;
+                  const isHov = hov === o.v && !sel;
+                  return (
+                    <div key={o.v}
+                      onClick={() => { setSel(o.v); setTimeout(() => onAnswer(o.l), 220); }}
+                      onMouseEnter={() => setHov(o.v)}
+                      onMouseLeave={() => setHov(null)}
+                      style={{
+                        minHeight:74,
+                        display:'flex',
+                        flexDirection:'column',
+                        alignItems:'center',
+                        justifyContent:'center',
+                        gap:6,
+                        padding:'8px 8px',
+                        ...standAloneOptionStyle(isActive, {
+                          border: isActive ? '1.5px solid rgba(20,20,19,0.82)' : isHov ? '1.5px solid rgba(255,255,255,0.72)' : '1px solid rgba(20,20,19,0.07)',
+                          background: isActive ? FIGMA_DARK_BUBBLE : isHov ? 'rgba(255,255,255,0.98)' : 'rgba(248,248,252,0.96)',
+                          borderRadius:20,
+                        }),
+                        transition:'all 0.18s ease',
+                        transform: isActive ? 'scale(1.02)' : isHov ? 'scale(1.01)' : 'scale(1)',
+                      }}>
+                      <span style={{ fontSize:26, lineHeight:1, filter: isActive ? 'none' : isHov ? 'none' : 'grayscale(10%)' }}>{o.e}</span>
+                      <span style={{ fontSize:10.5, fontWeight:700, color: isActive ? 'white' : 'rgba(20,20,19,0.66)', fontFamily:SF, textAlign:'center', lineHeight:1.18, letterSpacing:'0.08px' }}>{o.l}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
           </div>
-        </div>
+        </WidgetShell>
       );
     }
 
     function ChoiceWidget({ options, label, onAnswer, answered, SF, helper }) {
       const [sel, setSel] = useState(null);
       const twoCol = options.length >= 4;
-      if (answered) return (
-        <div style={{ marginLeft:36, display:'inline-flex', alignItems:'center', gap:6, background:'rgba(130,90,220,0.09)', borderRadius:99, padding:'5px 13px', border:'1px solid rgba(130,90,220,0.18)', animation:'msgIn 0.25s ease-out' }}>
-          <span style={{ fontSize:12, color:'rgba(110,65,200,0.9)', fontFamily:SF, fontWeight:700 }}>✓ {answered}</span>
-        </div>
-      );
+      if (answered) return <div style={widgetAnswerStyle(SF)}>✓ {answered}</div>;
       return (
-        <div style={{ marginLeft:36, maxWidth:'82%', background:'linear-gradient(180deg, rgba(255,255,255,0.99), rgba(252,248,255,0.97))', borderRadius:24, overflow:'hidden', border:'1px solid rgba(124,92,252,0.14)', boxShadow:'0 14px 32px rgba(20,20,19,0.07)', animation:'msgIn 0.28s ease-out', position:'relative' }}>
-          <div style={{ position:'absolute', inset:0, background:'radial-gradient(circle at 88% 14%, rgba(155,110,243,0.12) 0%, transparent 22%), radial-gradient(circle at 10% 100%, rgba(255,229,214,0.45) 0%, transparent 36%)', pointerEvents:'none' }} />
-          <div style={{ padding:'12px', position:'relative', zIndex:1 }}>
-            <div style={{ display:'flex', alignItems:'center', gap:7, marginBottom:4 }}>
-              <div style={{ width:7, height:7, borderRadius:'50%', background:'linear-gradient(135deg,#9b6ef3,#7b4fd4)', boxShadow:'0 0 0 4px rgba(155,110,243,0.10)' }} />
-              <p style={{ margin:0, fontSize:10.5, fontWeight:800, color:'#7b4fd4', fontFamily:SF, letterSpacing:'0.7px', textTransform:'uppercase' }}>{label || 'Choose one'}</p>
-            </div>
-            {helper && <p style={{ margin:'0 0 10px', fontSize:10, color:'rgba(20,20,19,0.42)', fontFamily:SF, lineHeight:1.35 }}>{helper}</p>}
-            <div style={{ display:'grid', gridTemplateColumns: twoCol ? 'repeat(2, minmax(0, 1fr))' : '1fr', gap:8, background:'rgba(255,255,255,0.68)', border:'1px solid rgba(20,20,19,0.05)', borderRadius:18, padding:8, boxShadow:'inset 0 1px 0 rgba(255,255,255,0.6)' }}>
-              {options.map(o => (
-                <div
-                  key={o}
-                  onClick={() => { setSel(o); setTimeout(() => onAnswer(o), 220); }}
-                  style={{
-                    minHeight:46,
-                    padding:'10px 12px',
-                    borderRadius:16,
-                    border:`1.5px solid ${sel===o ? '#9b6ef3' : 'rgba(20,20,19,0.08)'}`,
-                    background: sel===o ? 'linear-gradient(135deg,#9b6ef3,#7b4fd4)' : 'rgba(248,248,252,0.92)',
-                    cursor:'pointer',
-                    transition:'all 0.15s',
-                    display:'flex',
-                    alignItems:'center',
-                    justifyContent:'space-between',
-                    gap:10,
-                  }}
-                >
-                  <span style={{ fontSize:12, fontWeight:700, color:sel===o ? 'white' : 'rgba(20,20,19,0.72)', fontFamily:SF, lineHeight:1.25 }}>{o}</span>
-                  <div style={{ width:18, height:18, borderRadius:9, background:sel===o ? 'rgba(255,255,255,0.18)' : 'rgba(20,20,19,0.04)', border:`1px solid ${sel===o ? 'rgba(255,255,255,0.16)' : 'rgba(20,20,19,0.08)'}`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                    <span style={{ fontSize:11, fontWeight:900, color:sel===o ? 'white' : 'transparent', fontFamily:SF }}>✓</span>
-                  </div>
+        <WidgetShell
+          title={normalizeWidgetTitle(label || 'Choose one')}
+          helper={helper || 'Pick one.'}
+          badge="ONE TAP"
+          SF={SF}
+          titleCaps={true}
+          footer={null}
+          centerHeader={false}
+          showLeadDot={true}
+          bodyPadding="12px 18px 0"
+          headerPadding="14px 18px 11px"
+          titleSize={12.5}
+          titleLineHeight="15px"
+          helperSize={10.5}
+          helperLineHeight={1.25}
+          badgePadding="6px 12px"
+          badgeSize={10}
+          headerMinHeight={44}
+        >
+          <div style={{ ...STANDALONE_PANEL_STYLE, display:'grid', gridTemplateColumns: twoCol ? 'repeat(2, minmax(0, 1fr))' : '1fr', gap:8 }}>
+            {options.map(o => (
+              <div
+                key={o}
+                onClick={() => { setSel(o); setTimeout(() => onAnswer(o), 220); }}
+                style={{
+                  minHeight:twoCol ? 58 : 42,
+                  padding:'8px 12px',
+                  transition:'all 0.15s',
+                  display:'flex',
+                  alignItems:'center',
+                  justifyContent:'space-between',
+                  gap:12,
+                  ...standAloneOptionStyle(sel===o),
+                }}
+              >
+                <span style={{ fontSize:11.5, fontWeight:600, color:sel===o ? 'white' : 'rgba(20,20,19,0.78)', fontFamily:SF, lineHeight:'14px' }}>{o}</span>
+                <div style={{ width:22, height:22, borderRadius:'50%', background:sel===o ? 'rgba(255,255,255,0.16)' : 'rgba(20,20,19,0.05)', border:`1px solid ${sel===o ? 'rgba(255,255,255,0.16)' : 'rgba(20,20,19,0.08)'}`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                  <span style={{ fontSize:12, fontWeight:900, color:sel===o ? 'white' : 'transparent', fontFamily:SF }}>✓</span>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
-        </div>
+        </WidgetShell>
       );
     }
 
@@ -400,86 +967,137 @@
 
     function TherapistMatchWidget({ matches, SF }) {
       const [requested, setRequested] = useState(null);
-      const [requestMeta, setRequestMeta] = useState(null);
+      const [requestModal, setRequestModal] = useState(null);
       const APPROACH_LABEL = { structured:'Structured & tools', exploratory:'Open & exploratory', balanced:'Mixed approach' };
-      const APPROACH_COLOR = { structured:'#3b82f6', exploratory:'#7c3aed', balanced:'#059669' };
       return (
         <div style={{ marginLeft:36, width:'calc(100% - 36px)', display:'flex', flexDirection:'column', gap:8, animation:'msgIn 0.28s ease-out' }}>
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:10 }}>
             <span style={{ fontSize:10, fontWeight:800, color:'rgba(20,20,19,0.34)', fontFamily:SF, letterSpacing:'0.55px', textTransform:'uppercase' }}>Top matches</span>
             <span style={{ fontSize:10, fontWeight:700, color:'rgba(111,94,255,0.72)', fontFamily:SF }}>Swipe across</span>
           </div>
-          <div style={{ display:'flex', gap:12, overflowX:'auto', paddingRight:18, paddingBottom:6, scrollSnapType:'x proximity', scrollPaddingLeft:0, scrollbarWidth:'none', msOverflowStyle:'none' }}>
-          {matches.map((t, idx) => (
-            <div key={t.id} style={{ width:304, minWidth:304, borderRadius:22, border:`1.5px solid ${requested===t.id ? '#9b6ef3' : idx === 0 ? `${t.color}35` : 'rgba(20,20,19,0.08)'}`, overflow:'hidden', boxShadow:idx === 0 ? `0 18px 40px ${t.color}22` : '0 10px 26px rgba(20,20,19,0.07)', background:idx === 0 ? `linear-gradient(160deg, ${t.color}36 0%, rgba(255,255,255,0.96) 28%, rgba(255,255,255,0.98) 100%)` : `linear-gradient(160deg, ${t.color}20 0%, rgba(255,255,255,0.97) 30%, rgba(255,255,255,0.98) 100%)`, transition:'all 0.2s', flexShrink:0, scrollSnapAlign:'start', position:'relative' }}>
-              <div style={{ position:'absolute', inset:0, background:idx === 0 ? `radial-gradient(circle at 82% 16%, ${t.color}22 0%, transparent 28%), radial-gradient(circle at 16% 100%, rgba(255,255,255,0.90) 0%, transparent 42%)` : `radial-gradient(circle at 82% 16%, ${t.color}14 0%, transparent 25%), radial-gradient(circle at 16% 100%, rgba(255,255,255,0.86) 0%, transparent 40%)`, pointerEvents:'none' }} />
-              {/* Avatar + name + badge */}
-              <div style={{ padding:'12px 14px 8px', display:'flex', alignItems:'center', gap:11, position:'relative', zIndex:1 }}>
-                <div style={{ width:44, height:44, borderRadius:22, background:t.color, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, boxShadow:`0 2px 10px ${t.color}55` }}>
-                  <span style={{ fontSize:15, fontWeight:800, color:'white', fontFamily:SF }}>{t.initials}</span>
-                </div>
-                <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ display:'flex', alignItems:'center', gap:6, flexWrap:'wrap' }}>
-                    <p style={{ margin:0, fontSize:13.5, fontWeight:800, color:'#141413', fontFamily:SF }}>{t.name}</p>
-                    {idx === 0 && (
-                      <div style={{ background:'linear-gradient(135deg,#9b6ef3,#7c5cfc)', borderRadius:99, padding:'2px 8px', flexShrink:0 }}>
-                        <span style={{ fontSize:9, fontWeight:800, color:'white', fontFamily:SF, letterSpacing:'0.3px' }}>BEST MATCH</span>
+          <div style={{ display:'flex', gap:12, overflowX:'auto', paddingRight:18, paddingBottom:6, scrollSnapType:'x mandatory', scrollPaddingLeft:0, scrollbarWidth:'none', msOverflowStyle:'none' }}>
+            {matches.map((t, idx) => (
+              <div key={t.id} style={{ width:292, minWidth:292, minHeight:360, background:FIGMA_RESOURCE_GRADIENT, borderRadius:24, overflow:'hidden', border:`2px solid ${requested===t.id ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.52)'}`, boxShadow:idx === 0 ? '0 28px 62px rgba(49,71,164,0.18), 0 18px 36px rgba(255,167,135,0.17)' : '0 18px 36px rgba(49,71,164,0.12), 0 12px 24px rgba(255,167,135,0.12)', display:'flex', flexDirection:'column', flexShrink:0, scrollSnapAlign:'start', position:'relative', transition:'all 0.2s ease' }}>
+                <div style={{ position:'absolute', inset:0, background:'linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.02) 34%, rgba(255,255,255,0) 60%)', pointerEvents:'none' }} />
+                <div style={{ position:'absolute', inset:0, boxShadow:'inset 0 24px 54px rgba(255,255,255,0.10), inset 0 3px 120px rgba(204,235,255,0.38)', pointerEvents:'none' }} />
+                <div style={{ position:'relative', zIndex:1, display:'flex', flexDirection:'column', height:'100%', padding:13 }}>
+                  <div style={{ position:'relative', background:FIGMA_HERO_PANEL, borderRadius:20, minHeight:154, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', textAlign:'center', padding:'16px 16px 14px', boxShadow:'inset 0 1px 0 rgba(255,255,255,0.12)' }}>
+                    <div style={{ position:'absolute', inset:0, borderRadius:20, background:'linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0) 34%), radial-gradient(circle at 50% 52%, rgba(255,255,255,0.06), rgba(255,255,255,0) 48%)', pointerEvents:'none' }} />
+                    <div style={{ position:'absolute', left:12, top:12, display:'flex', alignItems:'center', gap:8 }}>
+                      <div style={RAIL_SOFT_PILL_STYLE}>
+                        <span style={{ fontSize:10, fontWeight:800, color:'rgba(255,255,255,0.92)', fontFamily:SF, letterSpacing:'0.3px', textTransform:'uppercase' }}>{idx === 0 ? 'Top pick' : 'Match'}</span>
                       </div>
-                    )}
-                  </div>
-                  <p style={{ margin:'2px 0 0', fontSize:10.5, color:'rgba(20,20,19,0.42)', fontFamily:SF }}>{t.title}</p>
-                </div>
-              </div>
-              {/* Bio */}
-              <div style={{ padding:'0 14px 8px', position:'relative', zIndex:1 }}>
-                <p style={{ margin:0, fontSize:11, color:'rgba(20,20,19,0.58)', fontFamily:SF, lineHeight:1.4, display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden' }}>{THERAPIST_FIT_LINE(t)}</p>
-              </div>
-              {/* Specialty + approach tags */}
-              <div style={{ padding:'0 14px 10px', display:'flex', flexWrap:'wrap', gap:5, position:'relative', zIndex:1 }}>
-                {t.specializations.slice(0, 2).map(spec => (
-                  <div key={spec} style={{ background:'rgba(124,92,252,0.08)', borderRadius:99, padding:'3px 9px', border:'1px solid rgba(124,92,252,0.16)' }}>
-                    <span style={{ fontSize:10, fontWeight:700, color:'#7c5cfc', fontFamily:SF, textTransform:'capitalize' }}>{spec}</span>
-                  </div>
-                ))}
-                <div style={{ background:`${APPROACH_COLOR[t.approach]}14`, borderRadius:99, padding:'3px 9px', border:`1px solid ${APPROACH_COLOR[t.approach]}28` }}>
-                  <span style={{ fontSize:10, fontWeight:700, color:APPROACH_COLOR[t.approach], fontFamily:SF }}>{APPROACH_LABEL[t.approach]}</span>
-                </div>
-              </div>
-              {/* Footer: availability + CTA */}
-              <div style={{ padding:'9px 14px 12px', borderTop:'1px solid rgba(20,20,19,0.05)', display:'flex', flexDirection:'column', alignItems:'stretch', justifyContent:'space-between', gap:10, position:'relative', zIndex:1 }}>
-                <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
-                  <div style={{ background:'rgba(34,197,94,0.10)', border:'1px solid rgba(34,197,94,0.18)', borderRadius:99, padding:'4px 9px' }}>
-                    <span style={{ fontSize:10, fontWeight:700, color:'#16a34a', fontFamily:SF }}>{t.availability}</span>
-                  </div>
-                  <div style={{ background:'rgba(20,20,19,0.04)', border:'1px solid rgba(20,20,19,0.07)', borderRadius:99, padding:'4px 9px' }}>
-                    <span style={{ fontSize:10, fontWeight:700, color:'rgba(20,20,19,0.58)', fontFamily:SF }}>Wait {t.wait}</span>
-                  </div>
-                </div>
-                <div onClick={() => {
-                  setRequested(t.id);
-                  setRequestMeta({ id:t.id, when:'Just now' });
-                }} style={{ background: requested===t.id ? 'linear-gradient(135deg,#4ade80,#22c55e)' : 'linear-gradient(135deg,#9b6ef3,#7c5cfc)', borderRadius:11, padding:'10px 15px', cursor:'pointer', boxShadow:`0 3px 10px ${requested===t.id ? 'rgba(74,222,128,0.35)' : 'rgba(124,92,252,0.32)'}`, flexShrink:0, transition:'all 0.25s', alignSelf:'stretch', display:'flex', justifyContent:'center' }}>
-                  <span style={{ fontSize:12, fontWeight:700, color:'white', fontFamily:SF, whiteSpace:'nowrap' }}>
-                    {requested===t.id ? '✓ Requested' : 'Request Session'}
-                  </span>
-                </div>
-              </div>
-              {requested===t.id && (
-                <div style={{ padding:'0 14px 12px' }}>
-                  <div style={{ background:'rgba(34,197,94,0.08)', border:'1px solid rgba(34,197,94,0.18)', borderRadius:12, padding:'10px 12px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:10 }}>
-                    <div style={{ display:'flex', flexDirection:'column', gap:2 }}>
-                      <p style={{ margin:0, fontSize:11.5, fontWeight:800, color:'#16a34a', fontFamily:SF }}>Saved in this chat</p>
-                      <p style={{ margin:0, fontSize:10.5, color:'rgba(20,20,19,0.44)', fontFamily:SF }}>Requested {requestMeta?.when || 'Just now'}</p>
                     </div>
-                    <div style={{ flexShrink:0, background:'rgba(34,197,94,0.12)', borderRadius:99, padding:'5px 8px', border:'1px solid rgba(34,197,94,0.15)' }}>
-                      <span style={{ fontSize:9.5, fontWeight:800, color:'#16a34a', fontFamily:SF, letterSpacing:'0.3px' }}>TRACKED</span>
+                    <div style={{ position:'absolute', right:12, top:12, ...RAIL_SOFT_PILL_STYLE, padding:'6px 10px' }}>
+                      <span style={{ fontSize:10, fontWeight:800, color:'white', fontFamily:SF }}>{idx === 0 ? 'BEST MATCH' : 'PROFILE'}</span>
+                    </div>
+                    <div style={{ width:60, height:60, borderRadius:'50%', background:'linear-gradient(180deg, rgba(42,58,132,0.72), rgba(18,27,69,0.82))', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:10, boxShadow:'0 8px 20px rgba(10,14,33,0.22)' }}>
+                      <span style={{ fontSize:24, fontWeight:800, color:'white', fontFamily:SF }}>{t.initials}</span>
+                    </div>
+                    <p style={{ margin:0, fontSize:13.5, fontWeight:800, color:'white', fontFamily:SF, lineHeight:1.18 }}>{t.name}</p>
+                    <p style={{ margin:'4px 0 0', fontSize:10.5, fontWeight:600, color:'rgba(255,255,255,0.82)', fontFamily:SF, lineHeight:1.22 }}>{t.title}</p>
+                  </div>
+                  <div style={{ paddingTop:12, display:'flex', flexDirection:'column', gap:12, flex:1 }}>
+                    <div style={{ display:'flex', flexDirection:'column', gap:5 }}>
+                      <span style={{ fontSize:10, fontWeight:800, color:'rgba(255,255,255,0.72)', fontFamily:SF, letterSpacing:'0.46px', textTransform:'uppercase' }}>Why this fit</span>
+                      <p style={{ margin:0, fontSize:13.5, fontWeight:800, color:'white', fontFamily:SF, lineHeight:1.2 }}>{THERAPIST_FIT_LINE(t)}</p>
+                      <p style={{ margin:0, fontSize:10.75, color:'rgba(255,255,255,0.92)', fontFamily:SF, lineHeight:1.42, display:'-webkit-box', WebkitLineClamp:3, WebkitBoxOrient:'vertical', overflow:'hidden' }}>{t.bio}</p>
+                    </div>
+                    <div style={{ display:'flex', flexWrap:'wrap', gap:7 }}>
+                      {t.specializations.slice(0, 2).map(spec => (
+                        <div key={spec} style={{ minWidth:72, ...RAIL_WHITE_PILL_STYLE, padding:'8px 14px' }}>
+                          <span style={{ fontSize:11, fontWeight:600, color:'#3c3c3c', fontFamily:SF, lineHeight:1, textTransform:'capitalize' }}>{spec}</span>
+                        </div>
+                      ))}
+                      <div style={{ minWidth:126, ...RAIL_WHITE_PILL_STYLE, padding:'8px 14px' }}>
+                        <span style={{ fontSize:11, fontWeight:600, color:'#3c3c3c', fontFamily:SF, lineHeight:1 }}>{APPROACH_LABEL[t.approach]}</span>
+                      </div>
+                    </div>
+                    <div style={{ display:'grid', gridTemplateColumns:'1fr 92px', gap:8 }}>
+                      <div style={{ background:'rgba(255,255,255,0.12)', border:'1px solid rgba(255,255,255,0.24)', borderRadius:18, padding:'10px 12px', minHeight:52, display:'flex', flexDirection:'column', justifyContent:'center' }}>
+                        <span style={{ fontSize:9.5, fontWeight:800, color:'rgba(255,255,255,0.7)', fontFamily:SF, letterSpacing:'0.3px', textTransform:'uppercase' }}>Availability</span>
+                        <span style={{ marginTop:4, fontSize:11, fontWeight:700, color:'white', fontFamily:SF, lineHeight:1.2 }}>{t.availability}</span>
+                      </div>
+                      <div style={{ background:'rgba(255,255,255,0.12)', border:'1px solid rgba(255,255,255,0.24)', borderRadius:18, padding:'10px 12px', minHeight:52, display:'flex', flexDirection:'column', justifyContent:'center' }}>
+                        <span style={{ fontSize:9.5, fontWeight:800, color:'rgba(255,255,255,0.7)', fontFamily:SF, letterSpacing:'0.3px', textTransform:'uppercase' }}>Wait</span>
+                        <span style={{ marginTop:4, fontSize:11, fontWeight:700, color:'white', fontFamily:SF, lineHeight:1.2 }}>{t.wait}</span>
+                      </div>
+                    </div>
+                    <div style={{ marginTop:'auto', display:'flex', flexDirection:'column', gap:10, paddingTop:2 }}>
+                      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:8 }}>
+                        <span style={{ fontSize:10.5, color:'rgba(255,255,255,0.82)', fontFamily:SF, lineHeight:1.3 }}>Good if you want a first conversation that feels clear and low-pressure.</span>
+                        <span style={{ fontSize:10, fontWeight:700, color:'white', fontFamily:SF, flexShrink:0 }}>{requested===t.id ? 'Saved' : 'Tap to request'}</span>
+                      </div>
+                      <div onClick={() => {
+                        setRequested(t.id);
+                        setRequestModal({ therapist:t, when:'Just now' });
+                      }} style={{ ...railPrimaryButtonStyle(requested===t.id), cursor:'pointer' }}>
+                        <span style={{ fontSize:12.5, fontWeight:700, color:'white', fontFamily:SF }}>{requested===t.id ? 'Requested' : 'Request session'}</span>
+                        <div style={{ width:23, height:23, borderRadius:'50%', background:'white', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                          <span style={{ fontSize:12, lineHeight:1, color:'#141413' }}>{requested===t.id ? '✓' : '→'}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              )}
-            </div>
-          ))}
+              </div>
+            ))}
           </div>
+          {requestModal && ReactDOM.createPortal(
+            <div onClick={() => setRequestModal(null)} style={{ position:'fixed', inset:0, zIndex:9999, background:'rgba(13,16,26,0.16)', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', display:'flex', alignItems:'center', justifyContent:'center', padding:'28px 18px', pointerEvents:'auto' }}>
+              <div onClick={(e) => e.stopPropagation()} style={{ width:'min(314px, calc(100vw - 36px))', maxWidth:'100%', background:'linear-gradient(180deg, rgba(255,255,255,0.96), rgba(245,248,255,0.92))', borderRadius:28, border:'1px solid rgba(255,255,255,0.86)', boxShadow:'0 38px 90px rgba(24,31,70,0.26), 0 18px 44px rgba(255,167,135,0.18)', overflow:'hidden', position:'relative', transform:'translateY(-10px)' }}>
+                <div style={{ position:'absolute', inset:0, background:'radial-gradient(circle at 50% 24%, rgba(255,214,192,0.58), rgba(136,180,255,0.22) 48%, rgba(255,255,255,0) 82%)', pointerEvents:'none' }} />
+                <div style={{ position:'absolute', inset:'auto 0 0 0', height:88, background:'linear-gradient(180deg, rgba(255,255,255,0), rgba(120,145,255,0.10) 55%, rgba(255,167,135,0.12))', pointerEvents:'none' }} />
+                <div style={{ position:'relative', zIndex:1, padding:'20px 18px 18px', display:'flex', flexDirection:'column', gap:12 }}>
+                  <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12 }}>
+                    <div style={{ display:'flex', flexDirection:'column', gap:5 }}>
+                      <span style={{ fontSize:10, fontWeight:800, color:'rgba(111,94,255,0.78)', fontFamily:SF, letterSpacing:'0.52px', textTransform:'uppercase' }}>Request sent</span>
+                      <p style={{ margin:0, fontSize:18, fontWeight:800, color:'#141413', fontFamily:SF, lineHeight:1.06 }}>Session request received</p>
+                      <p style={{ margin:0, fontSize:12.25, color:'rgba(58,51,84,0.74)', fontFamily:SF, lineHeight:1.34 }}>We saved the therapist details and next-step note in chat.</p>
+                    </div>
+                    <div style={{ width:36, height:36, borderRadius:'50%', background:'linear-gradient(180deg, #39d89a, #20c777)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 10px 24px rgba(34,197,94,0.24)' }}>
+                      <span style={{ fontSize:18, color:'white', lineHeight:1 }}>✓</span>
+                    </div>
+                  </div>
+                  <div style={{ background:'linear-gradient(180deg, rgba(255,255,255,0.58), rgba(255,255,255,0.34))', border:'1px solid rgba(20,20,19,0.07)', borderRadius:22, padding:'14px 14px 12px', display:'flex', flexDirection:'column', gap:10, boxShadow:'inset 0 1px 0 rgba(255,255,255,0.42)' }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                      <div style={{ width:42, height:42, borderRadius:'50%', background:'linear-gradient(180deg, rgba(52,79,171,0.84), rgba(32,48,109,0.96))', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 10px 22px rgba(10,14,33,0.14)' }}>
+                        <span style={{ fontSize:17, fontWeight:800, color:'white', fontFamily:SF }}>{requestModal.therapist.initials}</span>
+                      </div>
+                      <div style={{ minWidth:0, display:'flex', flexDirection:'column', gap:2 }}>
+                        <p style={{ margin:0, fontSize:14.5, fontWeight:800, color:'#141413', fontFamily:SF, lineHeight:1.12 }}>{requestModal.therapist.name}</p>
+                        <p style={{ margin:0, fontSize:11.25, color:'rgba(58,51,84,0.74)', fontFamily:SF, lineHeight:1.28 }}>{requestModal.therapist.title}</p>
+                      </div>
+                    </div>
+                    <div style={{ display:'flex', flexWrap:'wrap', gap:8 }}>
+                      <div style={{ ...RAIL_WHITE_PILL_STYLE, padding:'7px 12px', minWidth:0 }}>
+                        <span style={{ fontSize:10.25, fontWeight:700, color:'#3c3c3c', fontFamily:SF }}>{requestModal.when}</span>
+                      </div>
+                      <div style={{ ...RAIL_WHITE_PILL_STYLE, padding:'7px 12px', minWidth:0 }}>
+                        <span style={{ fontSize:10.25, fontWeight:700, color:'#3c3c3c', fontFamily:SF }}>{requestModal.therapist.availability}</span>
+                      </div>
+                      <div style={{ ...RAIL_WHITE_PILL_STYLE, padding:'7px 12px', minWidth:0 }}>
+                        <span style={{ fontSize:10.25, fontWeight:700, color:'#3c3c3c', fontFamily:SF }}>Wait {requestModal.therapist.wait}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ background:'rgba(20,20,19,0.045)', border:'1px solid rgba(20,20,19,0.07)', borderRadius:18, padding:'13px 14px 12px', display:'flex', flexDirection:'column', gap:6 }}>
+                    <span style={{ fontSize:10.5, fontWeight:800, color:'rgba(111,94,255,0.88)', fontFamily:SF, letterSpacing:'0.42px', textTransform:'uppercase' }}>Saved note</span>
+                    <span style={{ fontSize:12.5, fontWeight:600, color:'#141413', fontFamily:SF, lineHeight:1.34 }}>Your request was saved in this chat. Come back anytime to review the therapist, availability, and next step without losing context.</span>
+                  </div>
+                  <div style={{ display:'flex', gap:10, paddingTop:2 }}>
+                    <div onClick={() => setRequestModal(null)} style={{ flex:1, background:'#141413', borderRadius:18, padding:'12px 14px', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', boxShadow:'0 12px 22px rgba(20,20,19,0.12)' }}>
+                      <span style={{ fontSize:13, fontWeight:700, color:'white', fontFamily:SF }}>Done</span>
+                    </div>
+                    <div onClick={() => setRequestModal(null)} style={{ flexShrink:0, background:'rgba(255,255,255,0.76)', border:'1px solid rgba(20,20,19,0.08)', borderRadius:18, padding:'12px 14px', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' }}>
+                      <span style={{ fontSize:13, fontWeight:700, color:'#141413', fontFamily:SF }}>Keep browsing</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>,
+            document.body
+          )}
         </div>
       );
     }
@@ -555,14 +1173,7 @@
           setMessages(m => [...m,
             { from:'user', text: displayVal },
             { from:'ai', text:`Thank you for sharing that 💜 How long has this been affecting your daily life?` },
-            { type:'widget', _wt:'intake-duration', id:'intake-duration' },
-          ]);
-          setChips([]);
-        } else if (field === 'duration') {
-          setMessages(m => [...m,
-            { from:'user', text: value },
-            { from:'ai', text:`I hear you. On a typical day, how intense does it feel?` },
-            { type:'widget', _wt:'intake-severity', id:'intake-severity' },
+            { type:'widget', _wt:'intake-duration-severity', id:'intake-duration-severity' },
           ]);
           setChips([]);
         } else if (field === 'severity') {
@@ -635,6 +1246,22 @@
         }
       };
 
+      const completeDurationSeverity = (durationValue, severityValue, widgetId) => {
+        setWidgetAnswers(prev => ({ ...prev, [widgetId]: `${durationValue} · ${severityValue}` }));
+        const updated = { ...intakeData, duration:durationValue, severity:severityValue };
+        setIntakeData(updated);
+        setMessages(m => [...m,
+          { from:'user', text: durationValue },
+          { from:'user', text:`${SCALE_EMOJI[severityValue] || ''} ${severityValue}` },
+          { from:'ai', text:`Got it. Have you worked with a therapist or counselor before?` },
+          { type:'widget', _wt:'intake-choice', id:'intake-therapyHistory', intakeField:'therapyHistory',
+            label:'Therapy history',
+            helper:'Choose the closest fit.',
+            options:["Yes, I have","No, this would be my first time","Briefly, once or twice"] },
+        ]);
+        setChips([]);
+      };
+
       const AI_AVATAR = (
         <div style={{ width:26, height:26, borderRadius:13, background:'radial-gradient(circle at 35% 30%, #ffffff 0%, #d8c7ff 20%, #8f7cff 52%, #5bcdf6 100%)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, marginBottom:2, boxShadow:'0 4px 12px rgba(111,95,255,0.22)' }}>
           <div style={{ width:8, height:8, borderRadius:'50%', background:'rgba(255,255,255,0.95)', filter:'blur(0.2px)' }} />
@@ -644,7 +1271,7 @@
       /* Phase 1 — listen, empathise, ask a follow-up (no resources yet) */
       const LISTEN = {
         crisis:      { text: `I'm really glad you said something, ${userName} — that took courage 💙 Can you tell me a little more about where you're at right now? Even just a few words.`, chips: ["I'm having really dark thoughts","I'm not in immediate danger","I just needed to tell someone","I honestly don't know how to explain it"] },
-        anxiety:     { text: `Anxiety is relentless like that — it basically turns up the volume on everything 😮‍💨 How long has this been showing up for you, ${userName}?`, widget:{ type:'duration' }, chips: ["It's been building for a while","Something specific happened","It just hit me out of nowhere","Honestly, I don't know"] },
+        anxiety:     { text: `Anxiety is relentless like that — it basically turns up the volume on everything 😮‍💨 How long has this been showing up for you, ${userName}?`, widget:{ type:'anxiety-swipe' }, chips: ["It's been building for a while","Something specific happened","It just hit me out of nowhere","Honestly, I don't know"] },
         overwhelmed: { text: `Ugh, that "everything at once" feeling is so real 😩 You're not falling apart, ${userName} — you're just carrying a lot. What's taking up the most headspace right now?`, widget:{ type:'tags', label:"What's weighing on you most?", options:["Exams & deadlines","Coursework load","Friendship issues","Romantic stress","Family pressure","Finances","Identity & belonging","Everything at once","Can't even pinpoint it"] }, chips: ["School and deadlines","Literally everything at once","My social life is a mess","I just can't sleep"] },
         lonely:      { text: `Feeling lonely in a place full of people is honestly one of the hardest things 💙 How does it show up for you, ${userName}?`, widget:{ type:'tags', label:"How does it show up?", options:["Missing real connection","No one truly gets me","Drifted from friends","New here, know no one","Left out of things","Surrounded by people but alone","Just numb inside","Cultural or identity disconnect"] }, chips: ["I miss feeling close to people","No one really gets me","I've drifted from my friends","I just moved here and know no one"] },
         sleep:       { text: `Sleep deprivation makes literally everything harder — your brain, your mood, your whole outlook 😴 What's been getting in the way, ${userName}?`, widget:{ type:'tags', label:"What gets in the way?", options:["Mind racing at night","Anxiety before bed","Doom-scrolling too late","Irregular schedule","Waking up in the night","Nightmares","Just can't wind down","Stress about finances or family"] }, chips: ["My mind won't shut off","I'm stressed about too many things","My sleep schedule is just broken","I feel anxious before bed"] },
@@ -719,6 +1346,24 @@
       const answerWidget = (id, text) => {
         setWidgetAnswers(prev => ({ ...prev, [id]: text }));
         sendMessage(text);
+      };
+
+      const completeAnxietySwipe = (durationValue, symptomValue, widgetId) => {
+        setWidgetAnswers(prev => ({ ...prev, [widgetId]: `${durationValue} · ${symptomValue}` }));
+        setTurn((prev) => Math.max(prev, 3));
+        setLastIntent('anxiety');
+        const anxietySupport = buildSupport(null).anxiety;
+        setMessages(m => [
+          ...m,
+          { from:'user', text: durationValue },
+          { from:'user', text: symptomValue.split(' · ')[0] },
+          { from:'ai', text: anxietySupport.text },
+          ...anxietySupport.resources.map((res, idx) => {
+            const resKey = Object.entries(R).find(([,v]) => v === res)?.[0];
+            return { type:'resource', res, resKey, priorityIndex: idx };
+          }),
+        ]);
+        setChips(anxietySupport.chips);
       };
 
       const sendMessage = (textOverride) => {
@@ -808,7 +1453,7 @@
         }, 700);
       };
 
-      const ID = 'Inter Display,sans-serif';
+      const ID = 'Sofia Sans,sans-serif';
       const activeWidget = [...messages].reverse().find(msg => msg.type === 'widget' && !widgetAnswers[msg.id]);
       const visibleChips = activeWidget ? [] : chips.slice(0, 4);
       return (
@@ -846,7 +1491,7 @@
           </div>
 
           {/* Messages — orb is first child so it scrolls away naturally */}
-          <div ref={messagesRef} style={{ position:'relative', zIndex:2, flex:1, overflowY:'auto', display:'flex', flexDirection:'column', gap:4, paddingTop:0, paddingLeft:0, paddingRight:0, background:'transparent' }}>
+          <div ref={messagesRef} className="hide-scrollbar" data-chat-scroll="1" style={{ position:'relative', zIndex:2, flex:1, overflowY:'auto', display:'flex', flexDirection:'column', gap:4, paddingTop:0, paddingLeft:0, paddingRight:0, background:'transparent', scrollbarWidth:'none', msOverflowStyle:'none' }}>
 
             {/* Orb section — scrolls with content, disappears as conversation grows */}
             <div style={{ flexShrink:0, position:'relative', height:176, overflow:'hidden', pointerEvents:'none', background:'transparent' }}>
@@ -877,7 +1522,11 @@
               const nextMsg = messages[i+1];
               const isLastInGroup = !nextMsg || nextMsg.from !== msg.from || nextMsg.type === 'resource';
               const isFirstInGroup = prevFrom !== msg.from;
-              const gap = (msg.type === 'resource' || (prevFrom && messages[i-1]?.type === 'resource')) ? 3 : (isFirstInGroup ? 14 : 4);
+              const gap = msg._wt === 'anxiety-swipe'
+                ? 6
+                : (msg.type === 'resource' || (prevFrom && messages[i-1]?.type === 'resource'))
+                  ? 3
+                  : (isFirstInGroup ? 14 : 4);
               const railItems = msg.type === 'resource'
                 ? (() => {
                     const items = [];
@@ -893,36 +1542,27 @@
                   {msg.from === 'ai' && (
                     <div style={{ display:'flex', alignItems:'flex-start', gap:10, maxWidth:'88%' }}>
                       {isFirstInGroup ? AI_AVATAR : <div style={{ width:26, flexShrink:0 }} />}
-                      <div style={{ background:'linear-gradient(180deg, rgba(255,255,255,0.98), rgba(252,248,255,0.95))', borderRadius:24, padding:'11px 13px 12px', boxShadow:'0 1px 2px rgba(3,7,18,0.03), 0 10px 22px rgba(20,20,19,0.05)', border:'1px solid rgba(124,92,252,0.10)', maxWidth:'100%' }}>
-                        {isFirstInGroup && (
-                          <div style={{ display:'flex', alignItems:'center', gap:7, marginBottom:6 }}>
-                            <span style={{ fontSize:10.5, fontWeight:800, color:'#6f5eff', fontFamily:ID, letterSpacing:'0.35px', lineHeight:1, textTransform:'uppercase' }}>Guide</span>
-                          </div>
-                        )}
-                        <p style={{ margin:0, fontSize:12.5, lineHeight:1.52, color:'#37394a', fontFamily:SF, fontWeight:500 }}>{msg.text}</p>
+                      <div style={{ background:FIGMA_LIGHT_BUBBLE, borderRadius:'20px 20px 20px 4px', padding:'21px 24px', boxShadow:'0 12px 24px rgba(255,183,143,0.06), 0 8px 18px rgba(168,145,255,0.06), 0 3px 10px rgba(20,20,19,0.025)', border:'1px solid rgba(255,255,255,0.9)', maxWidth:359, minHeight:57, display:'flex', alignItems:'center', width:'fit-content' }}>
+                        <p style={{ margin:0, fontSize:12, lineHeight:'15px', color:'#141413', fontFamily:SF, fontWeight:400 }}>{msg.text}</p>
                       </div>
                     </div>
                   )}
                   {msg.from === 'user' && (
                     <div style={{ display:'flex', alignItems:'flex-end', paddingRight:4 }}>
-                      <div style={{ background:'linear-gradient(180deg, rgba(255,255,255,0.98), rgba(250,250,252,0.96))', borderRadius:24, padding:'11px 14px', boxShadow:'0 1px 2px rgba(3,7,18,0.03),0 8px 18px rgba(20,20,19,0.04)', border:'1px solid rgba(20,20,19,0.05)', maxWidth:262, marginRight:-6, overflow:'hidden', flexShrink:0 }}>
-                        <p style={{ margin:0, fontSize:12.5, lineHeight:1.38, color:'#0d0d12', fontFamily:ID }}>{msg.text}</p>
-                      </div>
-                      <div style={{ width:12.5, height:9.652, flexShrink:0, marginRight:-6, marginBottom:8 }}>
-                        {/* Speech bubble tail — inline SVG */}
-                        <svg width="13" height="10" viewBox="0 0 13 10" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display:'block', width:'100%', height:'100%' }}>
-                          <path d="M0.5 9.652 C3.5 9.652 12.5 9.652 12.5 1 L12.5 9.652 Z" fill="white"/>
-                        </svg>
+                      <div style={{ background:FIGMA_DARK_BUBBLE, borderRadius:'20px 20px 4px 20px', padding:'21px 27px', boxShadow:'0 18px 34px rgba(20,20,19,0.16)', border:'1px solid rgba(255,255,255,0.06)', maxWidth:367, overflow:'hidden', flexShrink:0, minHeight:57, display:'flex', alignItems:'center', width:'fit-content' }}>
+                        <p style={{ margin:0, fontSize:12, lineHeight:'15px', color:'white', fontFamily:SF, fontWeight:400 }}>{msg.text}</p>
                       </div>
                     </div>
                   )}
             {msg.type === 'resource' && <ResourceRail resources={railItems} SF={SF} onBook={startIntakeInline} />}
                   {msg.type === 'widget' && (
-                    msg._wt === 'intake-tags'     ? <TagWidget     options={msg.options} label={msg.label} answered={widgetAnswers[msg.id]} onAnswer={v => advanceIntake(msg.intakeField, v)} SF={SF} /> :
-                    msg._wt === 'intake-choice'   ? <ChoiceWidget  options={msg.options} label={msg.label} helper={msg.helper} answered={widgetAnswers[msg.id]} onAnswer={v => advanceIntake(msg.intakeField, v)} SF={SF} /> :
-                    msg._wt === 'intake-duration' ? <DurationWidget answered={widgetAnswers[msg.id]} onAnswer={v => advanceIntake('duration', v)} SF={SF} /> :
-                    msg._wt === 'intake-severity' ? <ScaleWidget    label="How intense does it feel on a typical day?" answered={widgetAnswers[msg.id]} onAnswer={v => advanceIntake('severity', v)} SF={SF} /> :
+                    msg._wt === 'intake-tags'              ? <TagWidget     options={msg.options} label={msg.label} answered={widgetAnswers[msg.id]} onAnswer={v => advanceIntake(msg.intakeField, v)} SF={SF} /> :
+                    msg._wt === 'intake-choice'            ? <ChoiceWidget  options={msg.options} label={msg.label} helper={msg.helper} answered={widgetAnswers[msg.id]} onAnswer={v => advanceIntake(msg.intakeField, v)} SF={SF} /> :
+                    msg._wt === 'intake-duration-severity' ? <DurationSeverityDeck answered={widgetAnswers[msg.id]} onComplete={(durationValue, severityValue) => completeDurationSeverity(durationValue, severityValue, msg.id)} SF={SF} /> :
+                    msg._wt === 'intake-duration'          ? <DurationWidget answered={widgetAnswers[msg.id]} onAnswer={v => advanceIntake('duration', v)} SF={SF} /> :
+                    msg._wt === 'intake-severity'          ? <ScaleWidget    label="How intense does it feel on a typical day?" answered={widgetAnswers[msg.id]} onAnswer={v => advanceIntake('severity', v)} SF={SF} /> :
                     msg._wt === 'intake-match'    ? <TherapistMatchWidget matches={msg.matches} SF={SF} /> :
+                    msg._wt === 'anxiety-swipe'   ? <AnxietySwipeDeck answered={widgetAnswers[msg.id]} onComplete={(durationValue, symptomValue) => completeAnxietySwipe(durationValue, symptomValue, msg.id)} SF={SF} /> :
                     msg._wt === 'tags'  ? <TagWidget  options={msg.options} label={msg.label} answered={widgetAnswers[msg.id]} onAnswer={t => answerWidget(msg.id, t)} SF={SF} /> :
                     msg._wt === 'scale' ? <ScaleWidget label={msg.label}   answered={widgetAnswers[msg.id]} onAnswer={t => answerWidget(msg.id, t)} SF={SF} /> :
                                           <DurationWidget                  answered={widgetAnswers[msg.id]} onAnswer={t => answerWidget(msg.id, t)} SF={SF} />
@@ -935,14 +1575,10 @@
             {typing && (
               <div style={{ display:'flex', alignItems:'flex-start', gap:10, marginTop:14, alignSelf:'flex-start', maxWidth:'88%' }}>
                 {AI_AVATAR}
-                <div style={{ background:'linear-gradient(180deg, rgba(255,255,255,0.98), rgba(252,248,255,0.95))', borderRadius:24, padding:'11px 13px 12px', boxShadow:'0 1px 2px rgba(3,7,18,0.03), 0 10px 22px rgba(20,20,19,0.05)', border:'1px solid rgba(124,92,252,0.10)' }}>
-                  <div style={{ display:'flex', alignItems:'center', gap:7, marginBottom:6 }}>
-                    <span style={{ fontSize:10.5, fontWeight:800, color:'#6f5eff', fontFamily:ID, letterSpacing:'0.35px', lineHeight:1, textTransform:'uppercase' }}>Guide</span>
-                    <span style={{ fontSize:10.5, fontWeight:600, color:'rgba(20,20,19,0.34)', fontFamily:SF, lineHeight:1 }}>thinking…</span>
-                  </div>
+                <div style={{ background:FIGMA_LIGHT_BUBBLE, borderRadius:'20px 20px 20px 4px', padding:'21px 24px', boxShadow:'0 12px 24px rgba(255,183,143,0.06), 0 8px 18px rgba(168,145,255,0.06), 0 3px 10px rgba(20,20,19,0.025)', border:'1px solid rgba(255,255,255,0.9)', minHeight:57, display:'flex', alignItems:'center', width:'fit-content' }}>
                   <div style={{ display:'flex', gap:4, alignItems:'center' }}>
                     {[0, 0.2, 0.4].map(d => (
-                      <div key={d} style={{ width:6, height:6, borderRadius:'50%', background:'rgba(111,94,255,0.48)', animation:`typingDot 1s ease-in-out ${d}s infinite` }} />
+                      <div key={d} style={{ width:6, height:6, borderRadius:'50%', background:'rgba(58,51,84,0.42)', animation:`typingDot 1s ease-in-out ${d}s infinite` }} />
                     ))}
                   </div>
                 </div>
@@ -953,14 +1589,14 @@
           </div>
 
           {/* Chips + input panel */}
-          <div style={{ position:'relative', zIndex:3, flexShrink:0, background:'linear-gradient(180deg, rgba(255,255,255,0.40), rgba(255,255,255,0.95) 22%, rgba(255,255,255,1) 56%)', backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)' }}>
+          <div data-chat-input="1" style={{ position:'relative', zIndex:3, flexShrink:0, background:'linear-gradient(180deg, rgba(255,255,255,0.40), rgba(255,255,255,0.95) 22%, rgba(255,255,255,1) 56%)', backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)' }}>
             {visibleChips.length > 0 && (
               <div style={{ padding:'6px 18px 0', display:'flex', alignItems:'center', justifyContent:'space-between', gap:10 }}>
                 <span style={{ fontSize:10, fontWeight:800, color:'rgba(20,20,19,0.34)', fontFamily:SF, letterSpacing:'0.55px', textTransform:'uppercase' }}>Suggested replies</span>
                 <span style={{ fontSize:10, fontWeight:700, color:'rgba(111,94,255,0.72)', fontFamily:SF }}>Tap to answer faster</span>
               </div>
             )}
-            <div style={{ padding:'8px 16px 0', display:'flex', gap:8, overflowX:'auto' }}>
+            <div className="hide-scrollbar" style={{ padding:'8px 16px 0', display:'flex', gap:8, overflowX:'auto', scrollbarWidth:'none', msOverflowStyle:'none' }}>
               {visibleChips.map(s => (
                 <div key={s} onClick={() => sendMessage(s)} style={{ background:'rgba(255,255,255,0.92)', border:'1px solid rgba(20,20,19,0.07)', borderRadius:99, padding:'8px 14px', cursor:'pointer', flexShrink:0, boxShadow:'0 1px 3px rgba(0,0,0,0.035)', display:'inline-flex', alignItems:'center', gap:7 }}>
                   <div style={{ width:6, height:6, borderRadius:'50%', background:'linear-gradient(135deg,#9b6ef3,#7b4fd4)' }} />
@@ -979,7 +1615,8 @@
                   onKeyDown={e => { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
                   placeholder="Ask me anything..."
                   rows={1}
-                  style={{ display:'block', width:'100%', border:'none', outline:'none', background:'transparent', fontFamily:ID, fontSize:12.5, color:'#0d0d12', resize:'none', lineHeight:1.28, maxHeight:88, overflowY:'auto', paddingTop:2 }}
+                  className="hide-scrollbar"
+                  style={{ display:'block', width:'100%', border:'none', outline:'none', background:'transparent', fontFamily:ID, fontSize:12.5, color:'#0d0d12', resize:'none', lineHeight:1.28, maxHeight:88, overflowY:'auto', paddingTop:2, scrollbarWidth:'none', msOverflowStyle:'none' }}
                 />
                 <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }}>
                   <div style={{ width:32, height:32, borderRadius:16, background:'rgba(20,20,19,0.045)', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' }}>
