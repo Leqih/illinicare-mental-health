@@ -11,6 +11,8 @@
 
     /* ── APP ── */
     function App() {
+      const FRAME_W = 390;
+      const FRAME_H = 844;
       const todayKey = new Date().toDateString();
       const load = (k, fb) => { try { const v = localStorage.getItem(k); return v !== null ? JSON.parse(v) : fb; } catch { return fb; } };
       const DEFAULT_TODAY_ENTRIES = [
@@ -42,6 +44,14 @@
         if (isNewDay) { const m = {...saved}; delete m.TODAY; return m; }
         return saved;
       });
+      const [viewport, setViewport] = useState(() => {
+        if (typeof window === 'undefined') return { width: FRAME_W, height: FRAME_H };
+        const vv = window.visualViewport;
+        return {
+          width: vv?.width || window.innerWidth,
+          height: vv?.height || window.innerHeight,
+        };
+      });
       const greeting = getGreeting();
 
       useEffect(() => { localStorage.setItem('appDate', JSON.stringify(todayKey)); }, []);
@@ -54,6 +64,25 @@
       useEffect(() => { localStorage.setItem('allMoodLogs', JSON.stringify(allMoodLogs)); }, [allMoodLogs]);
       /* Clear mood context when leaving AI chat */
       useEffect(() => { if (page !== 'peers') setChatMoodContext(null); }, [page]);
+      useEffect(() => {
+        if (typeof window === 'undefined') return undefined;
+        const updateViewport = () => {
+          const vv = window.visualViewport;
+          setViewport({
+            width: vv?.width || window.innerWidth,
+            height: vv?.height || window.innerHeight,
+          });
+        };
+        updateViewport();
+        window.addEventListener('resize', updateViewport);
+        window.visualViewport?.addEventListener('resize', updateViewport);
+        window.visualViewport?.addEventListener('scroll', updateViewport);
+        return () => {
+          window.removeEventListener('resize', updateViewport);
+          window.visualViewport?.removeEventListener('resize', updateViewport);
+          window.visualViewport?.removeEventListener('scroll', updateViewport);
+        };
+      }, []);
 
       const handleSave = entry => {
         setTodayMood(entry);
@@ -105,26 +134,54 @@
       const moodBanner = !bannerDismissed ? computeMoodBanner(allMoodLogs) : null;
 
       /* Week strip mood states */
-
+      const isDesktopPreview = viewport.width > 430;
+      const horizontalInset = isDesktopPreview ? 32 : 0;
+      const verticalInset = isDesktopPreview ? 32 : 0;
+      const frameScale = isDesktopPreview
+        ? Math.min(
+            1,
+            (viewport.width - horizontalInset * 2) / FRAME_W,
+            (viewport.height - verticalInset * 2) / FRAME_H
+          )
+        : Math.min(1, viewport.width / FRAME_W);
 
       return (
         <>
-          <div className="phone-frame" style={{
-            width: 390, height: 844,
-            position: 'relative', overflow: 'hidden',
-            borderRadius: 52, flexShrink: 0,
-            boxShadow: '0 0 0 1px rgba(255,255,255,0.18), 0 0 0 11px #1a1a18, 0 0 0 12px rgba(255,255,255,0.08), 0 40px 90px rgba(0,0,0,0.55)',
+          <div style={{
+            width: '100%',
+            minHeight: '100dvh',
+            display: 'flex',
+            alignItems: isDesktopPreview ? 'center' : 'flex-start',
+            justifyContent: 'center',
+            overflow: 'hidden',
+            background: '#ddd7ce',
+            padding: `${verticalInset}px ${horizontalInset}px`,
           }}>
-            {/* ── BACKGROUND ── */}
-            <div style={{ position:'absolute', height:844, left:0, top:0, width:390 }}>
-              <img alt="" style={{ position:'absolute', inset:0, maxWidth:'none', objectFit:'cover', pointerEvents:'none', width:'100%', height:'100%' }}
-                src={imgVideoBg}
-                onError={e=>{ e.target.style.display='none'; e.target.parentNode.style.background='linear-gradient(170deg,#f5c0aa 0%,#f0b5a5 10%,#e8bdb5 25%,#dbc4cf 40%,#c8c8e8 55%,#b8d0ea 65%,#bcd4e8 75%,#cce0ec 85%,#d8e8f0 100%)'; }}
-              />
-            </div>
+            <div style={{
+              width: FRAME_W * frameScale,
+              height: FRAME_H * frameScale,
+              position: 'relative',
+              flexShrink: 0,
+            }}>
+              <div style={{
+                width: FRAME_W, height: FRAME_H,
+                position: 'absolute', left: 0, top: 0, overflow: 'hidden',
+                flexShrink: 0,
+                transform: `scale(${frameScale})`,
+                transformOrigin: 'top left',
+              }}>
+                {/* ── BACKGROUND ── */}
+                <div style={{
+                  position:'absolute',
+                  height:844,
+                  left:0,
+                  top:0,
+                  width:390,
+                  background:'linear-gradient(170deg,#f5c0aa 0%,#f0b5a5 10%,#e8bdb5 25%,#dbc4cf 40%,#c8c8e8 55%,#b8d0ea 65%,#bcd4e8 75%,#cce0ec 85%,#d8e8f0 100%)',
+                }} />
 
-            {/* ── MAIN CONTAINER ── */}
-            <div style={{ position:'absolute', height:844, left:0, overflow:'hidden', top:0, width:390 }}>
+                {/* ── MAIN CONTAINER ── */}
+                <div style={{ position:'absolute', height:844, left:0, overflow:'hidden', top:0, width:390 }}>
 
               {/* ── BOTTOM SHEET: top:423 ── */}
               <div style={{ position:'absolute', background:'#faf7f5', height:430, left:0, borderRadius:20, top:423, width:390, overflow:'hidden' }}>
@@ -260,33 +317,31 @@
               {/* Status bar on top */}
               <StatusBar />
             </div>
+                {/* Today moods list sheet */}
+                {showTodaySheet && <TodayMoodsSheet entries={todayEntries} onClose={() => setShowTodaySheet(false)} onViewEntry={e => { setShowTodaySheet(false); setViewEntry(e); }} onLogMood={() => { setShowTodaySheet(false); setPage('logMood'); }} />}
 
-            {/* Inner highlight ring */}
-            <div style={{ position:'absolute', inset:0, pointerEvents:'none', borderRadius:'inherit', boxShadow:'inset 0px 1px 0px 0px rgba(255,255,255,0.12)' }} />
+                {/* Mood detail sheet */}
+                {viewEntry && <MoodDetailSheet entry={viewEntry} onClose={() => setViewEntry(null)} onAddDetails={(e) => { setViewEntry(null); setEditEntry(e); setPage('logMood'); }} />}
 
-            {/* Today moods list sheet */}
-            {showTodaySheet && <TodayMoodsSheet entries={todayEntries} onClose={() => setShowTodaySheet(false)} onViewEntry={e => { setShowTodaySheet(false); setViewEntry(e); }} onLogMood={() => { setShowTodaySheet(false); setPage('logMood'); }} />}
+                {/* Check-in modal */}
+                {checkinOpen && <CheckinSheet onClose={() => setCheckin(false)} onSave={handleSave} />}
 
-            {/* Mood detail sheet */}
-            {viewEntry && <MoodDetailSheet entry={viewEntry} onClose={() => setViewEntry(null)} onAddDetails={(e) => { setViewEntry(null); setEditEntry(e); setPage('logMood'); }} />}
+                {/* Log Mood page */}
+                {page === 'logMood' && <LogMoodPage onBack={() => { setEditEntry(null); setPage('home'); }} onSave={handleLogMoodSave} initialData={editEntry} onChatWithMood={handleChatWithMood} />}
 
-            {/* Check-in modal */}
-            {checkinOpen && <CheckinSheet onClose={() => setCheckin(false)} onSave={handleSave} />}
+                {/* Stats page */}
+                {page === 'stats' && <StatsPage onBack={() => setPage('home')} onNav={setPage} todayMood={todayMood} count={count} allEntries={[...Object.values(moodEntries), ...todayEntries].filter(Boolean)} />}
 
-            {/* Log Mood page */}
-            {page === 'logMood' && <LogMoodPage onBack={() => { setEditEntry(null); setPage('home'); }} onSave={handleLogMoodSave} initialData={editEntry} onChatWithMood={handleChatWithMood} />}
+                {/* Profile page */}
+                {page === 'profile' && <ProfilePage onBack={() => setPage('home')} userName={userName} setUserName={setUserName} />}
 
-            {/* Stats page */}
-            {page === 'stats' && <StatsPage onBack={() => setPage('home')} onNav={setPage} todayMood={todayMood} count={count} allEntries={[...Object.values(moodEntries), ...todayEntries].filter(Boolean)} />}
+                {/* Support page */}
+                {page === 'peers' && <SupportPage onBack={() => setPage('home')} userName={userName} moodContext={chatMoodContext} />}
 
-            {/* Profile page */}
-            {page === 'profile' && <ProfilePage onBack={() => setPage('home')} userName={userName} setUserName={setUserName} />}
-
-            {/* Support page */}
-            {page === 'peers' && <SupportPage onBack={() => setPage('home')} userName={userName} moodContext={chatMoodContext} />}
-
-            {/* Persistent bottom nav — rendered last so it sits above all page content */}
-            {page !== 'logMood' && <BottomNav activePage={page} onNav={setPage} />}
+                {/* Persistent bottom nav — rendered last so it sits above all page content */}
+                {page !== 'logMood' && <BottomNav activePage={page} onNav={setPage} />}
+              </div>
+            </div>
           </div>
         </>
       );

@@ -64,6 +64,7 @@
     /* Anxious mood (node 60-210) */
     const imgAnxiousChar  = 'https://www.figma.com/api/mcp/asset/44ed0103-c1a4-4d46-b58a-c7814455f97b'; // pink spiky blob body
     const imgAnxiousFace  = 'https://www.figma.com/api/mcp/asset/f1c3f497-facd-4273-97d7-6cf8d8c6da62'; // face overlay (eyes+mouth+sweat drop)
+    const imgWeeklyAnxiousFigma = 'src/assets/anxious-weekly-figma.svg?v=1';
     /* Exhausted mood (node 56-36) – fresh URLs */
     const imgExhaustedChar= 'https://www.figma.com/api/mcp/asset/058ded47-5cb4-4f14-969e-b3e2b7e94695';
     const imgExhaustedEyeA= 'https://www.figma.com/api/mcp/asset/d66f2245-27b3-4ce4-afd8-48c83b7bed04'; // X-eye stroke 1

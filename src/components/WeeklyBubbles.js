@@ -63,8 +63,7 @@
             return `<div style="position:absolute;inset:0;background:linear-gradient(160deg,#b6dcff,#7fb7f0);-webkit-mask:${mask};mask:${mask};pointer-events:none"></div>`;
           }
           if (s === 'anxious') {
-            const mask = `url(${imgAnxiousChar}) center/contain no-repeat`;
-            return `<div style="position:absolute;inset:0;background:linear-gradient(160deg,#ffb3d0,#f27aa0);-webkit-mask:${mask};mask:${mask};pointer-events:none"></div>`;
+            return img(imgWeeklyAnxiousFigma, 'transform:scale(1.04);');
           }
           const src =
             s === 'good' ? imgLogGoodBody :
