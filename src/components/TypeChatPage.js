@@ -1102,10 +1102,29 @@
       );
     }
 
-    function TypeChatPage({ onBack, userName, initialTopic, moodContext, bookingMode, preService }) {
+    function TypeChatPage({ onBack, userName, initialTopic, moodContext, bookingMode, preService, peerChat }) {
       const SF = 'Sofia Sans,sans-serif';
       const R = UIUC_RESOURCES;
       const [input, setInput] = useState('');
+      const isPeerChat = !!peerChat;
+
+      const getPeerOpening = () => `${peerChat.name.split(' ')[0]} is here now. You can start simple — one honest sentence is enough.`;
+      const getPeerChips = () => peerChat.quickReplies || [
+        `Hey ${peerChat.name.split(' ')[0]}, I saw you're open to chat.`,
+        "I'm not sure how to start, but I could use someone to talk to.",
+        `I've been dealing with ${String(peerChat.tag || '').toLowerCase()} stuff lately.`,
+        "Do you have space for a quick check-in?",
+      ];
+      const getPeerReply = (text, step) => {
+        const lower = text.toLowerCase();
+        if (/not sure|don't know|dont know|hard to explain/.test(lower)) return `That's okay. You don't need to have it organized for me. What's the part that's loudest right now?`;
+        if (/anx|overthink|panic|spiral/.test(lower)) return `I get that. When my mind starts looping, the first thing that helps is naming one concrete worry instead of all of them at once. What's the one that's hitting hardest?`;
+        if (/alone|lonely|isolat/.test(lower)) return `That feeling can get heavy fast. I'm here with you for a minute. Do you want to talk about what today felt like, or just have company while you vent?`;
+        if (/stress|behind|deadline|school|class|exam/.test(lower)) return `That sounds like too much at once. We can shrink it. What's the next thing due, or the thing your brain keeps returning to?`;
+        if (step === 0) return `Thanks for messaging me. You don't need to make it sound better than it is. I'm listening.`;
+        if (step === 1) return `You're doing fine. Keep going at your own pace. Do you want support, perspective, or just space to vent?`;
+        return `I'm with you. Let's stay with one piece at a time.`;
+      };
 
       /* ── Mood-aware opening helpers ── */
       const getMoodOpening = (ctx) => {
@@ -1151,10 +1170,10 @@
       ];
 
       const [messages, setMessages] = useState(
-        bookingMode ? getIntakeInitialMessages() : [{ from:'ai', text: getMoodOpening(moodContext) }]
+        bookingMode ? getIntakeInitialMessages() : isPeerChat ? [{ from:'ai', text: getPeerOpening() }] : [{ from:'ai', text: getMoodOpening(moodContext) }]
       );
       const [typing, setTyping] = useState(false);
-      const [chips, setChips] = useState(bookingMode ? [] : getMoodChips(moodContext));
+      const [chips, setChips] = useState(bookingMode ? [] : isPeerChat ? getPeerChips() : getMoodChips(moodContext));
       const [turn, setTurn] = useState(0);
       const [lastIntent, setLastIntent] = useState(null);
       const [widgetAnswers, setWidgetAnswers] = useState({});
@@ -1262,7 +1281,12 @@
         setChips([]);
       };
 
-      const AI_AVATAR = (
+      const AI_AVATAR = isPeerChat ? (
+        <div style={{ width:26, height:26, borderRadius:13, background:peerChat.color, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, marginBottom:2, boxShadow:'0 4px 12px rgba(20,20,19,0.12)', position:'relative' }}>
+          <span style={{ fontSize:11, fontWeight:800, color:'rgba(20,20,19,0.44)', fontFamily:SF }}>{peerChat.initial}</span>
+          <div style={{ position:'absolute', right:-1, bottom:-1, width:8, height:8, borderRadius:4, background:peerChat.status === 'Online now' ? '#2ecc71' : '#c7cbd4', border:'1.5px solid white' }} />
+        </div>
+      ) : (
         <div style={{ width:26, height:26, borderRadius:13, background:'radial-gradient(circle at 35% 30%, #ffffff 0%, #d8c7ff 20%, #8f7cff 52%, #5bcdf6 100%)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, marginBottom:2, boxShadow:'0 4px 12px rgba(111,95,255,0.22)' }}>
           <div style={{ width:8, height:8, borderRadius:'50%', background:'rgba(255,255,255,0.95)', filter:'blur(0.2px)' }} />
         </div>
@@ -1370,6 +1394,31 @@
         const text = (textOverride || input).trim();
         if (!text) return;
 
+        if (isPeerChat) {
+          const newTurn = turn + 1;
+          setTurn(newTurn);
+          setMessages(m => [...m, { from:'user', text }]);
+          setInput('');
+          setTyping(true);
+          const nextReply = getPeerReply(text, turn);
+          setTimeout(() => {
+            setTyping(false);
+            setMessages(m => [...m, { from:'ai', text: nextReply }]);
+            setChips(newTurn < 2 ? [
+              "That makes sense.",
+              "I mostly need to vent.",
+              "Can I tell you what happened today?",
+              "I'm having a hard time slowing my brain down.",
+            ] : [
+              "I think I need perspective.",
+              "Mostly I just want to be heard.",
+              "Can we stay with one part of it?",
+              "Thanks for making this easier to say.",
+            ]);
+          }, text.length < 24 ? 700 : 1100);
+          return;
+        }
+
         /* Intercept chip responses for intake flow steps */
         if (intakeAlreadyStarted.current && pendingIntakeField.current) {
           const field = pendingIntakeField.current;
@@ -1465,9 +1514,9 @@
           onTouchEnd={e => e.stopPropagation()}
         >
           <div style={{ position:'absolute', inset:0, pointerEvents:'none', overflow:'hidden' }}>
-            <div style={{ position:'absolute', top:82, left:'-10%', width:230, height:230, borderRadius:'50%', background:'radial-gradient(circle, rgba(255,214,173,0.28) 0%, rgba(255,214,173,0) 72%)', filter:'blur(18px)' }} />
-            <div style={{ position:'absolute', top:126, right:'-6%', width:210, height:210, borderRadius:'50%', background:'radial-gradient(circle, rgba(203,234,255,0.26) 0%, rgba(203,234,255,0) 70%)', filter:'blur(20px)' }} />
-            <div style={{ position:'absolute', top:210, left:'28%', width:180, height:180, borderRadius:'50%', background:'radial-gradient(circle, rgba(239,191,255,0.18) 0%, rgba(239,191,255,0) 72%)', filter:'blur(24px)' }} />
+            <div style={{ position:'absolute', top:82, left:'-10%', width:230, height:230, borderRadius:'50%', background:isPeerChat ? 'radial-gradient(circle, rgba(255,214,173,0.18) 0%, rgba(255,214,173,0) 72%)' : 'radial-gradient(circle, rgba(255,214,173,0.28) 0%, rgba(255,214,173,0) 72%)', filter:'blur(18px)' }} />
+            <div style={{ position:'absolute', top:126, right:'-6%', width:210, height:210, borderRadius:'50%', background:isPeerChat ? 'radial-gradient(circle, rgba(203,234,255,0.18) 0%, rgba(203,234,255,0) 70%)' : 'radial-gradient(circle, rgba(203,234,255,0.26) 0%, rgba(203,234,255,0) 70%)', filter:'blur(20px)' }} />
+            <div style={{ position:'absolute', top:210, left:'28%', width:180, height:180, borderRadius:'50%', background:isPeerChat ? 'radial-gradient(circle, rgba(239,191,255,0.10) 0%, rgba(239,191,255,0) 72%)' : 'radial-gradient(circle, rgba(239,191,255,0.18) 0%, rgba(239,191,255,0) 72%)', filter:'blur(24px)' }} />
           </div>
 
           {/* Header — solid white bg so orb disappears cleanly behind it when scrolled */}
@@ -1478,42 +1527,62 @@
               </svg>
             </div>
             <div style={{ background:'rgba(255,255,255,0.88)', backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)', padding:'9px 20px', borderRadius:22, border:'1px solid rgba(20,20,19,0.07)', boxShadow:'0 0 0 0 rgba(3,7,18,0.04),0 2px 4px rgba(3,7,18,0.04)' }}>
-              <span style={{ color:'#141413', fontSize:13, fontWeight:700, fontFamily:SF }}>{bookingMode ? 'Find a Therapist' : 'AI Chat'}</span>
+              <span style={{ color:'#141413', fontSize:13, fontWeight:700, fontFamily:SF }}>{isPeerChat ? peerChat.name : bookingMode ? 'Find a Therapist' : 'AI Chat'}</span>
             </div>
             <div style={{ background:'white', borderRadius:99, width:36, height:36, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, cursor:'pointer', boxShadow:'0 0 0 1px rgba(3,7,18,0.04),0 2px 4px rgba(3,7,18,0.04)' }}>
-              {/* 3-dot menu — inline SVG */}
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="9" cy="4" r="1.4" fill="#141413"/>
-                <circle cx="9" cy="9" r="1.4" fill="#141413"/>
-                <circle cx="9" cy="14" r="1.4" fill="#141413"/>
-              </svg>
+              {isPeerChat ? (
+                <div style={{ display:'flex', alignItems:'center', gap:4 }}>
+                  <div style={{ width:7, height:7, borderRadius:'50%', background:peerChat.status === 'Online now' ? '#2ecc71' : '#c7cbd4' }} />
+                  <div style={{ width:4, height:4, borderRadius:'50%', background:'rgba(20,20,19,0.2)' }} />
+                </div>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="9" cy="4" r="1.4" fill="#141413"/>
+                  <circle cx="9" cy="9" r="1.4" fill="#141413"/>
+                  <circle cx="9" cy="14" r="1.4" fill="#141413"/>
+                </svg>
+              )}
             </div>
           </div>
 
           {/* Messages — orb is first child so it scrolls away naturally */}
           <div ref={messagesRef} className="hide-scrollbar" data-chat-scroll="1" style={{ position:'relative', zIndex:2, flex:1, overflowY:'auto', display:'flex', flexDirection:'column', gap:4, paddingTop:0, paddingLeft:0, paddingRight:0, background:'transparent', scrollbarWidth:'none', msOverflowStyle:'none' }}>
 
-            {/* Orb section — scrolls with content, disappears as conversation grows */}
-            <div style={{ flexShrink:0, position:'relative', height:176, overflow:'hidden', pointerEvents:'none', background:'transparent' }}>
-              {/* Pattern centered on orb ball (ball center ≈ 98px from section top) */}
-              <div style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-50%,-50%) translateY(-24px)', width:318, height:310, opacity:0.82 }}>
-                <img alt="" src={imgAiPattern} style={{ width:'100%', height:'100%', display:'block' }} />
-              </div>
-              {/* Orb 155px wrapper — horizontally centered */}
-              <div style={{ position:'absolute', top:0, left:'calc(50% - 68px)', width:136, height:136 }}>
-                <div style={{ position:'absolute', top:18.5, left:18.5, width:117.5, height:117.5, borderRadius:58.75, background:'rgba(255,255,255,0.72)', border:'2px solid rgba(255,255,255,0.5)', boxShadow:'0 64px 250px 0 #ef8c5a, 0 24px 54px 0 rgba(255,255,255,0.10), 0 3px 120px 0 #ccebff', overflow:'hidden' }}>
-                  <div style={{ position:'absolute', top:-1.24, left:-1.24, width:115.984, height:115.984, background:'rgba(255,255,255,0.28)' }} />
-                  <div style={{ position:'absolute', top:22, left:8, width:102.242, height:75.127, overflow:'visible' }}>
-                    <img alt="" src={imgAiMaskGroup} style={{ position:'absolute', top:'-29.16%', left:'-21.43%', width:'142.86%', height:'158.32%', display:'block', maxWidth:'none' }} />
+            {isPeerChat ? (
+              <div style={{ flexShrink:0, padding:'18px 20px 8px' }}>
+                <div style={{ background:'linear-gradient(180deg, rgba(255,255,255,0.92), rgba(248,249,253,0.96))', border:'1px solid rgba(20,20,19,0.05)', borderRadius:26, padding:'18px 18px 16px', boxShadow:'0 16px 34px rgba(20,20,19,0.06)' }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                    <div style={{ width:44, height:44, borderRadius:22, background:peerChat.color, display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'inset 0 1px 0 rgba(255,255,255,0.42)', position:'relative', flexShrink:0 }}>
+                      <span style={{ fontSize:18, fontWeight:800, color:'rgba(20,20,19,0.44)', fontFamily:SF }}>{peerChat.initial}</span>
+                      <div style={{ position:'absolute', right:1, bottom:1, width:10, height:10, borderRadius:5, background:peerChat.status === 'Online now' ? '#2ecc71' : '#c7cbd4', border:'2px solid white' }} />
+                    </div>
+                    <div style={{ minWidth:0 }}>
+                      <p style={{ margin:0, color:'#141413', fontSize:15, fontWeight:800, letterSpacing:'-0.24px', fontFamily:SF }}>{peerChat.name}</p>
+                      <p style={{ margin:'3px 0 0', color:peerChat.status === 'Online now' ? '#22b66f' : 'rgba(20,20,19,0.42)', fontSize:12.5, fontWeight:700, fontFamily:SF }}>{peerChat.status}</p>
+                    </div>
                   </div>
-                  <div style={{ position:'absolute', top:5.76, left:8.17, width:53.065, height:43.968, filter:'blur(3.79px)', background:'radial-gradient(circle at center, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.6) 45%, transparent 100%)' }} />
-                  <div style={{ position:'absolute', top:94.01, left:75.18, width:25.774, height:13.645, filter:'blur(2.274px)', background:'radial-gradient(circle at center, rgba(255,255,255,0.6) 0%, transparent 100%)' }} />
-                  <div style={{ position:'absolute', top:-1.24, left:-1.24, width:115.984, height:115.984, borderRadius:57.992, background:'linear-gradient(145deg, rgba(255,255,255,0.22) 6.17%, rgba(255,255,255,0) 45.62%)' }} />
+                  <p style={{ margin:'14px 0 0', color:'rgba(20,20,19,0.62)', fontSize:12.5, lineHeight:1.45, fontWeight:600, fontFamily:SF }}>{peerChat.subtitle}</p>
                 </div>
               </div>
-              {/* Fade to white at bottom */}
-              <div style={{ position:'absolute', bottom:0, left:0, right:0, height:84, background:'linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.92) 58%, white 88%)' }} />
-            </div>
+            ) : (
+              <div style={{ flexShrink:0, position:'relative', height:176, overflow:'hidden', pointerEvents:'none', background:'transparent' }}>
+                <div style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-50%,-50%) translateY(-24px)', width:318, height:310, opacity:0.82 }}>
+                  <img alt="" src={imgAiPattern} style={{ width:'100%', height:'100%', display:'block' }} />
+                </div>
+                <div style={{ position:'absolute', top:0, left:'calc(50% - 68px)', width:136, height:136 }}>
+                  <div style={{ position:'absolute', top:18.5, left:18.5, width:117.5, height:117.5, borderRadius:58.75, background:'rgba(255,255,255,0.72)', border:'2px solid rgba(255,255,255,0.5)', boxShadow:'0 64px 250px 0 #ef8c5a, 0 24px 54px 0 rgba(255,255,255,0.10), 0 3px 120px 0 #ccebff', overflow:'hidden' }}>
+                    <div style={{ position:'absolute', top:-1.24, left:-1.24, width:115.984, height:115.984, background:'rgba(255,255,255,0.28)' }} />
+                    <div style={{ position:'absolute', top:22, left:8, width:102.242, height:75.127, overflow:'visible' }}>
+                      <img alt="" src={imgAiMaskGroup} style={{ position:'absolute', top:'-29.16%', left:'-21.43%', width:'142.86%', height:'158.32%', display:'block', maxWidth:'none' }} />
+                    </div>
+                    <div style={{ position:'absolute', top:5.76, left:8.17, width:53.065, height:43.968, filter:'blur(3.79px)', background:'radial-gradient(circle at center, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.6) 45%, transparent 100%)' }} />
+                    <div style={{ position:'absolute', top:94.01, left:75.18, width:25.774, height:13.645, filter:'blur(2.274px)', background:'radial-gradient(circle at center, rgba(255,255,255,0.6) 0%, transparent 100%)' }} />
+                    <div style={{ position:'absolute', top:-1.24, left:-1.24, width:115.984, height:115.984, borderRadius:57.992, background:'linear-gradient(145deg, rgba(255,255,255,0.22) 6.17%, rgba(255,255,255,0) 45.62%)' }} />
+                  </div>
+                </div>
+                <div style={{ position:'absolute', bottom:0, left:0, right:0, height:84, background:'linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.92) 58%, white 88%)' }} />
+              </div>
+            )}
 
             <div style={{ paddingLeft:20, paddingRight:20, display:'flex', flexDirection:'column', gap:4 }}>
             {messages.map((msg, i) => {
@@ -1613,7 +1682,7 @@
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={e => { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
-                  placeholder="Ask me anything..."
+                  placeholder={isPeerChat ? `Message ${peerChat.name.split(' ')[0]}...` : "Ask me anything..."}
                   rows={1}
                   className="hide-scrollbar"
                   style={{ display:'block', width:'100%', border:'none', outline:'none', background:'transparent', fontFamily:ID, fontSize:12.5, color:'#0d0d12', resize:'none', lineHeight:1.28, maxHeight:88, overflowY:'auto', paddingTop:2, scrollbarWidth:'none', msOverflowStyle:'none' }}
